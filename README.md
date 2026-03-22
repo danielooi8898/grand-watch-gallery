@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Grand Watch Gallery — Website
+
+Modern luxury watch website for Grand Watch Gallery, Kuala Lumpur.
+
+## Tech Stack
+- **Next.js 16** (App Router)
+- **Tailwind CSS 4**
+- **Supabase** (database for forms)
+- **Vercel** (deployment)
+
+## Pages
+- `/` — Home (hero, featured collection, brands, testimonials)
+- `/collection` — Filterable watch gallery
+- `/brands` — All luxury brands
+- `/trade-in` — Trade-in & sell form
+- `/appointment` — Book a private viewing
+- `/blog` — The Journal
+- `/careers` — Work with us
+- `/partners` — Partner with us
+- `/contact` — Contact & location
 
 ## Getting Started
 
-First, run the development server:
+### 1. Set up Supabase
+1. Open [supabase.com](https://supabase.com) → your project
+2. Go to **SQL Editor** and run the contents of `supabase-setup.sql`
+3. Go to **Settings → API** and copy your Project URL and anon key
 
+### 2. Configure Environment Variables
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.local.example .env.local
 ```
+Then edit `.env.local` with your Supabase credentials.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 3. Run Locally
+```bash
+npm install
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+### 4. Deploy to Vercel
+1. Push this folder to a new GitHub repository
+2. Go to [vercel.com](https://vercel.com) → **Add New Project** → import your repo
+3. Add your environment variables in Vercel project settings
+4. Deploy!
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Customisation
+- **Colors** — Edit CSS variables in `src/app/globals.css`
+- **Watch inventory** — Edit the `allWatches` array in `src/app/collection/page.js`
+- **Brands** — Edit `src/app/brands/page.js`
+- **Contact info** — Phone/WhatsApp numbers are in `src/components/Navbar.js`, `Footer.js`, `WhatsAppButton.js`
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Contact Info in Code
+- Phone: +6016-682 4848
+- WhatsApp: +6016-224 1804
+- Instagram: @gwg_gallery
+- Facebook: @GWGmy
