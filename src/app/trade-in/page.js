@@ -1,12 +1,23 @@
-﻿'use client'
+'use client'
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { ArrowRight, CheckCircle } from 'lucide-react'
 
+const labelStyle = {
+  fontFamily: 'var(--sans)',
+  fontSize: '0.7rem',
+  fontWeight: 600,
+  letterSpacing: '0.22em',
+  textTransform: 'uppercase',
+  color: '#B08D57',
+  display: 'block',
+  marginBottom: '0.6rem',
+}
+
 const steps = [
-  { n: '01', title: 'Submit Details', desc: 'Fill out the form below with your watch details.' },
-  { n: '02', title: 'We Assess',      desc: 'Our experts review and provide a competitive valuation within 24 hours.' },
-  { n: '03', title: 'Get Paid',       desc: 'Accept our offer and receive payment swiftly and securely.' },
+  { n: '01', title: 'Submit Details', desc: 'Fill out the form below with your watch details — brand, model, condition, and any relevant history.' },
+  { n: '02', title: 'We Assess',      desc: 'Our experts review your submission and provide a competitive, transparent valuation within 24 hours.' },
+  { n: '03', title: 'Get Paid',       desc: 'Accept our offer and receive payment swiftly and securely. No hassle, no hidden fees.' },
 ]
 
 export default function TradeInPage() {
@@ -28,25 +39,50 @@ export default function TradeInPage() {
 
   return (
     <>
-      {/* Header */}
-      <section className="pt-28 pb-10 md:pt-36 md:pb-14 border-b border-[#0d0d0d]">
+      {/* Header — explicit padding to clear fixed 72px navbar */}
+      <section style={{ paddingTop: '9rem', paddingBottom: '4rem', background: '#0A0A0A', borderBottom: '1px solid #1a1a1a' }}>
         <div className="container">
-          <p className="eyebrow mb-3">Sell or Exchange</p>
-          <h1 className="heading">Trade-In Programme</h1>
-          <div className="rule mt-6 mb-4" />
-          <p className="body-sm max-w-lg mt-4">We offer competitive, transparent valuations for pre-owned luxury watches. No obligation â€” just honest pricing from experts who care.</p>
+          <p style={{ fontFamily: 'var(--sans)', fontSize: '0.72rem', letterSpacing: '0.35em', textTransform: 'uppercase', color: '#B08D57', marginBottom: '1rem' }}>
+            Sell or Exchange
+          </p>
+          <h1 style={{ fontFamily: 'var(--sans)', fontWeight: 900, fontSize: 'clamp(2.5rem,6vw,5rem)', color: '#fff', textTransform: 'uppercase', lineHeight: 1, letterSpacing: '-0.01em', marginBottom: '1.5rem' }}>
+            Trade-In Programme
+          </h1>
+          <p style={{ fontFamily: 'var(--sans)', fontSize: '1rem', color: '#888', lineHeight: 1.8, fontWeight: 300, maxWidth: '480px' }}>
+            We offer competitive, transparent valuations for pre-owned luxury watches. No obligation — just honest pricing from experts who care.
+          </p>
         </div>
       </section>
 
-      {/* Steps */}
-      <section className="border-b border-[#0d0d0d]">
+      {/* Steps — 3 clear numbered steps */}
+      <section style={{ background: '#0D0D0D', padding: '5rem 0', borderBottom: '1px solid #1a1a1a' }}>
         <div className="container">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-[#0d0d0d]">
-            {steps.map(({ n, title, desc }) => (
-              <div key={n} className="bg-black p-8 md:p-10">
-                <div className="serif font-light mb-6" style={{ fontSize: '3.5rem', lineHeight: 1, color: '#B08D57', opacity: 0.4 }}>{n}</div>
-                <h3 className="text-white text-base font-light serif mb-3">{title}</h3>
-                <p className="body-sm">{desc}</p>
+          <div className="grid grid-cols-1 md:grid-cols-3" style={{ gap: '0' }}>
+            {steps.map(({ n, title, desc }, i) => (
+              <div key={n} style={{
+                padding: '3rem',
+                borderRight: i < 2 ? '1px solid #1a1a1a' : 'none',
+                borderBottom: '1px solid #1a1a1a',
+              }}>
+                {/* Big dim number */}
+                <div style={{
+                  fontFamily: 'var(--sans)',
+                  fontWeight: 900,
+                  fontSize: '5rem',
+                  color: '#B08D57',
+                  opacity: 0.25,
+                  lineHeight: 1,
+                  marginBottom: '2rem',
+                  letterSpacing: '-0.02em',
+                }}>
+                  {n}
+                </div>
+                <h3 style={{ fontFamily: 'var(--sans)', fontWeight: 700, fontSize: '1.1rem', color: '#fff', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1rem' }}>
+                  {title}
+                </h3>
+                <p style={{ fontFamily: 'var(--sans)', fontSize: '0.9rem', color: '#888', lineHeight: 1.8, fontWeight: 300 }}>
+                  {desc}
+                </p>
               </div>
             ))}
           </div>
@@ -54,57 +90,64 @@ export default function TradeInPage() {
       </section>
 
       {/* Form */}
-      <section className="section">
+      <section style={{ background: '#0A0A0A', padding: '6rem 0' }}>
         <div className="container">
-          <div className="max-w-2xl mx-auto">
+          <div style={{ maxWidth: '680px', margin: '0 auto' }}>
             {sent ? (
-              <div className="text-center py-16 md:py-24">
-                <CheckCircle size={40} className="text-white mx-auto mb-6 opacity-50" />
-                <h2 className="heading mb-4" style={{ fontSize: '2rem' }}>Request Received</h2>
-                <p className="body-sm max-w-sm mx-auto">Our team will contact you within one business day with a valuation. For faster response, WhatsApp us directly.</p>
+              <div style={{ textAlign: 'center', padding: '5rem 0' }}>
+                <CheckCircle size={40} style={{ color: '#B08D57', margin: '0 auto 1.5rem' }} />
+                <h2 style={{ fontFamily: 'var(--sans)', fontWeight: 900, fontSize: '2rem', color: '#fff', textTransform: 'uppercase', marginBottom: '1rem' }}>
+                  Request Received
+                </h2>
+                <p style={{ fontFamily: 'var(--sans)', fontSize: '0.95rem', color: '#888', lineHeight: 1.8, maxWidth: '340px', margin: '0 auto' }}>
+                  Our team will contact you within one business day with a valuation. For faster response, WhatsApp us directly.
+                </p>
               </div>
             ) : (
               <>
-                <p className="eyebrow mb-8 md:mb-10">Watch Details</p>
-                <form onSubmit={submit} className="space-y-4">
-                  {/* Contact */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <p style={{ fontFamily: 'var(--sans)', fontSize: '0.72rem', letterSpacing: '0.35em', textTransform: 'uppercase', color: '#B08D57', marginBottom: '2.5rem' }}>
+                  Watch Details
+                </p>
+                <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+
+                  {/* Contact info */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: '1.5rem' }}>
                     <div>
-                      <label className="eyebrow block mb-2">Your Name *</label>
+                      <label style={labelStyle}>Your Name *</label>
                       <input className="input" name="name" value={form.name} onChange={set} required placeholder="Full name" />
                     </div>
                     <div>
-                      <label className="eyebrow block mb-2">Email *</label>
+                      <label style={labelStyle}>Email *</label>
                       <input className="input" name="email" type="email" value={form.email} onChange={set} required />
                     </div>
                     <div className="sm:col-span-2">
-                      <label className="eyebrow block mb-2">Phone / WhatsApp *</label>
+                      <label style={labelStyle}>Phone / WhatsApp *</label>
                       <input className="input" name="phone" value={form.phone} onChange={set} required placeholder="+601X-XXX XXXX" />
                     </div>
                   </div>
 
-                  <div className="border-t border-[#0d0d0d] pt-4" />
+                  <div style={{ borderTop: '1px solid #1a1a1a', paddingTop: '1.5rem' }} />
 
                   {/* Watch details */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: '1.5rem' }}>
                     <div>
-                      <label className="eyebrow block mb-2">Brand *</label>
+                      <label style={labelStyle}>Brand *</label>
                       <input className="input" name="brand" value={form.brand} onChange={set} required placeholder="e.g. Rolex" />
                     </div>
                     <div>
-                      <label className="eyebrow block mb-2">Model *</label>
+                      <label style={labelStyle}>Model *</label>
                       <input className="input" name="model" value={form.model} onChange={set} required placeholder="e.g. Submariner" />
                     </div>
                     <div>
-                      <label className="eyebrow block mb-2">Reference Number</label>
+                      <label style={labelStyle}>Reference Number</label>
                       <input className="input" name="ref" value={form.ref} onChange={set} placeholder="e.g. 126610LN" />
                     </div>
                     <div>
-                      <label className="eyebrow block mb-2">Year</label>
+                      <label style={labelStyle}>Year</label>
                       <input className="input" name="year" value={form.year} onChange={set} placeholder="e.g. 2021" />
                     </div>
                     <div>
-                      <label className="eyebrow block mb-2">Condition *</label>
+                      <label style={labelStyle}>Condition *</label>
                       <select className="input" name="condition" value={form.condition} onChange={set} required>
                         <option value="">Select condition</option>
                         <option>Mint / Unworn</option>
@@ -115,7 +158,7 @@ export default function TradeInPage() {
                       </select>
                     </div>
                     <div>
-                      <label className="eyebrow block mb-2">Box & Papers</label>
+                      <label style={labelStyle}>Box & Papers</label>
                       <select className="input" name="papers" value={form.papers} onChange={set}>
                         <option value="">Select</option>
                         <option>Full Set (Box + Papers)</option>
@@ -127,12 +170,14 @@ export default function TradeInPage() {
                   </div>
 
                   <div>
-                    <label className="eyebrow block mb-2">Additional Notes</label>
-                    <textarea className="input h-28 resize-none" name="notes" value={form.notes} onChange={set}
-                      placeholder="Any other details â€” servicing history, modifications, urgency, etc." />
+                    <label style={labelStyle}>Additional Notes</label>
+                    <textarea className="input resize-none" name="notes" value={form.notes} onChange={set}
+                      placeholder="Any other details — servicing history, modifications, urgency, etc."
+                      style={{ height: '7rem' }} />
                   </div>
 
-                  <button type="submit" disabled={loading} className="btn btn-white w-full justify-center mt-2">
+                  <button type="submit" disabled={loading}
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', padding: '1.1rem 2rem', background: '#B08D57', color: '#fff', border: 'none', fontFamily: 'var(--sans)', fontSize: '0.72rem', letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 700, cursor: 'pointer', width: '100%', marginTop: '0.5rem' }}>
                     {loading ? 'Submitting...' : <><span>Submit for Valuation</span> <ArrowRight size={13} /></>}
                   </button>
                 </form>
@@ -144,6 +189,3 @@ export default function TradeInPage() {
     </>
   )
 }
-
-
-
