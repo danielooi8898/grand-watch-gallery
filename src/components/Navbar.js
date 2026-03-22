@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -47,11 +47,10 @@ export default function Navbar() {
               width: '52px',
               height: '52px',
               flexShrink: 0,
-              backgroundImage: 'url("/GWG_LOGO.png")',
-              backgroundSize: '116px auto',
-              backgroundPosition: '50% 50%',
+              backgroundImage: 'url("/GWG_LOGO_clean.png")',
+              backgroundSize: '88px auto',
+              backgroundPosition: '-18px -69px',
               backgroundRepeat: 'no-repeat',
-              mixBlendMode: 'screen',
             }} />
             <span style={{
               fontFamily: 'var(--sans)',
