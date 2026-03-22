@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { ArrowRight, ArrowDown } from 'lucide-react'
@@ -6,8 +6,8 @@ import AnimateIn from '@/components/AnimateIn'
 import { useCounter } from '@/hooks/useCounter'
 import { useStickyProgress } from '@/hooks/useStickyProgress'
 
-/* ─── Data ────────────────────────────────────────────── */
-const brands = ['Rolex','Patek Philippe','Audemars Piguet','Richard Mille','Vacheron Constantin','A. Lange & Söhne','IWC Schaffhausen','Omega','Hublot','Panerai','Breguet','Cartier','Chopard','Tudor','MB&F','Jacob & Co']
+/* â”€â”€â”€ Data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+const brands = ['Rolex','Patek Philippe','Audemars Piguet','Richard Mille','Vacheron Constantin','A. Lange & SÃ¶hne','IWC Schaffhausen','Omega','Hublot','Panerai','Breguet','Cartier','Chopard','Tudor','MB&F','Jacob & Co']
 
 const featured = [
   { brand:'Rolex', model:'Submariner Date', ref:'126610LN', price:'MYR 58,000', tag:'In Stock' },
@@ -17,9 +17,9 @@ const featured = [
 ]
 
 const services = [
-  { num:'01', title:'Every Watch Authenticated', body:'Each timepiece is inspected by our in-house experts. We verify serial numbers, movements, dials, and cases — so you buy with absolute confidence.' },
+  { num:'01', title:'Every Watch Authenticated', body:'Each timepiece is inspected by our in-house experts. We verify serial numbers, movements, dials, and cases â€” so you buy with absolute confidence.' },
   { num:'02', title:'Trade-In at Fair Value', body:'Upgrading your collection? We offer competitive, transparent valuations for pre-owned watches. No haggling, no surprises.' },
-  { num:'03', title:'Private Gallery Viewings', body:'Experience our collection one-on-one with an expert. Book an exclusive consultation at our Kuala Lumpur gallery — by appointment only.' },
+  { num:'03', title:'Private Gallery Viewings', body:'Experience our collection one-on-one with an expert. Book an exclusive consultation at our Kuala Lumpur gallery â€” by appointment only.' },
 ]
 
 const testimonials = [
@@ -28,7 +28,7 @@ const testimonials = [
   { name:'James Lim', text:'The best pre-owned watch experience in KL. My Royal Oak arrived perfectly serviced with full authentication documents.' },
 ]
 
-/* ─── Sticky Services Section ─────────────────────────── */
+/* â”€â”€â”€ Sticky Services Section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function StickyServices() {
   const [containerRef, prog] = useStickyProgress()
   const step = prog < 0.35 ? 0 : prog < 0.68 ? 1 : 2
@@ -39,7 +39,7 @@ function StickyServices() {
       <div className="sticky top-0 overflow-hidden flex flex-col md:flex-row"
         style={{ height: '100vh', background: '#0D0D0D' }}>
 
-        {/* Left — Big number */}
+        {/* Left â€” Big number */}
         <div className="hidden md:flex items-center justify-center w-1/3 border-r"
           style={{ borderColor: '#1a1a1a' }}>
           <span className="serif font-light transition-all duration-700"
@@ -48,7 +48,7 @@ function StickyServices() {
           </span>
         </div>
 
-        {/* Right — Content */}
+        {/* Right â€” Content */}
         <div className="flex flex-col justify-center flex-1 px-8 md:px-16 lg:px-24">
           {/* Progress dots */}
           <div className="flex gap-2 mb-10 md:mb-14">
@@ -95,7 +95,7 @@ function StickyServices() {
   )
 }
 
-/* ─── Stat Counter ────────────────────────────────────── */
+/* â”€â”€â”€ Stat Counter â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function StatCounter({ target, suffix = '', label }) {
   const [ref, visible] = [useRef(null), false]
   const [count, start] = useCounter(target)
@@ -114,7 +114,7 @@ function StatCounter({ target, suffix = '', label }) {
 
   return (
     <div ref={inViewRef} className="text-center md:text-left">
-      <div className="serif font-light" style={{ fontSize:'clamp(2.5rem,5vw,4rem)', color:'#111', lineHeight:1 }}>
+      <div className="serif font-light" style={{ fontSize:'clamp(2.5rem,5vw,4rem)', color:'#fff', lineHeight:1 }}>
         {count}{suffix}
       </div>
       <div style={{ fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.25em', textTransform:'uppercase', color:'#B08D57', marginTop:'0.5rem' }}>
@@ -124,7 +124,7 @@ function StatCounter({ target, suffix = '', label }) {
   )
 }
 
-/* ─── Page ────────────────────────────────────────────── */
+/* â”€â”€â”€ Page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 export default function HomePage() {
   const heroRef = useRef(null)
 
@@ -141,7 +141,7 @@ export default function HomePage() {
 
   return (
     <>
-      {/* ── 1. HERO ──────────────────────────────────── */}
+      {/* â”€â”€ 1. HERO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <section className="relative flex flex-col justify-end overflow-hidden"
         style={{ minHeight: '100svh', background: '#0D0D0D' }}>
 
@@ -158,7 +158,7 @@ export default function HomePage() {
         <div className="relative z-10 container pb-16 md:pb-24 pt-32">
           <AnimateIn delay={100}>
             <p style={{ fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.35em', textTransform:'uppercase', color:'#B08D57', marginBottom:'1.5rem' }}>
-              Kuala Lumpur · Est. 2009 · Authenticated Timepieces
+              Kuala Lumpur Â· Est. 2009 Â· Authenticated Timepieces
             </p>
           </AnimateIn>
 
@@ -206,8 +206,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── 2. BRAND STRIP ───────────────────────────── */}
-      <div style={{ borderTop:'1px solid #E4DDD3', borderBottom:'1px solid #E4DDD3', background:'#F8F5EF', overflow:'hidden', padding:'0.875rem 0' }}>
+      {/* â”€â”€ 2. BRAND STRIP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      <div style={{ borderTop:'1px solid #1A1A1A', borderBottom:'1px solid #1A1A1A', background:'#0D0D0D', overflow:'hidden', padding:'0.875rem 0' }}>
         <div style={{ display:'flex', gap:'3.5rem', whiteSpace:'nowrap', animation:'marquee 40s linear infinite', width:'max-content' }}>
           {[...brands,...brands].map((b,i) => (
             <span key={i} style={{ fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#C8B99A', fontWeight:400 }}>{b}</span>
@@ -215,26 +215,26 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ── 3. FEATURED COLLECTION ───────────────────── */}
-      <section className="section" style={{ background:'#F8F5EF' }}>
+      {/* â”€â”€ 3. FEATURED COLLECTION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      <section className="section" style={{ background:'#0D0D0D' }}>
         <div className="container">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12 md:mb-16">
             <AnimateIn>
               <p style={{ fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#B08D57', marginBottom:'0.75rem' }}>Selected Pieces</p>
-              <h2 className="serif font-light" style={{ fontFamily:'var(--serif)', fontSize:'clamp(2rem,3.5vw,2.75rem)', color:'#111', letterSpacing:'-0.01em', lineHeight:1.1 }}>
+              <h2 className="serif font-light" style={{ fontFamily:'var(--serif)', fontSize:'clamp(2rem,3.5vw,2.75rem)', color:'#fff', letterSpacing:'-0.01em', lineHeight:1.1 }}>
                 Featured Collection
               </h2>
             </AnimateIn>
             <Link href="/collection" style={{ fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#B08D57', textDecoration:'none' }}
               className="hidden sm:block">
-              View All →
+              View All â†’
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px" style={{ background:'#E4DDD3' }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px" style={{ background:'#1A1A1A' }}>
             {featured.map((w, i) => (
               <AnimateIn key={w.ref} delay={i * 100} className="bg-white flex flex-col">
-                <div className="aspect-square flex items-center justify-center" style={{ background:'#F8F5EF' }}>
+                <div className="aspect-square flex items-center justify-center" style={{ background:'#0D0D0D' }}>
                   {/* Replace with <img> once real photos are added */}
                   <span className="serif font-light" style={{ fontSize:'5rem', color:'#E4DDD3', lineHeight:1, userSelect:'none' }}>
                     {w.brand.charAt(0)}
@@ -245,12 +245,12 @@ export default function HomePage() {
                     <span style={{ fontFamily:'var(--sans)', fontSize:'0.55rem', letterSpacing:'0.25em', textTransform:'uppercase', color:'#B08D57' }}>{w.brand}</span>
                     <span style={{ fontFamily:'var(--sans)', fontSize:'0.55rem', letterSpacing:'0.1em', textTransform:'uppercase', color:'#bbb', border:'1px solid #E4DDD3', padding:'0.15rem 0.5rem' }}>{w.tag}</span>
                   </div>
-                  <h3 className="serif font-light" style={{ fontFamily:'var(--serif)', fontSize:'1.1rem', color:'#111', marginBottom:'0.25rem' }}>{w.model}</h3>
+                  <h3 className="serif font-light" style={{ fontFamily:'var(--serif)', fontSize:'1.1rem', color:'#fff', marginBottom:'0.25rem' }}>{w.model}</h3>
                   <p style={{ fontFamily:'var(--sans)', fontSize:'0.7rem', color:'#bbb', letterSpacing:'0.05em', marginBottom:'auto', paddingBottom:'1rem' }}>Ref. {w.ref}</p>
-                  <div className="flex items-center justify-between pt-4" style={{ borderTop:'1px solid #F0EAE0' }}>
-                    <span style={{ fontFamily:'var(--serif)', fontSize:'1rem', color:'#111', fontWeight:400 }}>{w.price}</span>
+                  <div className="flex items-center justify-between pt-4" style={{ borderTop:'1px solid #1A1A1A' }}>
+                    <span style={{ fontFamily:'var(--serif)', fontSize:'1rem', color:'#fff', fontWeight:400 }}>{w.price}</span>
                     <Link href="/contact" style={{ fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.15em', textTransform:'uppercase', color:'#B08D57', textDecoration:'none' }}>
-                      Enquire →
+                      Enquire â†’
                     </Link>
                   </div>
                 </div>
@@ -264,20 +264,20 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── 4. STICKY SERVICES (Apple-style pin) ─────── */}
+      {/* â”€â”€ 4. STICKY SERVICES (Apple-style pin) â”€â”€â”€â”€â”€â”€â”€ */}
       <StickyServices />
 
-      {/* ── 5. SPOTLIGHT ─────────────────────────────── */}
-      <section className="section" style={{ background:'#fff' }}>
+      {/* â”€â”€ 5. SPOTLIGHT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      <section className="section" style={{ background:'#0D0D0D' }}>
         <div className="container">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-px" style={{ background:'#E4DDD3' }}>
-            <AnimateIn direction="left" className="flex items-center justify-center" style={{ background:'#F8F5EF', minHeight:'360px' }}>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-px" style={{ background:'#1A1A1A' }}>
+            <AnimateIn direction="left" className="flex items-center justify-center" style={{ background:'#0D0D0D', minHeight:'360px' }}>
               <span className="serif font-light" style={{ fontSize:'clamp(6rem,14vw,14rem)', color:'#E4DDD3', lineHeight:1, userSelect:'none' }}>PP</span>
             </AnimateIn>
             <AnimateIn direction="right" className="bg-white p-10 md:p-14 lg:p-16 flex flex-col justify-center">
               <p style={{ fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#B08D57', marginBottom:'1.5rem' }}>Piece of the Month</p>
               <p style={{ fontFamily:'var(--sans)', fontSize:'0.65rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#bbb', marginBottom:'0.75rem' }}>Patek Philippe</p>
-              <h2 className="serif font-light" style={{ fontFamily:'var(--serif)', fontSize:'clamp(1.75rem,3vw,2.5rem)', color:'#111', lineHeight:1.1, marginBottom:'1.5rem' }}>
+              <h2 className="serif font-light" style={{ fontFamily:'var(--serif)', fontSize:'clamp(1.75rem,3vw,2.5rem)', color:'#fff', lineHeight:1.1, marginBottom:'1.5rem' }}>
                 Nautilus<br />5711/1A-010
               </h2>
               <div style={{ width:'36px', height:'1px', background:'#B08D57', marginBottom:'1.5rem' }} />
@@ -286,9 +286,9 @@ export default function HomePage() {
               </p>
               <div className="grid grid-cols-2 gap-3 mb-8">
                 {[['Year','2022'],['Condition','Mint'],['Papers','Full Set'],['Movement','Cal. 26-330 S C']].map(([k,v]) => (
-                  <div key={k} style={{ borderTop:'1px solid #E4DDD3', paddingTop:'0.75rem' }}>
+                  <div key={k} style={{ borderTop:'1px solid #1A1A1A', paddingTop:'0.75rem' }}>
                     <p style={{ fontFamily:'var(--sans)', fontSize:'0.55rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#bbb', marginBottom:'0.3rem' }}>{k}</p>
-                    <p style={{ fontFamily:'var(--sans)', fontSize:'0.8rem', color:'#111', fontWeight:400 }}>{v}</p>
+                    <p style={{ fontFamily:'var(--sans)', fontSize:'0.8rem', color:'#fff', fontWeight:400 }}>{v}</p>
                   </div>
                 ))}
               </div>
@@ -298,10 +298,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── 6. STATS ─────────────────────────────────── */}
-      <section className="section" style={{ background:'#F8F5EF', borderTop:'1px solid #E4DDD3', borderBottom:'1px solid #E4DDD3' }}>
+      {/* â”€â”€ 6. STATS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      <section className="section" style={{ background:'#0D0D0D', borderTop:'1px solid #1A1A1A', borderBottom:'1px solid #1A1A1A' }}>
         <div className="container">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 md:gap-0 sm:divide-x" style={{ '--tw-divide-opacity':1, borderColor:'#E4DDD3' }}>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 md:gap-0 sm:divide-x" style={{ '--tw-divide-opacity':1, borderColor:'#1A1A1A' }}>
             {[{target:500,suffix:'+',label:'Watches Sold'},{target:17,suffix:'',label:'Luxury Brands'},{target:15,suffix:'+',label:'Years in KL'}].map(s => (
               <div key={s.label} className="flex flex-col items-center sm:items-start sm:px-12 text-center sm:text-left">
                 <StatCounter target={s.target} suffix={s.suffix} label={s.label} />
@@ -311,8 +311,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── 7. TESTIMONIALS ──────────────────────────── */}
-      <section className="section" style={{ background:'#fff' }}>
+      {/* â”€â”€ 7. TESTIMONIALS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      <section className="section" style={{ background:'#0D0D0D' }}>
         <div className="container">
           <AnimateIn className="mb-12 md:mb-16">
             <p style={{ fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#B08D57' }}>Client Stories</p>
@@ -324,14 +324,14 @@ export default function HomePage() {
                   "{t.text}"
                 </p>
                 <div style={{ width:'24px', height:'1px', background:'#B08D57', marginBottom:'0.75rem' }} />
-                <p style={{ fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#B08D57' }}>— {t.name}</p>
+                <p style={{ fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#B08D57' }}>â€” {t.name}</p>
               </AnimateIn>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── 8. CTA ───────────────────────────────────── */}
+      {/* â”€â”€ 8. CTA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <section className="section" style={{ background:'#0D0D0D' }}>
         <div className="container">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
@@ -363,3 +363,4 @@ export default function HomePage() {
     </>
   )
 }
+

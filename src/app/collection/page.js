@@ -1,7 +1,7 @@
 'use client'
 import { useState, useMemo, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import { ArrowRight, SlidersHorizontal, X, Plus, Pencil, Trash2, Loader2 } from 'lucide-react'
+import { ArrowRight, X, Plus, Pencil, Trash2, Loader2, Search } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
 
@@ -19,13 +19,11 @@ export default function CollectionPage() {
   const [watches, setWatches]       = useState([])
   const [loading, setLoading]       = useState(true)
   const [brand, setBrand]           = useState('All')
-  const [type, setType]             = useState('All')
   const [sort, setSort]             = useState('Default')
   const [search, setSearch]         = useState('')
-  const [showFilter, setShowFilter] = useState(false)
+  const [showFilters, setShowFilters] = useState(false)
 
-  // Modal state
-  const [modal, setModal]           = useState(null) // null | 'add' | 'edit'
+  const [modal, setModal]           = useState(null)
   const [editWatch, setEditWatch]   = useState(EMPTY_WATCH)
   const [saving, setSaving]         = useState(false)
   const [deleteId, setDeleteId]     = useState(null)
@@ -34,9 +32,7 @@ export default function CollectionPage() {
   const fetchWatches = useCallback(async () => {
     setLoading(true)
     const { data, error } = await supabase
-      .from('watches')
-      .select('*')
-      .eq('is_sold', false)
+      .from('watches').select('*').eq('is_sold', false)
       .order('created_at', { ascending: false })
     if (!error) setWatches(data || [])
     setLoading(false)
@@ -48,70 +44,42 @@ export default function CollectionPage() {
 
   const filtered = useMemo(() => {
     let list = watches
-    if (brand !== 'All')  list = list.filter(w => w.brand === brand)
-    if (type  !== 'All')  list = list.filter(w => w.type  === type)
-    if (search)           list = list.filter(w =>
+    if (brand !== 'All') list = list.filter(w => w.brand === brand)
+    if (search) list = list.filter(w =>
       `${w.brand} ${w.model} ${w.reference}`.toLowerCase().includes(search.toLowerCase()))
     if (sort === 'Price: Low to High')  list = [...list].sort((a,b) => a.price - b.price)
     if (sort === 'Price: High to Low')  list = [...list].sort((a,b) => b.price - a.price)
     if (sort === 'Newest First')        list = [...list].sort((a,b) => b.year - a.year)
     return list
-  }, [watches, brand, type, sort, search])
+  }, [watches, brand, sort, search])
 
   const fmt = (n) => `MYR ${Number(n).toLocaleString()}`
 
-  // ── Admin handlers ──────────────────────────────────────────
-  function openAdd() {
-    setEditWatch(EMPTY_WATCH)
-    setError('')
-    setModal('add')
-  }
-
+  function openAdd()  { setEditWatch(EMPTY_WATCH); setError(''); setModal('add') }
   function openEdit(w) {
-    setEditWatch({
-      ...w,
-      features: Array.isArray(w.features) ? w.features.join(', ') : (w.features || ''),
-    })
-    setError('')
-    setModal('edit')
+    setEditWatch({ ...w, features: Array.isArray(w.features) ? w.features.join(', ') : (w.features || '') })
+    setError(''); setModal('edit')
   }
 
   async function handleSave() {
-    if (!editWatch.brand || !editWatch.model) {
-      setError('Brand and model are required.')
-      return
-    }
-    setSaving(true)
-    setError('')
+    if (!editWatch.brand || !editWatch.model) { setError('Brand and model are required.'); return }
+    setSaving(true); setError('')
     const payload = {
-      brand: editWatch.brand.trim(),
-      model: editWatch.model.trim(),
+      brand: editWatch.brand.trim(), model: editWatch.model.trim(),
       reference: editWatch.reference?.trim() || null,
       price: parseFloat(editWatch.price) || null,
       condition: editWatch.condition || 'excellent',
       year: parseInt(editWatch.year) || null,
       description: editWatch.description?.trim() || null,
-      features: editWatch.features
-        ? editWatch.features.split(',').map(f => f.trim()).filter(Boolean)
-        : [],
+      features: editWatch.features ? editWatch.features.split(',').map(f => f.trim()).filter(Boolean) : [],
       is_featured: Boolean(editWatch.is_featured),
       is_sold: Boolean(editWatch.is_sold),
       updated_at: new Date().toISOString(),
     }
-
     let err
-    if (modal === 'add') {
-      ;({ error: err } = await supabase.from('watches').insert(payload))
-    } else {
-      ;({ error: err } = await supabase.from('watches').update(payload).eq('id', editWatch.id))
-    }
-
-    if (err) {
-      setError(err.message)
-    } else {
-      setModal(null)
-      fetchWatches()
-    }
+    if (modal === 'add') { ;({ error: err } = await supabase.from('watches').insert(payload)) }
+    else { ;({ error: err } = await supabase.from('watches').update(payload).eq('id', editWatch.id)) }
+    if (err) { setError(err.message) } else { setModal(null); fetchWatches() }
     setSaving(false)
   }
 
@@ -122,163 +90,237 @@ export default function CollectionPage() {
     setDeleteId(null)
   }
 
-  // ── Render ───────────────────────────────────────────────────
   return (
-    <>
-      {/* Header */}
-      <section className="pt-28 pb-10 md:pt-36 md:pb-14 border-b border-[#0d0d0d]">
-        <div className="container flex items-end justify-between">
-          <div>
-            <p className="eyebrow mb-3">Curated Inventory</p>
-            <h1 className="heading">The Collection</h1>
+    <div style={{ background: '#0A0A0A', minHeight: '100vh' }}>
+
+      {/* ── Header ── */}
+      <section style={{ paddingTop: '8rem', paddingBottom: '3rem', borderBottom: '1px solid #1A1A1A' }}>
+        <div className="container">
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+            <div>
+              <p className="eyebrow mb-5">Curated Inventory</p>
+              <h1 style={{
+                fontFamily: 'var(--sans)',
+                fontWeight: 900,
+                fontSize: 'clamp(3rem, 7vw, 7rem)',
+                lineHeight: 0.9,
+                letterSpacing: '-0.03em',
+                textTransform: 'uppercase',
+                color: '#fff',
+              }}>
+                The<br />Collection
+              </h1>
+            </div>
+            {isAdmin && (
+              <button onClick={openAdd} className="btn btn-gold" style={{ alignSelf: 'flex-end' }}>
+                <Plus size={14} /> Add Watch
+              </button>
+            )}
           </div>
-          {isAdmin && (
-            <button
-              onClick={openAdd}
-              className="flex items-center gap-2 btn btn-gold mb-2"
-              style={{ fontSize: '0.65rem', padding: '0.5rem 1rem' }}
-            >
-              <Plus size={13} /> Add Watch
-            </button>
-          )}
         </div>
       </section>
 
-      {/* Filters */}
-      <section className="border-b border-[#0d0d0d] sticky top-16 z-40 bg-black">
-        <div className="container">
-          {/* Mobile toggle */}
-          <div className="flex items-center justify-between py-3 md:hidden">
-            <span className="eyebrow">{filtered.length} piece{filtered.length !== 1 ? 's' : ''}</span>
-            <button
-              onClick={() => setShowFilter(v => !v)}
-              className="flex items-center gap-2 eyebrow hover:text-white transition-colors"
-              style={{ fontSize: '0.6rem' }}
-            >
-              {showFilter ? <><X size={12} /> Close</> : <><SlidersHorizontal size={12} /> Filter</>}
-            </button>
-          </div>
-
-          {/* Mobile panel */}
-          {showFilter && (
-            <div className="pb-4 md:hidden space-y-4">
-              <input className="input" placeholder="Search brand or model..." value={search} onChange={e => setSearch(e.target.value)} />
-              <div>
-                <p className="eyebrow mb-2" style={{fontSize:'0.55rem'}}>Brand</p>
-                <select className="input" value={brand} onChange={e => setBrand(e.target.value)}>
-                  {allBrands.map(b => <option key={b}>{b}</option>)}
-                </select>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <p className="eyebrow mb-2" style={{fontSize:'0.55rem'}}>Sort</p>
-                  <select className="input" value={sort} onChange={e => setSort(e.target.value)}>
-                    {sortOpts.map(s => <option key={s}>{s}</option>)}
-                  </select>
-                </div>
-              </div>
+      {/* ── Filters ── */}
+      <section style={{ borderBottom: '1px solid #1A1A1A', position: 'sticky', top: '68px', zIndex: 40, background: '#0A0A0A' }}>
+        <div className="container" style={{ paddingTop: '1.25rem', paddingBottom: '1.25rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+            {/* Search */}
+            <div style={{ position: 'relative', flex: '1', minWidth: '180px', maxWidth: '260px' }}>
+              <Search size={14} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#444' }} />
+              <input
+                className="input"
+                style={{ paddingLeft: '2.75rem', fontSize: '0.85rem' }}
+                placeholder="Search brand or model..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+              />
             </div>
-          )}
 
-          {/* Desktop inline */}
-          <div className="hidden md:flex items-center gap-4 py-3 flex-wrap">
-            <input
+            {/* Brand filter */}
+            <select
               className="input"
-              style={{ maxWidth: '200px' }}
-              placeholder="Search..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-            />
-            <select className="input" style={{ maxWidth: '160px' }} value={brand} onChange={e => setBrand(e.target.value)}>
+              style={{ maxWidth: '180px', fontSize: '0.85rem' }}
+              value={brand}
+              onChange={e => setBrand(e.target.value)}
+            >
               {allBrands.map(b => <option key={b}>{b}</option>)}
             </select>
-            <select className="input" style={{ maxWidth: '180px' }} value={sort} onChange={e => setSort(e.target.value)}>
+
+            {/* Sort */}
+            <select
+              className="input"
+              style={{ maxWidth: '200px', fontSize: '0.85rem' }}
+              value={sort}
+              onChange={e => setSort(e.target.value)}
+            >
               {sortOpts.map(s => <option key={s}>{s}</option>)}
             </select>
-            <span className="eyebrow ml-auto">{filtered.length} piece{filtered.length !== 1 ? 's' : ''}</span>
+
+            {/* Count */}
+            <span style={{ marginLeft: 'auto', fontFamily: 'var(--sans)', fontSize: '0.75rem', fontWeight: 400, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#444' }}>
+              {filtered.length} {filtered.length === 1 ? 'Piece' : 'Pieces'}
+            </span>
           </div>
         </div>
       </section>
 
-      {/* Grid */}
-      <section className="section">
+      {/* ── Grid ── */}
+      <section style={{ padding: '4rem 0' }}>
         <div className="container">
           {loading ? (
-            <div className="flex justify-center items-center py-32">
-              <Loader2 size={32} className="text-[#B08D57] animate-spin" />
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '8rem 0' }}>
+              <Loader2 size={32} style={{ color: '#B08D57', animation: 'spin 1s linear infinite' }} />
             </div>
           ) : filtered.length === 0 ? (
-            <div className="text-center py-24">
-              <p className="text-[#222] serif font-light text-3xl mb-4">No results</p>
+            <div style={{ textAlign: 'center', padding: '8rem 0' }}>
+              <p style={{ fontFamily: 'var(--sans)', fontWeight: 800, fontSize: '2rem', letterSpacing: '-0.02em', textTransform: 'uppercase', color: '#222', marginBottom: '1.5rem' }}>
+                No Results
+              </p>
               <button
-                onClick={() => { setBrand('All'); setType('All'); setSearch('') }}
+                onClick={() => { setBrand('All'); setSearch('') }}
                 className="eyebrow hover:text-white transition-colors"
-                style={{fontSize:'0.6rem'}}
               >
-                Clear filters &rarr;
+                Clear filters →
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-px bg-[#0d0d0d]">
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, 1fr)',
+              gap: '4rem 2rem',
+            }}
+            className="sm:grid-cols-3 lg:grid-cols-4"
+            >
               {filtered.map(w => (
-                <div key={w.id} className="bg-black p-6 hover:bg-[#050505] transition-colors group cursor-pointer relative">
+                <div key={w.id} style={{ position: 'relative' }} className="group">
                   {/* Admin controls */}
                   {isAdmin && (
-                    <div className="absolute top-3 right-3 flex gap-1 z-10">
-                      <button
-                        onClick={() => openEdit(w)}
-                        className="p-1.5 bg-[#111] hover:bg-[#B08D57] transition-colors rounded"
-                        title="Edit"
-                      >
-                        <Pencil size={10} className="text-[#888] hover:text-black" />
+                    <div style={{ position: 'absolute', top: '-0.5rem', right: '-0.5rem', display: 'flex', gap: '0.25rem', zIndex: 10 }}>
+                      <button onClick={() => openEdit(w)}
+                        style={{ padding: '0.375rem', background: '#111', border: '1px solid #222', cursor: 'pointer' }}
+                        className="hover:bg-[#B08D57] transition-colors" title="Edit">
+                        <Pencil size={11} style={{ color: '#888' }} />
                       </button>
-                      <button
-                        onClick={() => handleDelete(w.id)}
-                        disabled={deleteId === w.id}
-                        className="p-1.5 bg-[#111] hover:bg-red-900 transition-colors rounded"
-                        title="Delete"
-                      >
+                      <button onClick={() => handleDelete(w.id)} disabled={deleteId === w.id}
+                        style={{ padding: '0.375rem', background: '#111', border: '1px solid #222', cursor: 'pointer' }}
+                        className="hover:bg-red-900 transition-colors" title="Delete">
                         {deleteId === w.id
-                          ? <Loader2 size={10} className="text-red-400 animate-spin" />
-                          : <Trash2 size={10} className="text-[#888]" />}
+                          ? <Loader2 size={11} style={{ color: '#f87171', animation: 'spin 1s linear infinite' }} />
+                          : <Trash2 size={11} style={{ color: '#888' }} />}
                       </button>
                     </div>
                   )}
 
-                  {/* Image area */}
-                  <div className="aspect-square bg-[#060606] border border-[#0d0d0d] flex items-center justify-center mb-5 overflow-hidden">
+                  {/* Watch image area — RM style: image floats on black */}
+                  <div style={{
+                    aspectRatio: '1',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: '1.5rem',
+                    overflow: 'hidden',
+                    background: 'transparent',
+                  }}>
                     {w.images && w.images[0] ? (
                       <img
                         src={w.images[0]}
                         alt={`${w.brand} ${w.model}`}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        style={{ width: '85%', height: '85%', objectFit: 'contain', transition: 'transform 0.6s ease' }}
+                        className="group-hover:scale-105"
                       />
                     ) : (
-                      <span className="serif font-light text-[#0f0f0f] group-hover:text-[#1a1a1a] transition-colors" style={{ fontSize: '4rem' }}>
-                        {w.brand.charAt(0)}
-                      </span>
+                      <div style={{
+                        width: '80%',
+                        height: '80%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        border: '1px solid #1A1A1A',
+                        background: '#0D0D0D',
+                      }}>
+                        <span style={{
+                          fontFamily: 'var(--sans)',
+                          fontWeight: 900,
+                          fontSize: 'clamp(2.5rem, 6vw, 4rem)',
+                          color: '#1A1A1A',
+                          letterSpacing: '-0.04em',
+                          userSelect: 'none',
+                          transition: 'color 0.3s',
+                        }}
+                        className="group-hover:text-[#2A2A2A]"
+                        >
+                          {w.brand.charAt(0)}
+                        </span>
+                      </div>
                     )}
                   </div>
 
-                  <div className="flex justify-between items-start mb-1">
-                    <span className="eyebrow" style={{fontSize:'0.55rem'}}>{w.brand}</span>
-                    {w.condition && (
-                      <span className="text-[#1a1a1a] text-[9px] tracking-[0.2em] uppercase border border-[#111] px-1.5 py-0.5 capitalize">
-                        {w.condition}
-                      </span>
+                  {/* Watch info */}
+                  <div style={{ textAlign: 'center' }}>
+                    {/* Brand */}
+                    <p style={{
+                      fontFamily: 'var(--sans)',
+                      fontSize: '0.7rem',
+                      fontWeight: 500,
+                      letterSpacing: '0.25em',
+                      textTransform: 'uppercase',
+                      color: '#B08D57',
+                      marginBottom: '0.5rem',
+                    }}>
+                      {w.brand}
+                    </p>
+
+                    {/* Model */}
+                    <h3 style={{
+                      fontFamily: 'var(--sans)',
+                      fontWeight: 700,
+                      fontSize: 'clamp(0.9rem, 1.5vw, 1.1rem)',
+                      letterSpacing: '-0.01em',
+                      textTransform: 'uppercase',
+                      color: '#fff',
+                      lineHeight: 1.2,
+                      marginBottom: '0.4rem',
+                      transition: 'color 0.2s',
+                    }}
+                    className="group-hover:text-[#B08D57]"
+                    >
+                      {w.model}
+                    </h3>
+
+                    {/* Ref + condition */}
+                    {w.reference && (
+                      <p style={{ fontFamily: 'var(--sans)', fontSize: '0.7rem', fontWeight: 400, letterSpacing: '0.15em', color: '#444', marginBottom: '0.75rem' }}>
+                        Ref. {w.reference}
+                      </p>
                     )}
-                  </div>
-                  <h3 className="text-white text-sm font-light serif mb-1">{w.model}</h3>
-                  {w.reference && (
-                    <p className="text-[#1a1a1a] text-[10px] tracking-wider mb-3">Ref. {w.reference}</p>
-                  )}
-                  <div className="flex items-center justify-between border-t border-[#0d0d0d] pt-3">
-                    <span className="text-white text-sm font-light">
-                      {w.price ? fmt(w.price) : 'P.O.A.'}
-                    </span>
-                    <Link href="/contact" className="eyebrow hover:text-white transition-colors" style={{fontSize:'0.55rem'}}>
-                      Enquire &rarr;
-                    </Link>
+
+                    {/* Price + enquire */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', marginTop: '0.75rem' }}>
+                      <span style={{
+                        fontFamily: 'var(--sans)',
+                        fontWeight: 600,
+                        fontSize: '0.9rem',
+                        color: '#fff',
+                        letterSpacing: '0.05em',
+                      }}>
+                        {w.price ? fmt(w.price) : 'P.O.A.'}
+                      </span>
+                      <span style={{ width: '1px', height: '12px', background: '#2A2A2A' }} />
+                      <Link href="/contact" style={{
+                        fontFamily: 'var(--sans)',
+                        fontSize: '0.7rem',
+                        fontWeight: 500,
+                        letterSpacing: '0.2em',
+                        textTransform: 'uppercase',
+                        color: '#B08D57',
+                        textDecoration: 'none',
+                        transition: 'color 0.2s',
+                      }}
+                      className="hover:text-white"
+                      >
+                        Enquire
+                      </Link>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -287,179 +329,118 @@ export default function CollectionPage() {
         </div>
       </section>
 
-      {/* Trade-in CTA */}
-      <section className="border-t border-[#0d0d0d] py-16">
-        <div className="container flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-          <div>
-            <p className="eyebrow mb-2">Selling a watch?</p>
-            <h3 className="text-white serif font-light text-xl">We Buy Pre-Owned Timepieces</h3>
+      {/* ── Trade-in CTA ── */}
+      <section style={{ borderTop: '1px solid #1A1A1A', padding: '5rem 0' }}>
+        <div className="container">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            <div>
+              <p className="eyebrow mb-4">Selling a watch?</p>
+              <h3 style={{
+                fontFamily: 'var(--sans)',
+                fontWeight: 800,
+                fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
+                letterSpacing: '-0.02em',
+                textTransform: 'uppercase',
+                color: '#fff',
+                lineHeight: 1,
+              }}>
+                We Buy Pre-Owned Timepieces
+              </h3>
+            </div>
+            <Link href="/trade-in" className="btn btn-outline self-start">
+              Get a Valuation <ArrowRight size={14} />
+            </Link>
           </div>
-          <Link href="/trade-in" className="btn btn-border whitespace-nowrap">
-            Get a Valuation <ArrowRight size={13} />
-          </Link>
         </div>
       </section>
 
-      {/* ── Add / Edit Modal ── */}
+      {/* ── Admin Modal ── */}
       {modal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(4px)' }}
+          style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', background: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(4px)' }}
           onClick={(e) => { if (e.target === e.currentTarget) setModal(null) }}
         >
-          <div
-            className="w-full max-w-lg max-h-[90vh] overflow-y-auto"
-            style={{ background: '#0a0a0a', border: '1px solid #1a1a1a' }}
-          >
-            {/* Modal header */}
-            <div className="flex items-center justify-between p-6 border-b border-[#1a1a1a]">
-              <h2 className="serif font-light text-white text-lg">
+          <div style={{ width: '100%', maxWidth: '32rem', maxHeight: '90vh', overflowY: 'auto', background: '#0D0D0D', border: '1px solid #1A1A1A' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.5rem', borderBottom: '1px solid #1A1A1A' }}>
+              <h2 style={{ fontFamily: 'var(--sans)', fontWeight: 700, fontSize: '1rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#fff' }}>
                 {modal === 'add' ? 'Add New Watch' : 'Edit Watch'}
               </h2>
-              <button onClick={() => setModal(null)} className="text-[#444] hover:text-white transition-colors">
+              <button onClick={() => setModal(null)} style={{ color: '#444', cursor: 'pointer', background: 'none', border: 'none' }} className="hover:text-white transition-colors">
                 <X size={18} />
               </button>
             </div>
 
-            {/* Modal body */}
-            <div className="p-6 space-y-4">
-              {error && (
-                <p className="text-red-400 text-xs border border-red-900 px-3 py-2">{error}</p>
-              )}
+            <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {error && <p style={{ color: '#f87171', fontSize: '0.8rem', border: '1px solid #7f1d1d', padding: '0.5rem 0.75rem' }}>{error}</p>}
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="eyebrow block mb-1" style={{fontSize:'0.55rem'}}>Brand *</label>
-                  <input
-                    className="input w-full"
-                    value={editWatch.brand}
-                    onChange={e => setEditWatch(p => ({...p, brand: e.target.value}))}
-                    placeholder="e.g. Rolex"
-                  />
-                </div>
-                <div>
-                  <label className="eyebrow block mb-1" style={{fontSize:'0.55rem'}}>Model *</label>
-                  <input
-                    className="input w-full"
-                    value={editWatch.model}
-                    onChange={e => setEditWatch(p => ({...p, model: e.target.value}))}
-                    placeholder="e.g. Submariner Date"
-                  />
-                </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                {[['Brand *','brand','e.g. Rolex'],['Model *','model','e.g. Submariner Date']].map(([lbl,key,ph]) => (
+                  <div key={key}>
+                    <label className="eyebrow block mb-2" style={{ fontSize: '0.65rem' }}>{lbl}</label>
+                    <input className="input" value={editWatch[key]} placeholder={ph}
+                      onChange={e => setEditWatch(p => ({...p, [key]: e.target.value}))} />
+                  </div>
+                ))}
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="eyebrow block mb-1" style={{fontSize:'0.55rem'}}>Reference</label>
-                  <input
-                    className="input w-full"
-                    value={editWatch.reference}
-                    onChange={e => setEditWatch(p => ({...p, reference: e.target.value}))}
-                    placeholder="e.g. 126610LN"
-                  />
-                </div>
-                <div>
-                  <label className="eyebrow block mb-1" style={{fontSize:'0.55rem'}}>Price (MYR)</label>
-                  <input
-                    className="input w-full"
-                    type="number"
-                    value={editWatch.price}
-                    onChange={e => setEditWatch(p => ({...p, price: e.target.value}))}
-                    placeholder="e.g. 65000"
-                  />
-                </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                {[['Reference','reference','e.g. 126610LN'],['Price (MYR)','price','e.g. 65000']].map(([lbl,key,ph]) => (
+                  <div key={key}>
+                    <label className="eyebrow block mb-2" style={{ fontSize: '0.65rem' }}>{lbl}</label>
+                    <input className="input" value={editWatch[key]} placeholder={ph} type={key==='price'?'number':'text'}
+                      onChange={e => setEditWatch(p => ({...p, [key]: e.target.value}))} />
+                  </div>
+                ))}
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                 <div>
-                  <label className="eyebrow block mb-1" style={{fontSize:'0.55rem'}}>Condition</label>
-                  <select
-                    className="input w-full"
-                    value={editWatch.condition}
-                    onChange={e => setEditWatch(p => ({...p, condition: e.target.value}))}
-                  >
-                    {['new','unworn','excellent','good','fair'].map(c => (
-                      <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>
-                    ))}
+                  <label className="eyebrow block mb-2" style={{ fontSize: '0.65rem' }}>Condition</label>
+                  <select className="input" value={editWatch.condition} onChange={e => setEditWatch(p => ({...p, condition: e.target.value}))}>
+                    {['new','unworn','excellent','good','fair'].map(c => <option key={c} value={c}>{c.charAt(0).toUpperCase()+c.slice(1)}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="eyebrow block mb-1" style={{fontSize:'0.55rem'}}>Year</label>
-                  <input
-                    className="input w-full"
-                    type="number"
-                    value={editWatch.year}
-                    onChange={e => setEditWatch(p => ({...p, year: e.target.value}))}
-                    placeholder="e.g. 2023"
-                  />
+                  <label className="eyebrow block mb-2" style={{ fontSize: '0.65rem' }}>Year</label>
+                  <input className="input" type="number" value={editWatch.year} placeholder="e.g. 2023"
+                    onChange={e => setEditWatch(p => ({...p, year: e.target.value}))} />
                 </div>
               </div>
 
               <div>
-                <label className="eyebrow block mb-1" style={{fontSize:'0.55rem'}}>Description</label>
-                <textarea
-                  className="input w-full"
-                  rows={3}
-                  value={editWatch.description}
-                  onChange={e => setEditWatch(p => ({...p, description: e.target.value}))}
-                  placeholder="Watch description..."
+                <label className="eyebrow block mb-2" style={{ fontSize: '0.65rem' }}>Description</label>
+                <textarea className="input" rows={3} value={editWatch.description} placeholder="Watch description..."
                   style={{ resize: 'vertical', minHeight: '80px' }}
-                />
+                  onChange={e => setEditWatch(p => ({...p, description: e.target.value}))} />
               </div>
 
               <div>
-                <label className="eyebrow block mb-1" style={{fontSize:'0.55rem'}}>Features (comma-separated)</label>
-                <input
-                  className="input w-full"
-                  value={editWatch.features}
-                  onChange={e => setEditWatch(p => ({...p, features: e.target.value}))}
-                  placeholder="e.g. Box & Papers, Ceramic Bezel, Date Function"
-                />
+                <label className="eyebrow block mb-2" style={{ fontSize: '0.65rem' }}>Features (comma-separated)</label>
+                <input className="input" value={editWatch.features} placeholder="e.g. Box & Papers, Ceramic Bezel"
+                  onChange={e => setEditWatch(p => ({...p, features: e.target.value}))} />
               </div>
 
-              <div className="flex items-center gap-6">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={editWatch.is_featured}
-                    onChange={e => setEditWatch(p => ({...p, is_featured: e.target.checked}))}
-                    className="accent-[#B08D57]"
-                  />
-                  <span className="eyebrow" style={{fontSize:'0.55rem'}}>Featured</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={editWatch.is_sold}
-                    onChange={e => setEditWatch(p => ({...p, is_sold: e.target.checked}))}
-                    className="accent-[#B08D57]"
-                  />
-                  <span className="eyebrow" style={{fontSize:'0.55rem'}}>Mark as Sold</span>
-                </label>
+              <div style={{ display: 'flex', gap: '1.5rem' }}>
+                {[['is_featured','Featured'],['is_sold','Mark as Sold']].map(([key,lbl]) => (
+                  <label key={key} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={editWatch[key]} onChange={e => setEditWatch(p => ({...p, [key]: e.target.checked}))} style={{ accentColor: '#B08D57' }} />
+                    <span className="eyebrow" style={{ fontSize: '0.65rem' }}>{lbl}</span>
+                  </label>
+                ))}
               </div>
             </div>
 
-            {/* Modal footer */}
-            <div className="flex items-center justify-end gap-3 p-6 border-t border-[#1a1a1a]">
-              <button
-                onClick={() => setModal(null)}
-                className="eyebrow hover:text-white transition-colors px-4 py-2"
-                style={{fontSize:'0.6rem'}}
-              >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.75rem', padding: '1.5rem', borderTop: '1px solid #1A1A1A' }}>
+              <button onClick={() => setModal(null)} className="eyebrow hover:text-white transition-colors" style={{ fontSize: '0.65rem', background: 'none', border: 'none', cursor: 'pointer', padding: '0.5rem 1rem' }}>
                 Cancel
               </button>
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="btn btn-gold flex items-center gap-2"
-                style={{ fontSize: '0.65rem', padding: '0.5rem 1.5rem' }}
-              >
-                {saving ? <><Loader2 size={12} className="animate-spin" /> Saving...</> : modal === 'add' ? 'Add Watch' : 'Save Changes'}
+              <button onClick={handleSave} disabled={saving} className="btn btn-gold" style={{ padding: '0.75rem 1.75rem' }}>
+                {saving ? <><Loader2 size={12} style={{ animation: 'spin 1s linear infinite' }} /> Saving...</> : modal === 'add' ? 'Add Watch' : 'Save Changes'}
               </button>
             </div>
           </div>
         </div>
       )}
-    </>
+    </div>
   )
 }

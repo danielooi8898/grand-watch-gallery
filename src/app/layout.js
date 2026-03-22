@@ -1,4 +1,4 @@
-import { Cormorant_Garamond, Jost } from 'next/font/google'
+import { Barlow } from 'next/font/google'
 import './globals.css'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
@@ -6,13 +6,11 @@ import WhatsAppButton from '@/components/WhatsAppButton'
 import AdminBar from '@/components/AdminBar'
 import { AuthProvider } from '@/context/AuthContext'
 
-const cormorant = Cormorant_Garamond({
-  subsets: ['latin'], variable: '--font-serif',
-  weight: ['300','400','500','600'], display: 'swap',
-})
-const jost = Jost({
-  subsets: ['latin'], variable: '--font-sans',
-  weight: ['200','300','400','500'], display: 'swap',
+const barlow = Barlow({
+  subsets: ['latin'],
+  variable: '--font-sans',
+  weight: ['300', '400', '500', '600', '700', '800', '900'],
+  display: 'swap',
 })
 
 export const metadata = {
@@ -22,7 +20,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${cormorant.variable} ${jost.variable}`} data-scroll-behavior="smooth">
+    <html lang="en" className={barlow.variable} data-scroll-behavior="smooth">
       <body>
         <AuthProvider>
           <AdminBar />
