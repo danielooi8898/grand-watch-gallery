@@ -1,6 +1,6 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 
-/* ── Tokens ──────────────────────────────────────────────── */
+/* â”€â”€ Tokens â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 :root {
   --serif: var(--font-sans), 'Barlow', 'Helvetica Neue', Arial, sans-serif;
   --sans:  var(--font-sans), 'Barlow', 'Helvetica Neue', Arial, sans-serif;
@@ -11,7 +11,7 @@
   --white:   #FFFFFF;
   --text:    #FFFFFF;
   --text-2:  #AAAAAA;
-  --text-3:  #666666;
+  --text-3:  #888888;
   --text-4:  #333333;
   --gold:    #B08D57;
   --gold-lt: #C9A96E;
@@ -27,7 +27,7 @@
   --dark:    #0A0A0A;
 }
 
-/* ── Reset ───────────────────────────────────────────────── */
+/* â”€â”€ Reset â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 body {
@@ -42,7 +42,7 @@ body {
   overflow-x: hidden;
 }
 
-/* ── Typography ──────────────────────────────────────────── */
+/* â”€â”€ Typography â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .serif { font-family: var(--serif); }
 
 .display {
@@ -95,7 +95,7 @@ body {
   font-weight: 300;
 }
 
-/* ── Layout ──────────────────────────────────────────────── */
+/* â”€â”€ Layout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .container {
   width: 100%;
   max-width: 1280px;
@@ -112,7 +112,7 @@ body {
   .section-lg { padding: 12rem 0; }
 }
 
-/* ── Buttons ─────────────────────────────────────────────── */
+/* â”€â”€ Buttons â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -154,7 +154,7 @@ body {
 .btn-ghost { display:inline-flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.75rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;text-decoration:none;padding:1rem 2.25rem;cursor:pointer;transition:all .25s;background:transparent;color:var(--white);border:1px solid var(--border-2); }
 .btn-ghost:hover { border-color:var(--white); }
 
-/* ── Inputs ──────────────────────────────────────────────── */
+/* â”€â”€ Inputs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .input, .input-dark {
   width: 100%;
   padding: 1rem 1.25rem;
@@ -173,7 +173,7 @@ body {
 .input::placeholder, .input-dark::placeholder { color: var(--text-4); }
 .input option, .input-dark option { background: var(--bg-2); color: var(--white); }
 
-/* ── Cards ───────────────────────────────────────────────── */
+/* â”€â”€ Cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .card {
   background: var(--bg-2);
   border: 1px solid var(--border);
@@ -183,32 +183,32 @@ body {
 .card-hover { border: 1px solid var(--border); transition: border-color 0.25s; }
 .card-hover:hover { border-color: var(--border-2); }
 
-/* ── Gold accents ────────────────────────────────────────── */
+/* â”€â”€ Gold accents â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .gold-line    { width: 36px; height: 1px; background: var(--gold); }
 .gold-divider { width: 36px; height: 1px; background: var(--gold); margin: 1rem auto; }
 .rule         { width: 36px; height: 1px; background: var(--border-2); }
 .thin-line    { width: 36px; height: 1px; background: var(--border-2); }
 
-/* ── Legacy aliases ──────────────────────────────────────── */
+/* â”€â”€ Legacy aliases â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .eyebrow       { font-family:var(--sans);font-size:.75rem;font-weight:500;letter-spacing:.28em;text-transform:uppercase;color:var(--gold); }
 .section-label { font-family:var(--sans);font-size:.75rem;font-weight:500;letter-spacing:.28em;text-transform:uppercase;color:var(--gold); }
 .section-title, .heading { font-family:var(--sans);font-weight:800;font-size:clamp(2rem,4vw,4rem);line-height:1.05;letter-spacing:-.02em;text-transform:uppercase;color:var(--white); }
 .body-sm { font-size:.9375rem;color:var(--text-2);line-height:1.75;font-weight:300; }
 .body-xs { font-size:.8125rem;color:var(--text-3);line-height:1.65;font-weight:300; }
 
-/* ── Scrollbar ───────────────────────────────────────────── */
+/* â”€â”€ Scrollbar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: var(--bg-2); }
 ::-webkit-scrollbar-thumb { background: var(--border-2); }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-4); }
 
-/* ── Marquee ─────────────────────────────────────────────── */
+/* â”€â”€ Marquee â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @keyframes marquee {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
 }
 
-/* ── Scroll reveal ───────────────────────────────────────── */
+/* â”€â”€ Scroll reveal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .reveal { opacity:0;transform:translateY(28px);transition:opacity .75s cubic-bezier(.25,.46,.45,.94),transform .75s cubic-bezier(.25,.46,.45,.94); }
 .reveal.visible { opacity:1;transform:translateY(0); }
 .reveal-left { opacity:0;transform:translateX(-32px);transition:opacity .8s ease,transform .8s ease; }
@@ -231,3 +231,4 @@ body {
 
 .footer-social-link:hover { color:#B08D57 !important; }
 .footer-nav-link:hover { color:#fff !important; }
+

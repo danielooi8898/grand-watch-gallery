@@ -1,7 +1,6 @@
-'use client'
+﻿'use client'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 
 const links = [
@@ -10,6 +9,7 @@ const links = [
   { label: 'Trade-In',   href: '/trade-in'   },
   { label: 'Journal',    href: '/blog'        },
   { label: 'Contact',    href: '/contact'     },
+  { label: 'Find Us',    href: '/find-us'    },
 ]
 
 export default function Navbar() {
@@ -39,38 +39,42 @@ export default function Navbar() {
           backdropFilter: scrolled ? 'blur(20px)' : 'none',
         }}
       >
-        <div className="container flex items-center justify-between" style={{ height: '68px' }}>
+        <div className="container flex items-center justify-between" style={{ height: '72px' }}>
 
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 select-none">
-            <Image
-              src="/gwg-logo.svg"
-              alt="Grand Watch Gallery"
-              width={40}
-              height={40}
-              className="invert"
-              style={{ filter: 'brightness(0) invert(1)' }}
-            />
-            <div className="flex flex-col leading-none">
+          <Link href="/" className="flex items-center gap-3 select-none" style={{ textDecoration: 'none' }}>
+            {/* PNG logo â€” cropped via background-image to show just the seal circle */}
+            <div style={{
+              width: '56px',
+              height: '56px',
+              flexShrink: 0,
+              backgroundImage: 'url("/GWG_LOGO.png")',
+              backgroundSize: '116px auto',
+              backgroundPosition: '50% 50%',
+              backgroundRepeat: 'no-repeat',
+            }} />
+            <div className="flex flex-col leading-none gap-[4px]">
               <span style={{
                 fontFamily: 'var(--sans)',
-                fontSize: '0.95rem',
-                fontWeight: 700,
-                letterSpacing: '0.18em',
+                fontSize: '1rem',
+                fontWeight: 800,
+                letterSpacing: '0.15em',
                 textTransform: 'uppercase',
                 color: '#fff',
+                lineHeight: 1,
               }}>
-                Grand Watch
+                Grand Watch Gallery
               </span>
               <span style={{
                 fontFamily: 'var(--sans)',
-                fontSize: '0.55rem',
+                fontSize: '0.62rem',
                 fontWeight: 400,
-                letterSpacing: '0.4em',
+                letterSpacing: '0.35em',
                 textTransform: 'uppercase',
                 color: '#B08D57',
+                lineHeight: 1,
               }}>
-                Gallery · Kuala Lumpur
+                Kuala Lumpur
               </span>
             </div>
           </Link>
@@ -81,16 +85,16 @@ export default function Navbar() {
               <Link key={l.href} href={l.href}
                 style={{
                   fontFamily: 'var(--sans)',
-                  fontSize: '0.7rem',
-                  letterSpacing: '0.2em',
+                  fontSize: '0.72rem',
+                  letterSpacing: '0.18em',
                   textTransform: 'uppercase',
                   fontWeight: 500,
-                  color: pathname === l.href ? '#B08D57' : 'rgba(255,255,255,0.75)',
+                  color: pathname === l.href ? '#B08D57' : 'rgba(255,255,255,0.8)',
                   textDecoration: 'none',
                   transition: 'color 0.2s',
                 }}
                 onMouseEnter={e => e.target.style.color = '#fff'}
-                onMouseLeave={e => e.target.style.color = pathname === l.href ? '#B08D57' : 'rgba(255,255,255,0.75)'}
+                onMouseLeave={e => e.target.style.color = pathname === l.href ? '#B08D57' : 'rgba(255,255,255,0.8)'}
               >
                 {l.label}
               </Link>
@@ -103,18 +107,18 @@ export default function Navbar() {
               className="hidden md:inline-flex items-center"
               style={{
                 fontFamily: 'var(--sans)',
-                fontSize: '0.65rem',
-                letterSpacing: '0.22em',
+                fontSize: '0.68rem',
+                letterSpacing: '0.2em',
                 textTransform: 'uppercase',
-                fontWeight: 500,
+                fontWeight: 600,
                 color: '#fff',
                 textDecoration: 'none',
-                border: '1px solid rgba(255,255,255,0.25)',
-                padding: '0.6rem 1.4rem',
-                transition: 'border-color 0.2s',
+                border: '1px solid rgba(255,255,255,0.3)',
+                padding: '0.65rem 1.5rem',
+                transition: 'all 0.2s',
               }}
-              onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.7)'}
-              onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.25)'}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = '#B08D57'; e.currentTarget.style.color = '#B08D57' }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)'; e.currentTarget.style.color = '#fff' }}
             >
               Book Appointment
             </Link>
@@ -148,38 +152,39 @@ export default function Navbar() {
                 style={{
                   borderColor: 'rgba(255,255,255,0.06)',
                   fontFamily: 'var(--sans)',
-                  fontSize: '0.8rem',
-                  letterSpacing: '0.22em',
+                  fontSize: '0.82rem',
+                  letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   fontWeight: 500,
                   color: pathname === l.href ? '#B08D57' : '#fff',
                   textDecoration: 'none',
                 }}>
                 {l.label}
-                <span style={{ color: '#B08D57', fontSize: '0.9rem' }}>→</span>
+                <span style={{ color: '#B08D57' }}>â†’</span>
               </Link>
             ))}
             <Link href="/appointment"
               className="py-4 flex justify-between items-center"
               style={{
                 fontFamily: 'var(--sans)',
-                fontSize: '0.8rem',
-                letterSpacing: '0.22em',
+                fontSize: '0.82rem',
+                letterSpacing: '0.2em',
                 textTransform: 'uppercase',
-                fontWeight: 500,
+                fontWeight: 600,
                 color: '#B08D57',
                 textDecoration: 'none',
               }}>
               Book Appointment
-              <span style={{ fontSize: '0.9rem' }}>→</span>
+              <span>â†’</span>
             </Link>
           </nav>
         </div>
       </header>
 
-      {!['/', '/collection', '/brands', '/blog', '/trade-in', '/contact', '/appointment'].includes(pathname) && (
-        <div style={{ height: '68px' }} />
+      {!['/', '/collection', '/brands', '/blog', '/trade-in', '/contact', '/appointment', '/find-us'].includes(pathname) && (
+        <div style={{ height: '72px' }} />
       )}
     </>
   )
 }
+

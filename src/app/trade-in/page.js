@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { ArrowRight, CheckCircle } from 'lucide-react'
@@ -34,7 +34,7 @@ export default function TradeInPage() {
           <p className="eyebrow mb-3">Sell or Exchange</p>
           <h1 className="heading">Trade-In Programme</h1>
           <div className="rule mt-6 mb-4" />
-          <p className="body-sm max-w-lg mt-4">We offer competitive, transparent valuations for pre-owned luxury watches. No obligation — just honest pricing from experts who care.</p>
+          <p className="body-sm max-w-lg mt-4">We offer competitive, transparent valuations for pre-owned luxury watches. No obligation â€” just honest pricing from experts who care.</p>
         </div>
       </section>
 
@@ -44,7 +44,7 @@ export default function TradeInPage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-[#0d0d0d]">
             {steps.map(({ n, title, desc }) => (
               <div key={n} className="bg-black p-8 md:p-10">
-                <div className="serif font-light text-[#0d0d0d] mb-6" style={{ fontSize: '3.5rem', lineHeight: 1 }}>{n}</div>
+                <div className="serif font-light mb-6" style={{ fontSize: '3.5rem', lineHeight: 1, color: '#B08D57', opacity: 0.4 }}>{n}</div>
                 <h3 className="text-white text-base font-light serif mb-3">{title}</h3>
                 <p className="body-sm">{desc}</p>
               </div>
@@ -70,15 +70,15 @@ export default function TradeInPage() {
                   {/* Contact */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="eyebrow block mb-2" style={{fontSize:'0.55rem'}}>Your Name *</label>
+                      <label className="eyebrow block mb-2">Your Name *</label>
                       <input className="input" name="name" value={form.name} onChange={set} required placeholder="Full name" />
                     </div>
                     <div>
-                      <label className="eyebrow block mb-2" style={{fontSize:'0.55rem'}}>Email *</label>
+                      <label className="eyebrow block mb-2">Email *</label>
                       <input className="input" name="email" type="email" value={form.email} onChange={set} required />
                     </div>
                     <div className="sm:col-span-2">
-                      <label className="eyebrow block mb-2" style={{fontSize:'0.55rem'}}>Phone / WhatsApp *</label>
+                      <label className="eyebrow block mb-2">Phone / WhatsApp *</label>
                       <input className="input" name="phone" value={form.phone} onChange={set} required placeholder="+601X-XXX XXXX" />
                     </div>
                   </div>
@@ -88,23 +88,23 @@ export default function TradeInPage() {
                   {/* Watch details */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="eyebrow block mb-2" style={{fontSize:'0.55rem'}}>Brand *</label>
+                      <label className="eyebrow block mb-2">Brand *</label>
                       <input className="input" name="brand" value={form.brand} onChange={set} required placeholder="e.g. Rolex" />
                     </div>
                     <div>
-                      <label className="eyebrow block mb-2" style={{fontSize:'0.55rem'}}>Model *</label>
+                      <label className="eyebrow block mb-2">Model *</label>
                       <input className="input" name="model" value={form.model} onChange={set} required placeholder="e.g. Submariner" />
                     </div>
                     <div>
-                      <label className="eyebrow block mb-2" style={{fontSize:'0.55rem'}}>Reference Number</label>
+                      <label className="eyebrow block mb-2">Reference Number</label>
                       <input className="input" name="ref" value={form.ref} onChange={set} placeholder="e.g. 126610LN" />
                     </div>
                     <div>
-                      <label className="eyebrow block mb-2" style={{fontSize:'0.55rem'}}>Year</label>
+                      <label className="eyebrow block mb-2">Year</label>
                       <input className="input" name="year" value={form.year} onChange={set} placeholder="e.g. 2021" />
                     </div>
                     <div>
-                      <label className="eyebrow block mb-2" style={{fontSize:'0.55rem'}}>Condition *</label>
+                      <label className="eyebrow block mb-2">Condition *</label>
                       <select className="input" name="condition" value={form.condition} onChange={set} required>
                         <option value="">Select condition</option>
                         <option>Mint / Unworn</option>
@@ -115,7 +115,7 @@ export default function TradeInPage() {
                       </select>
                     </div>
                     <div>
-                      <label className="eyebrow block mb-2" style={{fontSize:'0.55rem'}}>Box & Papers</label>
+                      <label className="eyebrow block mb-2">Box & Papers</label>
                       <select className="input" name="papers" value={form.papers} onChange={set}>
                         <option value="">Select</option>
                         <option>Full Set (Box + Papers)</option>
@@ -127,9 +127,9 @@ export default function TradeInPage() {
                   </div>
 
                   <div>
-                    <label className="eyebrow block mb-2" style={{fontSize:'0.55rem'}}>Additional Notes</label>
+                    <label className="eyebrow block mb-2">Additional Notes</label>
                     <textarea className="input h-28 resize-none" name="notes" value={form.notes} onChange={set}
-                      placeholder="Any other details — servicing history, modifications, urgency, etc." />
+                      placeholder="Any other details â€” servicing history, modifications, urgency, etc." />
                   </div>
 
                   <button type="submit" disabled={loading} className="btn btn-white w-full justify-center mt-2">
@@ -144,3 +144,6 @@ export default function TradeInPage() {
     </>
   )
 }
+
+
+

@@ -59,7 +59,7 @@ function StickyServices() {
           </div>
 
           <p className="transition-all duration-500" key={`label-${step}`}
-            style={{ fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#B08D57', marginBottom:'1.5rem' }}>
+            style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#B08D57', marginBottom:'1.5rem' }}>
             {s.num} of {services.length.toString().padStart(2,'0')}
           </p>
 
@@ -71,7 +71,7 @@ function StickyServices() {
           <div style={{ width:'36px', height:'1px', background:'#B08D57', marginBottom:'2rem' }} />
 
           <p className="transition-all duration-500" key={`p-${step}`}
-            style={{ fontFamily:'var(--sans)', fontSize:'1rem', color:'#666', lineHeight:1.8, maxWidth:'500px', fontWeight:300 }}>
+            style={{ fontFamily:'var(--sans)', fontSize:'1rem', color:'#aaa', lineHeight:1.8, maxWidth:'500px', fontWeight:300 }}>
             {s.body}
           </p>
 
@@ -86,7 +86,7 @@ function StickyServices() {
         {/* Scroll hint (only on first step) */}
         {step === 0 && (
           <div className="absolute bottom-8 right-8 flex flex-col items-center gap-2 opacity-30 hidden md:flex">
-            <span style={{ fontFamily:'var(--sans)', fontSize:'0.55rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#fff', writingMode:'vertical-rl' }}>Scroll</span>
+            <span style={{ fontFamily:'var(--sans)', fontSize:'0.8rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#fff', writingMode:'vertical-rl' }}>Scroll</span>
             <ArrowDown size={12} color="#fff" />
           </div>
         )}
@@ -117,7 +117,7 @@ function StatCounter({ target, suffix = '', label }) {
       <div className="serif font-light" style={{ fontSize:'clamp(2.5rem,5vw,4rem)', color:'#fff', lineHeight:1 }}>
         {count}{suffix}
       </div>
-      <div style={{ fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.25em', textTransform:'uppercase', color:'#B08D57', marginTop:'0.5rem' }}>
+      <div style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', letterSpacing:'0.25em', textTransform:'uppercase', color:'#B08D57', marginTop:'0.5rem' }}>
         {label}
       </div>
     </div>
@@ -157,7 +157,7 @@ export default function HomePage() {
         {/* Content */}
         <div className="relative z-10 container pb-16 md:pb-24 pt-32">
           <AnimateIn delay={100}>
-            <p style={{ fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.35em', textTransform:'uppercase', color:'#B08D57', marginBottom:'1.5rem' }}>
+            <p style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', letterSpacing:'0.35em', textTransform:'uppercase', color:'#B08D57', marginBottom:'1.5rem' }}>
               Kuala Lumpur Â· Est. 2009 Â· Authenticated Timepieces
             </p>
           </AnimateIn>
@@ -196,7 +196,7 @@ export default function HomePage() {
                   <div className="serif font-light" style={{ fontSize:'clamp(1.5rem,4vw,2.75rem)', color:'#fff', lineHeight:1 }}>
                     {n}{s}
                   </div>
-                  <div style={{ fontFamily:'var(--sans)', fontSize:'0.55rem', letterSpacing:'0.25em', textTransform:'uppercase', color:'#B08D57', marginTop:'0.4rem' }}>
+                  <div style={{ fontFamily:'var(--sans)', fontSize:'0.8rem', letterSpacing:'0.25em', textTransform:'uppercase', color:'#B08D57', marginTop:'0.4rem' }}>
                     {l}
                   </div>
                 </div>
@@ -210,56 +210,39 @@ export default function HomePage() {
       <div style={{ borderTop:'1px solid #1A1A1A', borderBottom:'1px solid #1A1A1A', background:'#0D0D0D', overflow:'hidden', padding:'0.875rem 0' }}>
         <div style={{ display:'flex', gap:'3.5rem', whiteSpace:'nowrap', animation:'marquee 40s linear infinite', width:'max-content' }}>
           {[...brands,...brands].map((b,i) => (
-            <span key={i} style={{ fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#C8B99A', fontWeight:400 }}>{b}</span>
+            <span key={i} style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#C8B99A', fontWeight:400 }}>{b}</span>
           ))}
         </div>
       </div>
 
-      {/* â”€â”€ 3. FEATURED COLLECTION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
-      <section className="section" style={{ background:'#0D0D0D' }}>
+      {/* ── 3. FEATURED COLLECTION */}
+      <section style={{ background:'#0A0A0A', padding:'6rem 0' }}>
         <div className="container">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12 md:mb-16">
-            <AnimateIn>
-              <p style={{ fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#B08D57', marginBottom:'0.75rem' }}>Selected Pieces</p>
-              <h2 className="serif font-light" style={{ fontFamily:'var(--serif)', fontSize:'clamp(2rem,3.5vw,2.75rem)', color:'#fff', letterSpacing:'-0.01em', lineHeight:1.1 }}>
-                Featured Collection
-              </h2>
-            </AnimateIn>
-            <Link href="/collection" style={{ fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#B08D57', textDecoration:'none' }}
-              className="hidden sm:block">
-              View All â†’
+          <div className="flex items-end justify-between mb-16" style={{ borderBottom:'1px solid #1A1A1A', paddingBottom:'2rem' }}>
+            <div>
+              <p style={{ fontFamily:'var(--sans)', fontSize:'0.72rem', letterSpacing:'0.35em', textTransform:'uppercase', color:'#B08D57', marginBottom:'0.75rem' }}>Selected Pieces</p>
+              <h2 style={{ fontFamily:'var(--sans)', fontWeight:900, fontSize:'clamp(2.5rem,5vw,4rem)', color:'#fff', textTransform:'uppercase', lineHeight:1 }}>The Collection</h2>
+            </div>
+            <Link href="/collection" style={{ fontFamily:'var(--sans)', fontSize:'0.7rem', letterSpacing:'0.25em', textTransform:'uppercase', color:'#B08D57', textDecoration:'none', display:'flex', alignItems:'center', gap:'0.5rem' }}>
+              View All <ArrowRight size={12} />
             </Link>
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px" style={{ background:'#1A1A1A' }}>
-            {featured.map((w, i) => (
-              <AnimateIn key={w.ref} delay={i * 100} className="bg-white flex flex-col">
-                <div className="aspect-square flex items-center justify-center" style={{ background:'#0D0D0D' }}>
-                  {/* Replace with <img> once real photos are added */}
-                  <span className="serif font-light" style={{ fontSize:'5rem', color:'#E4DDD3', lineHeight:1, userSelect:'none' }}>
-                    {w.brand.charAt(0)}
-                  </span>
+          <div className="grid grid-cols-2 lg:grid-cols-4" style={{ gap:'3rem 2rem' }}>
+            {featured.map((w) => (
+              <Link key={w.ref} href="/collection" style={{ textDecoration:'none', display:'block' }} className="group">
+                <div style={{ background:'#111', aspectRatio:'1/1', display:'flex', alignItems:'center', justifyContent:'center', marginBottom:'1.5rem', position:'relative', overflow:'hidden' }}>
+                  <span style={{ fontFamily:'var(--sans)', fontWeight:900, fontSize:'6rem', color:'#1a1a1a', lineHeight:1, userSelect:'none', letterSpacing:'-0.05em' }}>{w.brand.charAt(0)}</span>
+                  <span style={{ position:'absolute', top:'1rem', right:'1rem', fontFamily:'var(--sans)', fontSize:'0.62rem', letterSpacing:'0.15em', textTransform:'uppercase', color:'#B08D57', border:'1px solid rgba(176,141,87,0.5)', padding:'0.2rem 0.6rem' }}>{w.tag}</span>
                 </div>
-                <div className="p-6 flex flex-col flex-1">
-                  <div className="flex justify-between items-start mb-2">
-                    <span style={{ fontFamily:'var(--sans)', fontSize:'0.55rem', letterSpacing:'0.25em', textTransform:'uppercase', color:'#B08D57' }}>{w.brand}</span>
-                    <span style={{ fontFamily:'var(--sans)', fontSize:'0.55rem', letterSpacing:'0.1em', textTransform:'uppercase', color:'#bbb', border:'1px solid #E4DDD3', padding:'0.15rem 0.5rem' }}>{w.tag}</span>
-                  </div>
-                  <h3 className="serif font-light" style={{ fontFamily:'var(--serif)', fontSize:'1.1rem', color:'#fff', marginBottom:'0.25rem' }}>{w.model}</h3>
-                  <p style={{ fontFamily:'var(--sans)', fontSize:'0.7rem', color:'#bbb', letterSpacing:'0.05em', marginBottom:'auto', paddingBottom:'1rem' }}>Ref. {w.ref}</p>
-                  <div className="flex items-center justify-between pt-4" style={{ borderTop:'1px solid #1A1A1A' }}>
-                    <span style={{ fontFamily:'var(--serif)', fontSize:'1rem', color:'#fff', fontWeight:400 }}>{w.price}</span>
-                    <Link href="/contact" style={{ fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.15em', textTransform:'uppercase', color:'#B08D57', textDecoration:'none' }}>
-                      Enquire â†’
-                    </Link>
-                  </div>
+                <p style={{ fontFamily:'var(--sans)', fontSize:'0.68rem', letterSpacing:'0.25em', textTransform:'uppercase', color:'#B08D57', marginBottom:'0.4rem' }}>{w.brand}</p>
+                <h3 style={{ fontFamily:'var(--sans)', fontWeight:700, fontSize:'1rem', color:'#fff', textTransform:'uppercase', letterSpacing:'0.02em', marginBottom:'0.3rem' }}>{w.model}</h3>
+                <p style={{ fontFamily:'var(--sans)', fontSize:'0.72rem', color:'#777', marginBottom:'0.75rem' }}>Ref. {w.ref}</p>
+                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', paddingTop:'0.75rem', borderTop:'1px solid #1a1a1a' }}>
+                  <span style={{ fontFamily:'var(--sans)', fontWeight:600, fontSize:'0.9rem', color:'#fff' }}>{w.price}</span>
+                  <span style={{ fontFamily:'var(--sans)', fontSize:'0.65rem', letterSpacing:'0.15em', textTransform:'uppercase', color:'#B08D57' }}>Enquire →</span>
                 </div>
-              </AnimateIn>
+              </Link>
             ))}
-          </div>
-
-          <div className="mt-4 sm:hidden">
-            <Link href="/collection" className="btn btn-outline w-full">View Full Collection <ArrowRight size={13} /></Link>
           </div>
         </div>
       </section>
@@ -272,22 +255,22 @@ export default function HomePage() {
         <div className="container">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-px" style={{ background:'#1A1A1A' }}>
             <AnimateIn direction="left" className="flex items-center justify-center" style={{ background:'#0D0D0D', minHeight:'360px' }}>
-              <span className="serif font-light" style={{ fontSize:'clamp(6rem,14vw,14rem)', color:'#E4DDD3', lineHeight:1, userSelect:'none' }}>PP</span>
+              <span className="serif font-light" style={{ fontSize:'clamp(6rem,14vw,14rem)', color:'#2a2a2a', lineHeight:1, userSelect:'none' }}>PP</span>
             </AnimateIn>
-            <AnimateIn direction="right" className="bg-white p-10 md:p-14 lg:p-16 flex flex-col justify-center">
-              <p style={{ fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#B08D57', marginBottom:'1.5rem' }}>Piece of the Month</p>
+            <AnimateIn direction="right" className="p-10 md:p-14 lg:p-16 flex flex-col justify-center" style={{ background: '#0D0D0D', borderLeft: '1px solid #1A1A1A' }}>
+              <p style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#B08D57', marginBottom:'1.5rem' }}>Piece of the Month</p>
               <p style={{ fontFamily:'var(--sans)', fontSize:'0.65rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#bbb', marginBottom:'0.75rem' }}>Patek Philippe</p>
               <h2 className="serif font-light" style={{ fontFamily:'var(--serif)', fontSize:'clamp(1.75rem,3vw,2.5rem)', color:'#fff', lineHeight:1.1, marginBottom:'1.5rem' }}>
                 Nautilus<br />5711/1A-010
               </h2>
               <div style={{ width:'36px', height:'1px', background:'#B08D57', marginBottom:'1.5rem' }} />
-              <p style={{ fontFamily:'var(--sans)', fontSize:'0.875rem', color:'#666', lineHeight:1.8, fontWeight:300, marginBottom:'2rem' }}>
+              <p style={{ fontFamily:'var(--sans)', fontSize:'0.875rem', color:'#aaa', lineHeight:1.8, fontWeight:300, marginBottom:'2rem' }}>
                 Stainless steel, blue dial, bracelet. Presented in exceptional condition with original box and papers, dated 2022. One of the most coveted references in modern watchmaking.
               </p>
               <div className="grid grid-cols-2 gap-3 mb-8">
                 {[['Year','2022'],['Condition','Mint'],['Papers','Full Set'],['Movement','Cal. 26-330 S C']].map(([k,v]) => (
                   <div key={k} style={{ borderTop:'1px solid #1A1A1A', paddingTop:'0.75rem' }}>
-                    <p style={{ fontFamily:'var(--sans)', fontSize:'0.55rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#bbb', marginBottom:'0.3rem' }}>{k}</p>
+                    <p style={{ fontFamily:'var(--sans)', fontSize:'0.8rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#bbb', marginBottom:'0.3rem' }}>{k}</p>
                     <p style={{ fontFamily:'var(--sans)', fontSize:'0.8rem', color:'#fff', fontWeight:400 }}>{v}</p>
                   </div>
                 ))}
@@ -315,16 +298,16 @@ export default function HomePage() {
       <section className="section" style={{ background:'#0D0D0D' }}>
         <div className="container">
           <AnimateIn className="mb-12 md:mb-16">
-            <p style={{ fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#B08D57' }}>Client Stories</p>
+            <p style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#B08D57' }}>Client Stories</p>
           </AnimateIn>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
             {testimonials.map((t,i) => (
               <AnimateIn key={t.name} delay={i*120}>
-                <p style={{ fontFamily:'var(--serif)', fontSize:'1.1rem', color:'#444', lineHeight:1.75, fontWeight:300, fontStyle:'italic', marginBottom:'1.5rem' }}>
+                <p style={{ fontFamily:'var(--serif)', fontSize:'1.1rem', color:'#999', lineHeight:1.75, fontWeight:300, fontStyle:'italic', marginBottom:'1.5rem' }}>
                   "{t.text}"
                 </p>
                 <div style={{ width:'24px', height:'1px', background:'#B08D57', marginBottom:'0.75rem' }} />
-                <p style={{ fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#B08D57' }}>â€” {t.name}</p>
+                <p style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#B08D57' }}>â€” {t.name}</p>
               </AnimateIn>
             ))}
           </div>
@@ -336,11 +319,11 @@ export default function HomePage() {
         <div className="container">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
             <AnimateIn direction="left">
-              <p style={{ fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#B08D57', marginBottom:'1.25rem' }}>Visit Us</p>
+              <p style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#B08D57', marginBottom:'1.25rem' }}>Visit Us</p>
               <h2 className="serif font-light" style={{ fontFamily:'var(--serif)', fontSize:'clamp(2rem,3.5vw,3rem)', color:'#fff', lineHeight:1.1, marginBottom:'1.25rem' }}>
-                Our Gallery<br /><span style={{ color:'#333' }}>in Kuala Lumpur</span>
+                Our Gallery<br /><span style={{ color:'#555' }}>in Kuala Lumpur</span>
               </h2>
-              <p style={{ fontFamily:'var(--sans)', fontSize:'0.875rem', color:'#555', lineHeight:1.8, fontWeight:300, maxWidth:'360px' }}>
+              <p style={{ fontFamily:'var(--sans)', fontSize:'0.875rem', color:'#999', lineHeight:1.8, fontWeight:300, maxWidth:'360px' }}>
                 Schedule a private viewing and explore our curated collection of authenticated timepieces. No crowds, no pressure.
               </p>
             </AnimateIn>
@@ -363,4 +346,7 @@ export default function HomePage() {
     </>
   )
 }
+
+
+
 
