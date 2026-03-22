@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useState, useMemo, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { ArrowRight, X, Plus, Pencil, Trash2, Loader2, Search } from 'lucide-react'
@@ -93,7 +93,7 @@ export default function CollectionPage() {
   return (
     <div style={{ background: '#0A0A0A', minHeight: '100vh' }}>
 
-      {/* ── Header ── */}
+      {/* â”€â”€ Header â”€â”€ */}
       <section style={{ paddingTop: '8rem', paddingBottom: '3rem', borderBottom: '1px solid #1A1A1A' }}>
         <div className="container">
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
@@ -120,7 +120,7 @@ export default function CollectionPage() {
         </div>
       </section>
 
-      {/* ── Filters ── */}
+      {/* â”€â”€ Filters â”€â”€ */}
       <section style={{ borderBottom: '1px solid #1A1A1A', position: 'sticky', top: '68px', zIndex: 40, background: '#0A0A0A' }}>
         <div className="container" style={{ paddingTop: '1.25rem', paddingBottom: '1.25rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
@@ -164,7 +164,7 @@ export default function CollectionPage() {
         </div>
       </section>
 
-      {/* ── Grid ── */}
+      {/* â”€â”€ Grid â”€â”€ */}
       <section style={{ padding: '4rem 0' }}>
         <div className="container">
           {loading ? (
@@ -180,16 +180,12 @@ export default function CollectionPage() {
                 onClick={() => { setBrand('All'); setSearch('') }}
                 className="eyebrow hover:text-white transition-colors"
               >
-                Clear filters →
+                Clear filters â†’
               </button>
             </div>
           ) : (
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(2, 1fr)',
-              gap: '4rem 2rem',
-            }}
-            className="sm:grid-cols-3 lg:grid-cols-4"
+            <div style={{ gap: '4rem 2rem' }}
+            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4"
             >
               {filtered.map(w => (
                 <div key={w.id} style={{ position: 'relative' }} className="group">
@@ -211,7 +207,7 @@ export default function CollectionPage() {
                     </div>
                   )}
 
-                  {/* Watch image area — RM style: image floats on black */}
+                  {/* Watch image area â€” RM style: image floats on black */}
                   <div style={{
                     aspectRatio: '1',
                     display: 'flex',
@@ -329,7 +325,7 @@ export default function CollectionPage() {
         </div>
       </section>
 
-      {/* ── Trade-in CTA ── */}
+      {/* â”€â”€ Trade-in CTA â”€â”€ */}
       <section style={{ borderTop: '1px solid #1A1A1A', padding: '5rem 0' }}>
         <div className="container">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
@@ -354,7 +350,7 @@ export default function CollectionPage() {
         </div>
       </section>
 
-      {/* ── Admin Modal ── */}
+      {/* â”€â”€ Admin Modal â”€â”€ */}
       {modal && (
         <div
           style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', background: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(4px)' }}
@@ -444,3 +440,5 @@ export default function CollectionPage() {
     </div>
   )
 }
+
+
