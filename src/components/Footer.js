@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import Link from 'next/link'
 
 const col1 = [
@@ -47,7 +47,7 @@ export default function Footer() {
               </div>
             </Link>
             <p style={{
-              color: '#888',
+              color: '#fff',
               fontSize: '0.88rem',
               lineHeight: 1.8,
               maxWidth: '300px',
@@ -62,7 +62,7 @@ export default function Footer() {
               {social.map(s => (
                 <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer"
                   style={{
-                    color: '#777',
+                    color: '#fff',
                     fontSize: '0.72rem',
                     letterSpacing: '0.18em',
                     textTransform: 'uppercase',
@@ -71,7 +71,7 @@ export default function Footer() {
                     transition: 'color 0.2s',
                   }}
                   onMouseEnter={e => e.target.style.color = '#B08D57'}
-                  onMouseLeave={e => e.target.style.color = '#777'}
+                  onMouseLeave={e => e.target.style.color = '#fff'}
                 >
                   {s.label}
                 </a>
@@ -98,15 +98,15 @@ export default function Footer() {
                   <li key={l.href} style={{ marginBottom: '0.9rem' }}>
                     <Link href={l.href}
                       style={{
-                        color: '#888',
+                        color: '#fff',
                         fontSize: '0.85rem',
                         textDecoration: 'none',
                         fontFamily: 'var(--sans)',
                         fontWeight: 300,
                         transition: 'color 0.2s',
                       }}
-                      onMouseEnter={e => e.target.style.color = '#fff'}
-                      onMouseLeave={e => e.target.style.color = '#888'}
+                      onMouseEnter={e => e.target.style.color = '#B08D57'}
+                      onMouseLeave={e => e.target.style.color = '#fff'}
                     >
                       {l.label}
                     </Link>
@@ -128,16 +128,20 @@ export default function Footer() {
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
               <a href="tel:+60166824848"
-                style={{ color: '#777', fontSize: '0.78rem', textDecoration: 'none', fontFamily: 'var(--sans)', letterSpacing: '0.03em' }}>
+                style={{ color: '#fff', fontSize: '0.78rem', textDecoration: 'none', fontFamily: 'var(--sans)', letterSpacing: '0.03em' }}>
                 +6016-682 4848
               </a>
-              <a href="https://wa.me/60162241804" target="_blank" rel="noopener noreferrer"
-                style={{ color: '#777', fontSize: '0.78rem', textDecoration: 'none', fontFamily: 'var(--sans)', letterSpacing: '0.03em' }}>
-                +6016-224 1804 (WhatsApp)
+              <a href="tel:+60163113633"
+                style={{ color: '#fff', fontSize: '0.78rem', textDecoration: 'none', fontFamily: 'var(--sans)', letterSpacing: '0.03em' }}>
+                +6016-311 3633
+              </a>
+              <a href="https://wa.me/60102345100" target="_blank" rel="noopener noreferrer"
+                style={{ color: '#fff', fontSize: '0.78rem', textDecoration: 'none', fontFamily: 'var(--sans)', letterSpacing: '0.03em' }}>
+                +6010-234 5100 (WhatsApp)
               </a>
             </div>
             <p suppressHydrationWarning
-              style={{ color: '#555', fontSize: '0.72rem', fontFamily: 'var(--sans)', fontWeight: 300 }}>
+              style={{ color: '#aaa', fontSize: '0.72rem', fontFamily: 'var(--sans)', fontWeight: 300 }}>
               &copy; {YEAR} Grand Watch &amp; Jewellery Sdn. Bhd. (624044-T)
             </p>
           </div>

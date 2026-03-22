@@ -172,7 +172,7 @@ export default function AppointmentPage() {
                     {loading ? 'Submitting...' : <><span>Request Appointment</span><ArrowRight size={14} /></>}
                   </button>
 
-                  <p style={{ fontFamily: 'var(--sans)', fontSize: '0.75rem', fontWeight: 400, letterSpacing: '0.12em', color: '#444', textAlign: 'center' }}>
+                  <p style={{ fontFamily: 'var(--sans)', fontSize: '0.75rem', fontWeight: 400, letterSpacing: '0.12em', color: '#fff', textAlign: 'center' }}>
                     Mon–Sat · 10:00 AM – 7:00 PM
                   </p>
                 </form>

@@ -53,7 +53,7 @@ export default function Navbar() {
               backgroundRepeat: 'no-repeat',
             }} />
             <span style={{
-              fontFamily: 'var(--sans)',
+              fontFamily: '"Times New Roman", Times, serif',
               fontSize: '1rem',
               fontWeight: 800,
               letterSpacing: '0.15em',

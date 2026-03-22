@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { ArrowRight, CheckCircle } from 'lucide-react'
@@ -53,14 +53,14 @@ export default function ContactPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
 
               {[
-                { label: 'Location', lines: ['Grand Watch & Jewellery Sdn. Bhd.', 'Pavilion Kuala Lumpur, Level 3', 'Co. Reg. 624044-T'] },
+                { label: 'Location', lines: ['Grand Watch & Jewellery Sdn. Bhd.', 'Lot G31, Ground Floor', 'Atria Shopping Gallery', 'Jalan SS 22/23, Damansara Jaya', '47400 Petaling Jaya, Selangor'] },
                 { label: 'Hours',    lines: ['Monday – Saturday', '10:00 AM – 7:00 PM', 'Sunday by appointment only'] },
-                { label: 'Phone & WhatsApp', lines: ['+6016-682 4848', '+6016-224 1804 (WhatsApp)'] },
+                { label: 'Phone & WhatsApp', lines: ['+6016-682 4848', '+6016-311 3633', '+6010-234 5100'] },
               ].map(({ label, lines }) => (
                 <div key={label} style={{ paddingBottom: '2.5rem', borderBottom: '1px solid #1a1a1a' }}>
                   <p style={labelStyle}>{label}</p>
                   {lines.map((l, i) => (
-                    <p key={i} style={{ fontFamily: 'var(--sans)', fontSize: '0.95rem', color: '#ccc', lineHeight: 2, fontWeight: 300 }}>{l}</p>
+                    <p key={i} style={{ fontFamily: 'var(--sans)', fontSize: '0.95rem', color: '#fff', lineHeight: 2, fontWeight: 300 }}>{l}</p>
                   ))}
                 </div>
               ))}
@@ -75,9 +75,9 @@ export default function ContactPage() {
                     { label: 'WhatsApp',  href: 'https://wa.me/60162241804' },
                   ].map(s => (
                     <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer"
-                      style={{ fontFamily: 'var(--sans)', fontSize: '0.78rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888', textDecoration: 'none', transition: 'color 0.2s' }}
-                      onMouseEnter={e => e.target.style.color = '#fff'}
-                      onMouseLeave={e => e.target.style.color = '#888'}>
+                      style={{ fontFamily: 'var(--sans)', fontSize: '0.78rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#fff', textDecoration: 'none', transition: 'color 0.2s' }}
+                      onMouseEnter={e => e.target.style.color = '#B08D57'}
+                      onMouseLeave={e => e.target.style.color = '#fff'}>
                       {s.label} →
                     </a>
                   ))}
@@ -104,7 +104,7 @@ export default function ContactPage() {
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '400px', textAlign: 'center' }}>
                   <CheckCircle size={40} style={{ color: '#B08D57', marginBottom: '1.5rem' }} />
                   <h2 style={{ fontFamily: 'var(--sans)', fontWeight: 900, fontSize: '2rem', color: '#fff', textTransform: 'uppercase', marginBottom: '1rem' }}>Message Sent</h2>
-                  <p style={{ fontFamily: 'var(--sans)', fontSize: '0.95rem', color: '#888', lineHeight: 1.8, maxWidth: '300px' }}>
+                  <p style={{ fontFamily: 'var(--sans)', fontSize: '0.95rem', color: '#fff', lineHeight: 1.8, maxWidth: '300px' }}>
                     We will get back to you within one business day. For faster response, WhatsApp us directly.
                   </p>
                 </div>

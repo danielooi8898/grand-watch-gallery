@@ -71,7 +71,7 @@ function StickyServices() {
           <div style={{ width:'36px', height:'1px', background:'#B08D57', marginBottom:'2rem' }} />
 
           <p className="transition-all duration-500" key={`p-${step}`}
-            style={{ fontFamily:'var(--sans)', fontSize:'1rem', color:'#aaa', lineHeight:1.8, maxWidth:'500px', fontWeight:300 }}>
+            style={{ fontFamily:'var(--sans)', fontSize:'1rem', color:'#fff', lineHeight:1.8, maxWidth:'500px', fontWeight:300 }}>
             {s.body}
           </p>
 
@@ -171,7 +171,7 @@ export default function HomePage() {
           </AnimateIn>
 
           <AnimateIn delay={400}>
-            <p style={{ fontFamily:'var(--sans)', fontSize:'1rem', color:'rgba(255,255,255,0.45)', fontWeight:300, maxWidth:'440px', lineHeight:1.7, marginBottom:'2.5rem' }}>
+            <p style={{ fontFamily:'var(--sans)', fontSize:'1rem', color:'rgba(255,255,255,0.8)', fontWeight:300, maxWidth:'440px', lineHeight:1.7, marginBottom:'2.5rem' }}>
               Rolex. Patek Philippe. Audemars Piguet. Richard Mille.<br />
               Every watch authenticated. Every detail considered.
             </p>
@@ -191,7 +191,7 @@ export default function HomePage() {
           <AnimateIn delay={700}>
             <div className="grid grid-cols-3 gap-4 mt-12 md:mt-16 pt-10 md:pt-14 border-t"
               style={{ borderColor:'rgba(255,255,255,0.06)' }}>
-              {[['500','+','Watches Sold'],['17','','Luxury Brands'],['15','+','Years in KL']].map(([n,s,l]) => (
+              {[['500','+','Watches Sold'],['17','','Luxury Brands'],['5','+','Years Est.']].map(([n,s,l]) => (
                 <div key={l}>
                   <div className="serif font-light" style={{ fontSize:'clamp(1.5rem,4vw,2.75rem)', color:'#fff', lineHeight:1 }}>
                     {n}{s}
@@ -236,7 +236,7 @@ export default function HomePage() {
                 </div>
                 <p style={{ fontFamily:'var(--sans)', fontSize:'0.68rem', letterSpacing:'0.25em', textTransform:'uppercase', color:'#B08D57', marginBottom:'0.4rem' }}>{w.brand}</p>
                 <h3 style={{ fontFamily:'var(--sans)', fontWeight:700, fontSize:'1rem', color:'#fff', textTransform:'uppercase', letterSpacing:'0.02em', marginBottom:'0.3rem' }}>{w.model}</h3>
-                <p style={{ fontFamily:'var(--sans)', fontSize:'0.72rem', color:'#777', marginBottom:'0.75rem' }}>Ref. {w.ref}</p>
+                <p style={{ fontFamily:'var(--sans)', fontSize:'0.72rem', color:'#fff', marginBottom:'0.75rem' }}>Ref. {w.ref}</p>
                 <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', paddingTop:'0.75rem', borderTop:'1px solid #1a1a1a' }}>
                   <span style={{ fontFamily:'var(--sans)', fontWeight:600, fontSize:'0.9rem', color:'#fff' }}>{w.price}</span>
                   <span style={{ fontFamily:'var(--sans)', fontSize:'0.65rem', letterSpacing:'0.15em', textTransform:'uppercase', color:'#B08D57' }}>Enquire →</span>
@@ -259,23 +259,23 @@ export default function HomePage() {
             </AnimateIn>
             <AnimateIn direction="right" className="p-10 md:p-14 lg:p-16 flex flex-col justify-center" style={{ background: '#0D0D0D', borderLeft: '1px solid #1A1A1A' }}>
               <p style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#B08D57', marginBottom:'1.5rem' }}>Piece of the Month</p>
-              <p style={{ fontFamily:'var(--sans)', fontSize:'0.65rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#bbb', marginBottom:'0.75rem' }}>Patek Philippe</p>
+              <p style={{ fontFamily:'var(--sans)', fontSize:'0.65rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#fff', marginBottom:'0.75rem' }}>Patek Philippe</p>
               <h2 className="serif font-light" style={{ fontFamily:'var(--serif)', fontSize:'clamp(1.75rem,3vw,2.5rem)', color:'#fff', lineHeight:1.1, marginBottom:'1.5rem' }}>
                 Nautilus<br />5711/1A-010
               </h2>
               <div style={{ width:'36px', height:'1px', background:'#B08D57', marginBottom:'1.5rem' }} />
-              <p style={{ fontFamily:'var(--sans)', fontSize:'0.875rem', color:'#aaa', lineHeight:1.8, fontWeight:300, marginBottom:'2rem' }}>
+              <p style={{ fontFamily:'var(--sans)', fontSize:'0.875rem', color:'#fff', lineHeight:1.8, fontWeight:300, marginBottom:'2rem' }}>
                 Stainless steel, blue dial, bracelet. Presented in exceptional condition with original box and papers, dated 2022. One of the most coveted references in modern watchmaking.
               </p>
               <div className="grid grid-cols-2 gap-3 mb-8">
                 {[['Year','2022'],['Condition','Mint'],['Papers','Full Set'],['Movement','Cal. 26-330 S C']].map(([k,v]) => (
                   <div key={k} style={{ borderTop:'1px solid #1A1A1A', paddingTop:'0.75rem' }}>
-                    <p style={{ fontFamily:'var(--sans)', fontSize:'0.8rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#bbb', marginBottom:'0.3rem' }}>{k}</p>
+                    <p style={{ fontFamily:'var(--sans)', fontSize:'0.8rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#fff', marginBottom:'0.3rem' }}>{k}</p>
                     <p style={{ fontFamily:'var(--sans)', fontSize:'0.8rem', color:'#fff', fontWeight:400 }}>{v}</p>
                   </div>
                 ))}
               </div>
-              <Link href="/contact" className="btn btn-dark self-start">Enquire Now <ArrowRight size={13} /></Link>
+              <Link href="/contact" style={{ display:'inline-flex', alignItems:'center', gap:'0.5rem', fontFamily:'var(--sans)', fontSize:'0.72rem', fontWeight:600, letterSpacing:'0.22em', textTransform:'uppercase', textDecoration:'none', padding:'0.9rem 2rem', background:'#fff', color:'#0A0A0A', alignSelf:'flex-start', whiteSpace:'nowrap', transition:'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background='#e8e8e8'} onMouseLeave={e => e.currentTarget.style.background='#fff'}>Enquire Now <ArrowRight size={13} /></Link>
             </AnimateIn>
           </div>
         </div>
@@ -303,7 +303,7 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
             {testimonials.map((t,i) => (
               <AnimateIn key={t.name} delay={i*120}>
-                <p style={{ fontFamily:'var(--serif)', fontSize:'1.1rem', color:'#999', lineHeight:1.75, fontWeight:300, fontStyle:'italic', marginBottom:'1.5rem' }}>
+                <p style={{ fontFamily:'var(--serif)', fontSize:'1.1rem', color:'#fff', lineHeight:1.75, fontWeight:300, fontStyle:'italic', marginBottom:'1.5rem' }}>
                   "{t.text}"
                 </p>
                 <div style={{ width:'24px', height:'1px', background:'#B08D57', marginBottom:'0.75rem' }} />
@@ -323,7 +323,7 @@ export default function HomePage() {
               <h2 className="serif font-light" style={{ fontFamily:'var(--serif)', fontSize:'clamp(2rem,3.5vw,3rem)', color:'#fff', lineHeight:1.1, marginBottom:'1.25rem' }}>
                 Our Gallery
               </h2>
-              <p style={{ fontFamily:'var(--sans)', fontSize:'0.875rem', color:'#999', lineHeight:1.8, fontWeight:300, maxWidth:'360px' }}>
+              <p style={{ fontFamily:'var(--sans)', fontSize:'0.875rem', color:'#fff', lineHeight:1.8, fontWeight:300, maxWidth:'360px' }}>
                 Schedule a private viewing and explore our curated collection of authenticated timepieces. No crowds, no pressure.
               </p>
             </AnimateIn>
