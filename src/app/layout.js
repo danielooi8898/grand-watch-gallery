@@ -1,4 +1,4 @@
-import { Barlow } from 'next/font/google'
+﻿import { Barlow } from 'next/font/google'
 import './globals.css'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
@@ -15,7 +15,7 @@ const barlow = Barlow({
 
 export const metadata = {
   title: 'Grand Watch Gallery | The Right Time For Life',
-  description: "Kuala Lumpur's premier authenticated pre-owned luxury watch gallery. Rolex, Patek Philippe, Audemars Piguet, Richard Mille and more.",
+  description: "Malaysia's premier authenticated pre-owned luxury watch gallery. Rolex, Patek Philippe, Audemars Piguet, Richard Mille and more.",
 }
 
 export default function RootLayout({ children }) {

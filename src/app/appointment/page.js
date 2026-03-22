@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { ArrowRight, CheckCircle } from 'lucide-react'
@@ -58,7 +58,7 @@ export default function AppointmentPage() {
             Book a<br />Private Viewing
           </h1>
           <p className="body-sm" style={{ maxWidth: '520px' }}>
-            Arrange a one-on-one session with our experts at our Kuala Lumpur gallery.
+            Arrange a one-on-one session with our experts at our gallery.
             We'll prepare a curated selection based on your preferences.
           </p>
         </div>
@@ -173,7 +173,7 @@ export default function AppointmentPage() {
                   </button>
 
                   <p style={{ fontFamily: 'var(--sans)', fontSize: '0.75rem', fontWeight: 400, letterSpacing: '0.12em', color: '#444', textAlign: 'center' }}>
-                    Mon–Sat · 10:00 AM – 7:00 PM · Kuala Lumpur
+                    Mon–Sat · 10:00 AM – 7:00 PM
                   </p>
                 </form>
               </>

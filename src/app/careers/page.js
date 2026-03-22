@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { ArrowRight, CheckCircle, ChevronDown } from 'lucide-react'
@@ -44,7 +44,7 @@ export default function CareersPage() {
           <p className="eyebrow mb-3">Join the Team</p>
           <h1 className="heading">Work With Us</h1>
           <div className="rule mt-6" />
-          <p className="body-sm max-w-lg mt-6">We are a small, passionate team dedicated to bringing the world of luxury timepieces to Kuala Lumpur. If you share that passion, we would love to hear from you.</p>
+          <p className="body-sm max-w-lg mt-6">We are a small, passionate team dedicated to bringing the world of luxury timepieces to Malaysia. If you share that passion, we would love to hear from you.</p>
         </div>
       </section>
 

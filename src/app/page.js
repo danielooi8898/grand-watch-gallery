@@ -19,7 +19,7 @@ const featured = [
 const services = [
   { num:'01', title:'Every Watch Authenticated', body:'Each timepiece is inspected by our in-house experts. We verify serial numbers, movements, dials, and cases â€” so you buy with absolute confidence.' },
   { num:'02', title:'Trade-In at Fair Value', body:'Upgrading your collection? We offer competitive, transparent valuations for pre-owned watches. No haggling, no surprises.' },
-  { num:'03', title:'Private Gallery Viewings', body:'Experience our collection one-on-one with an expert. Book an exclusive consultation at our Kuala Lumpur gallery â€” by appointment only.' },
+  { num:'03', title:'Private Gallery Viewings', body:'Experience our collection one-on-one with an expert. Book an exclusive consultation at our gallery â€” by appointment only.' },
 ]
 
 const testimonials = [
@@ -158,7 +158,7 @@ export default function HomePage() {
         <div className="relative z-10 container pb-16 md:pb-24 pt-32">
           <AnimateIn delay={100}>
             <p style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', letterSpacing:'0.35em', textTransform:'uppercase', color:'#B08D57', marginBottom:'1.5rem' }}>
-              Kuala Lumpur Â· Est. 2009 Â· Authenticated Timepieces
+              EST. 2009 · AUTHENTICATED TIMEPIECES
             </p>
           </AnimateIn>
 
@@ -321,7 +321,7 @@ export default function HomePage() {
             <AnimateIn direction="left">
               <p style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#B08D57', marginBottom:'1.25rem' }}>Visit Us</p>
               <h2 className="serif font-light" style={{ fontFamily:'var(--serif)', fontSize:'clamp(2rem,3.5vw,3rem)', color:'#fff', lineHeight:1.1, marginBottom:'1.25rem' }}>
-                Our Gallery<br /><span style={{ color:'#555' }}>in Kuala Lumpur</span>
+                Our Gallery
               </h2>
               <p style={{ fontFamily:'var(--sans)', fontSize:'0.875rem', color:'#999', lineHeight:1.8, fontWeight:300, maxWidth:'360px' }}>
                 Schedule a private viewing and explore our curated collection of authenticated timepieces. No crowds, no pressure.

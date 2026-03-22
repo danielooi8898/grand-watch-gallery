@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import Link from 'next/link'
 import { ArrowUpRight, Phone, Navigation, Clock } from 'lucide-react'
 
@@ -26,8 +26,7 @@ export default function FindUsPage() {
                 Our Location
               </p>
               <h1 style={{ fontFamily: 'var(--sans)', fontWeight: 900, fontSize: 'clamp(2rem,4vw,3.5rem)', color: '#fff', textTransform: 'uppercase', lineHeight: 1.05, letterSpacing: '-0.01em', marginBottom: '2.5rem' }}>
-                Grand Watch Gallery<br />
-                <span style={{ color: '#B08D57' }}>Kuala Lumpur</span>
+                Grand Watch Gallery
               </h1>
 
               <div style={{ marginBottom: '3rem' }}>
