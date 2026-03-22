@@ -17,9 +17,9 @@ const featured = [
 ]
 
 const services = [
-  { num:'01', title:'Every Watch Authenticated', body:'Each timepiece is inspected by our in-house experts. We verify serial numbers, movements, dials, and cases â€” so you buy with absolute confidence.' },
+  { num:'01', title:'Every Watch Authenticated', body:'Each timepiece is inspected by our in-house experts. We verify serial numbers, movements, dials, and cases — so you buy with absolute confidence.' },
   { num:'02', title:'Trade-In at Fair Value', body:'Upgrading your collection? We offer competitive, transparent valuations for pre-owned watches. No haggling, no surprises.' },
-  { num:'03', title:'Private Gallery Viewings', body:'Experience our collection one-on-one with an expert. Book an exclusive consultation at our gallery â€” by appointment only.' },
+  { num:'03', title:'Private Gallery Viewings', body:'Experience our collection one-on-one with an expert. Book an exclusive consultation at our gallery — by appointment only.' },
 ]
 
 const testimonials = [
@@ -39,7 +39,7 @@ function StickyServices() {
       <div className="sticky top-0 overflow-hidden flex flex-col md:flex-row"
         style={{ height: '100vh', background: '#0D0D0D' }}>
 
-        {/* Left â€” Big number */}
+        {/* Left — Big number */}
         <div className="hidden md:flex items-center justify-center w-1/3 border-r"
           style={{ borderColor: '#1a1a1a' }}>
           <span className="serif font-light transition-all duration-700"
@@ -48,7 +48,7 @@ function StickyServices() {
           </span>
         </div>
 
-        {/* Right â€” Content */}
+        {/* Right — Content */}
         <div className="flex flex-col justify-center flex-1 px-8 md:px-16 lg:px-24">
           {/* Progress dots */}
           <div className="flex gap-2 mb-10 md:mb-14">
@@ -307,7 +307,7 @@ export default function HomePage() {
                   "{t.text}"
                 </p>
                 <div style={{ width:'24px', height:'1px', background:'#B08D57', marginBottom:'0.75rem' }} />
-                <p style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#B08D57' }}>â€” {t.name}</p>
+                <p style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#B08D57' }}>— {t.name}</p>
               </AnimateIn>
             ))}
           </div>
