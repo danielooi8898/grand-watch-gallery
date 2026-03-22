@@ -85,7 +85,7 @@ export default function ContactPage() {
               </div>
 
               {/* Quick actions */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.5rem' }}>
                 <a href="https://wa.me/60162241804?text=Hello%20Grand%20Watch%20Gallery%2C%20I%20have%20an%20enquiry."
                   target="_blank" rel="noopener noreferrer"
                   style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 1.5rem', background: '#B08D57', color: '#fff', textDecoration: 'none', fontFamily: 'var(--sans)', fontSize: '0.72rem', letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 600 }}>

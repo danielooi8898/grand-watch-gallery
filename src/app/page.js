@@ -158,7 +158,7 @@ export default function HomePage() {
         <div className="relative z-10 container pb-16 md:pb-24 pt-32">
           <AnimateIn delay={100}>
             <p style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', letterSpacing:'0.35em', textTransform:'uppercase', color:'#B08D57', marginBottom:'1.5rem' }}>
-              EST. 2009 · AUTHENTICATED TIMEPIECES
+              EST. 2020 · AUTHENTICATED TIMEPIECES
             </p>
           </AnimateIn>
 
@@ -228,10 +228,13 @@ export default function HomePage() {
             </Link>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4" style={{ gap:'3rem 2rem' }}>
-            {featured.map((w) => (
+            {featured.map((w, wi) => {
+              const _imgs = ["https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80","https://images.unsplash.com/photo-1547996160-81dfa63595aa?w=600&q=80","https://images.unsplash.com/photo-1509048191080-d2984bad6ae5?w=600&q=80","https://images.unsplash.com/photo-1551816230-ef5deaed4a26?w=600&q=80"]
+              return (
               <Link key={w.ref} href="/collection" style={{ textDecoration:'none', display:'block' }} className="group">
-                <div style={{ background:'#111', aspectRatio:'1/1', display:'flex', alignItems:'center', justifyContent:'center', marginBottom:'1.5rem', position:'relative', overflow:'hidden' }}>
-                  <span style={{ fontFamily:'var(--sans)', fontWeight:900, fontSize:'6rem', color:'#1a1a1a', lineHeight:1, userSelect:'none', letterSpacing:'-0.05em' }}>{w.brand.charAt(0)}</span>
+                <div style={{ background:'#111', aspectRatio:'1/1', marginBottom:'1.5rem', position:'relative', overflow:'hidden' }}>
+                  <img src={_imgs[wi]} alt={w.brand} style={{ width:'100%', height:'100%', objectFit:'cover', opacity:0.85, transition:'transform 0.5s ease' }} className="group-hover:scale-105" onError={e=>{e.target.style.display='none'}} />
+                  
                   <span style={{ position:'absolute', top:'1rem', right:'1rem', fontFamily:'var(--sans)', fontSize:'0.62rem', letterSpacing:'0.15em', textTransform:'uppercase', color:'#B08D57', border:'1px solid rgba(176,141,87,0.5)', padding:'0.2rem 0.6rem' }}>{w.tag}</span>
                 </div>
                 <p style={{ fontFamily:'var(--sans)', fontSize:'0.68rem', letterSpacing:'0.25em', textTransform:'uppercase', color:'#B08D57', marginBottom:'0.4rem' }}>{w.brand}</p>
@@ -242,7 +245,8 @@ export default function HomePage() {
                   <span style={{ fontFamily:'var(--sans)', fontSize:'0.65rem', letterSpacing:'0.15em', textTransform:'uppercase', color:'#B08D57' }}>Enquire →</span>
                 </div>
               </Link>
-            ))}
+            )
+            })}
           </div>
         </div>
       </section>
@@ -257,7 +261,7 @@ export default function HomePage() {
             <AnimateIn direction="left" className="flex items-center justify-center" style={{ background:'#0D0D0D', minHeight:'360px' }}>
               <span className="serif font-light" style={{ fontSize:'clamp(6rem,14vw,14rem)', color:'#2a2a2a', lineHeight:1, userSelect:'none' }}>PP</span>
             </AnimateIn>
-            <AnimateIn direction="right" className="p-10 md:p-14 lg:p-16 flex flex-col justify-center" style={{ background: '#0D0D0D', borderLeft: '1px solid #1A1A1A' }}>
+            <AnimateIn direction="right" className="p-10 md:p-14 lg:p-16 flex flex-col justify-center" style={{ background: '#0A0A0A', borderLeft: '1px solid #1A1A1A' }}>
               <p style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#B08D57', marginBottom:'1.5rem' }}>Piece of the Month</p>
               <p style={{ fontFamily:'var(--sans)', fontSize:'0.65rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#fff', marginBottom:'0.75rem' }}>Patek Philippe</p>
               <h2 className="serif font-light" style={{ fontFamily:'var(--serif)', fontSize:'clamp(1.75rem,3vw,2.5rem)', color:'#fff', lineHeight:1.1, marginBottom:'1.5rem' }}>
@@ -267,7 +271,7 @@ export default function HomePage() {
               <p style={{ fontFamily:'var(--sans)', fontSize:'0.875rem', color:'#fff', lineHeight:1.8, fontWeight:300, marginBottom:'2rem' }}>
                 Stainless steel, blue dial, bracelet. Presented in exceptional condition with original box and papers, dated 2022. One of the most coveted references in modern watchmaking.
               </p>
-              <div className="grid grid-cols-2 gap-3 mb-8">
+              <div className="grid grid-cols-2 gap-3 mb-12">
                 {[['Year','2022'],['Condition','Mint'],['Papers','Full Set'],['Movement','Cal. 26-330 S C']].map(([k,v]) => (
                   <div key={k} style={{ borderTop:'1px solid #1A1A1A', paddingTop:'0.75rem' }}>
                     <p style={{ fontFamily:'var(--sans)', fontSize:'0.8rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#fff', marginBottom:'0.3rem' }}>{k}</p>
@@ -275,7 +279,7 @@ export default function HomePage() {
                   </div>
                 ))}
               </div>
-              <Link href="/contact" style={{ display:'inline-flex', alignItems:'center', gap:'0.5rem', fontFamily:'var(--sans)', fontSize:'0.72rem', fontWeight:600, letterSpacing:'0.22em', textTransform:'uppercase', textDecoration:'none', padding:'0.9rem 2rem', background:'#fff', color:'#0A0A0A', alignSelf:'flex-start', whiteSpace:'nowrap', transition:'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background='#e8e8e8'} onMouseLeave={e => e.currentTarget.style.background='#fff'}>Enquire Now <ArrowRight size={13} /></Link>
+              <Link href="/contact" style={{ display:'inline-flex', alignItems:'center', gap:'0.5rem', fontFamily:'var(--sans)', fontSize:'0.72rem', fontWeight:600, letterSpacing:'0.22em', textTransform:'uppercase', textDecoration:'none', padding:'0.9rem 2rem', background:'#fff', color:'#0A0A0A', alignSelf:'flex-start', marginTop:'0.5rem', whiteSpace:'nowrap', transition:'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background='#e8e8e8'} onMouseLeave={e => e.currentTarget.style.background='#fff'}>Enquire Now <ArrowRight size={13} /></Link>
             </AnimateIn>
           </div>
         </div>
@@ -285,7 +289,7 @@ export default function HomePage() {
       <section className="section" style={{ background:'#0D0D0D', borderTop:'1px solid #1A1A1A', borderBottom:'1px solid #1A1A1A' }}>
         <div className="container">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 md:gap-0 sm:divide-x" style={{ '--tw-divide-opacity':1, borderColor:'#1A1A1A' }}>
-            {[{target:500,suffix:'+',label:'Watches Sold'},{target:17,suffix:'',label:'Luxury Brands'},{target:15,suffix:'+',label:'Years in KL'}].map(s => (
+            {[{target:500,suffix:'+',label:'Watches Sold'},{target:17,suffix:'',label:'Luxury Brands'},{target:5,suffix:'+',label:'Years Est.'}].map(s => (
               <div key={s.label} className="flex flex-col items-center sm:items-start sm:px-12 text-center sm:text-left">
                 <StatCounter target={s.target} suffix={s.suffix} label={s.label} />
               </div>
@@ -327,7 +331,7 @@ export default function HomePage() {
                 Schedule a private viewing and explore our curated collection of authenticated timepieces. No crowds, no pressure.
               </p>
             </AnimateIn>
-            <AnimateIn direction="right" className="flex flex-col gap-3">
+            <AnimateIn direction="right" className="flex flex-col gap-3" style={{ marginTop:'1rem' }}>
               <Link href="/appointment" className="btn w-full justify-between px-6 py-4"
                 style={{ background:'#B08D57', color:'#fff', border:'1px solid #B08D57', fontSize:'0.65rem', letterSpacing:'0.2em' }}>
                 Book a Private Appointment <ArrowRight size={13} />

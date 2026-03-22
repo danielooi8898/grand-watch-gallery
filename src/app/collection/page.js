@@ -126,7 +126,7 @@ export default function CollectionPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
             {/* Search */}
             <div style={{ position: 'relative', flex: '1', minWidth: '180px', maxWidth: '260px' }}>
-              <Search size={14} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#444' }} />
+              <Search size={14} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#fff' }} />
               <input
                 className="input"
                 style={{ paddingLeft: '2.75rem', fontSize: '0.85rem' }}
@@ -157,7 +157,7 @@ export default function CollectionPage() {
             </select>
 
             {/* Count */}
-            <span style={{ marginLeft: 'auto', fontFamily: 'var(--sans)', fontSize: '0.75rem', fontWeight: 400, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#444' }}>
+            <span style={{ marginLeft: 'auto', fontFamily: 'var(--sans)', fontSize: '0.75rem', fontWeight: 400, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#fff' }}>
               {filtered.length} {filtered.length === 1 ? 'Piece' : 'Pieces'}
             </span>
           </div>
@@ -195,14 +195,14 @@ export default function CollectionPage() {
                       <button onClick={() => openEdit(w)}
                         style={{ padding: '0.375rem', background: '#111', border: '1px solid #222', cursor: 'pointer' }}
                         className="hover:bg-[#B08D57] transition-colors" title="Edit">
-                        <Pencil size={11} style={{ color: '#888' }} />
+                        <Pencil size={11} style={{ color: '#fff' }} />
                       </button>
                       <button onClick={() => handleDelete(w.id)} disabled={deleteId === w.id}
                         style={{ padding: '0.375rem', background: '#111', border: '1px solid #222', cursor: 'pointer' }}
                         className="hover:bg-red-900 transition-colors" title="Delete">
                         {deleteId === w.id
                           ? <Loader2 size={11} style={{ color: '#f87171', animation: 'spin 1s linear infinite' }} />
-                          : <Trash2 size={11} style={{ color: '#888' }} />}
+                          : <Trash2 size={11} style={{ color: '#fff' }} />}
                       </button>
                     </div>
                   )}
@@ -285,7 +285,7 @@ export default function CollectionPage() {
 
                     {/* Ref + condition */}
                     {w.reference && (
-                      <p style={{ fontFamily: 'var(--sans)', fontSize: '0.7rem', fontWeight: 400, letterSpacing: '0.15em', color: '#444', marginBottom: '0.75rem' }}>
+                      <p style={{ fontFamily: 'var(--sans)', fontSize: '0.7rem', fontWeight: 400, letterSpacing: '0.15em', color: '#fff', marginBottom: '0.75rem' }}>
                         Ref. {w.reference}
                       </p>
                     )}
@@ -361,7 +361,7 @@ export default function CollectionPage() {
               <h2 style={{ fontFamily: 'var(--sans)', fontWeight: 700, fontSize: '1rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#fff' }}>
                 {modal === 'add' ? 'Add New Watch' : 'Edit Watch'}
               </h2>
-              <button onClick={() => setModal(null)} style={{ color: '#444', cursor: 'pointer', background: 'none', border: 'none' }} className="hover:text-white transition-colors">
+              <button onClick={() => setModal(null)} style={{ color: '#fff', cursor: 'pointer', background: 'none', border: 'none' }} className="hover:text-white transition-colors">
                 <X size={18} />
               </button>
             </div>

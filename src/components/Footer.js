@@ -21,7 +21,7 @@ const social = [
   { label: 'WhatsApp',  href: 'https://wa.me/60162241804' },
 ]
 
-const YEAR = new Date().getFullYear()
+const YEAR = 2025
 
 export default function Footer() {
   return (

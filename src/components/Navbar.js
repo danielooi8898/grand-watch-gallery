@@ -44,12 +44,12 @@ export default function Navbar() {
           {/* Logo — mix-blend-mode:screen makes the dark PNG background disappear on dark navbars */}
           <Link href="/" className="flex items-center gap-3 select-none" style={{ textDecoration: 'none' }}>
             <div style={{
-              width: '52px',
-              height: '52px',
+              width: '72px',
+              height: '72px',
               flexShrink: 0,
               backgroundImage: 'url("/GWG_LOGO_clean.png")',
-              backgroundSize: '88px auto',
-              backgroundPosition: '-18px -69px',
+              backgroundSize: '100px auto',
+              backgroundPosition: '-14px -72px',
               backgroundRepeat: 'no-repeat',
             }} />
             <span style={{

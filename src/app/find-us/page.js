@@ -38,7 +38,7 @@ export default function FindUsPage() {
                 </p>
               </div>
 
-              <div style={{ marginBottom: '2.5rem' }}>
+              <div style={{ marginBottom: '2.5rem', marginTop: '0.5rem' }}>
                 <Link href="/appointment"
                   style={{
                     display: 'inline-flex', alignItems: 'center', gap: '0.6rem',
@@ -131,11 +131,10 @@ export default function FindUsPage() {
                 Book a Private Viewing <ArrowUpRight size={13} />
               </Link>
             </div>
-            <div style={{ background: '#111', aspectRatio: '4/3', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontFamily: 'var(--sans)', fontWeight: 900, fontSize: '4rem', color: '#1a1a1a', letterSpacing: '-0.05em' }}>GWG</div>
-                <p style={{ fontFamily: 'var(--sans)', fontSize: '0.65rem', letterSpacing: '0.3em', textTransform: 'uppercase', color: '#333', marginTop: '0.5rem' }}>Gallery Interior</p>
-              </div>
+            <div style={{ aspectRatio: '4/3', overflow: 'hidden', position: 'relative' }}>
+              <img src="https://images.unsplash.com/photo-1559535332-db9971090158?w=800&q=80" alt="Grand Watch Gallery Interior"
+                style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }}
+                onError={e => { e.target.parentElement.style.background = '#111' }} />
             </div>
           </div>
         </div>

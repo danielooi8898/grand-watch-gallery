@@ -65,7 +65,7 @@ export default function BrandsPage() {
                   fontFamily: 'var(--sans)',
                   fontSize: '0.75rem',
                   fontWeight: 400,
-                  color: '#333',
+                  color: '#fff',
                   letterSpacing: '0.1em',
                   alignSelf: 'flex-start',
                   paddingTop: '0.5rem',
@@ -91,15 +91,15 @@ export default function BrandsPage() {
                     {b.name}
                   </h2>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '0.75rem' }}>
-                    <span style={{ fontFamily: 'var(--sans)', fontSize: '0.75rem', fontWeight: 400, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#444' }}>
+                    <span style={{ fontFamily: 'var(--sans)', fontSize: '0.75rem', fontWeight: 400, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#fff' }}>
                       Est. {b.founded}
                     </span>
                     <span style={{ width: '1px', height: '12px', background: '#2A2A2A', display: 'inline-block' }} />
-                    <span style={{ fontFamily: 'var(--sans)', fontSize: '0.75rem', fontWeight: 400, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#444' }}>
+                    <span style={{ fontFamily: 'var(--sans)', fontSize: '0.75rem', fontWeight: 400, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#fff' }}>
                       {b.origin}
                     </span>
                   </div>
-                  <p style={{ fontFamily: 'var(--sans)', fontSize: '0.9rem', color: '#555', lineHeight: 1.6, fontWeight: 300, maxWidth: '520px' }}>
+                  <p style={{ fontFamily: 'var(--sans)', fontSize: '0.9rem', color: '#fff', lineHeight: 1.6, fontWeight: 300, maxWidth: '520px' }}>
                     {b.desc}
                   </p>
                 </div>

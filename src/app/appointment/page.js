@@ -83,7 +83,7 @@ export default function AppointmentPage() {
                   color: '#fff',
                   marginBottom: '0.75rem',
                 }}>{t}</h3>
-                <p className="body-sm">{d}</p>
+                <p className="body-sm" style={{ marginTop:'0.75rem' }}>{d}</p>
               </div>
             ))}
           </div>
@@ -168,7 +168,7 @@ export default function AppointmentPage() {
                     />
                   </div>
 
-                  <button type="submit" disabled={loading} className="btn btn-gold w-full justify-center" style={{ marginTop: '0.5rem' }}>
+                  <button type="submit" disabled={loading} className="btn btn-gold w-full justify-center" style={{ marginTop: '2rem' }}>
                     {loading ? 'Submitting...' : <><span>Request Appointment</span><ArrowRight size={14} /></>}
                   </button>
 
