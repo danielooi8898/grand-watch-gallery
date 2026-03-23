@@ -29,6 +29,12 @@ const testimonials = [
 ]
 
 /* â”€â”€â”€ Sticky Services Section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+const serviceVideos = [
+  'https://videos.pexels.com/video-files/6230464/6230464-hd_1920_1080_24fps.mp4',
+  'https://videos.pexels.com/video-files/6328383/6328383-hd_1920_1080_25fps.mp4',
+  'https://videos.pexels.com/video-files/8322334/8322334-hd_1920_1080_25fps.mp4',
+]
+
 function StickyServices() {
   const [containerRef, prog] = useStickyProgress()
   const step = prog < 0.35 ? 0 : prog < 0.68 ? 1 : 2
@@ -37,19 +43,51 @@ function StickyServices() {
   return (
     <div ref={containerRef} style={{ height: '280vh' }}>
       <div className="sticky top-0 overflow-hidden flex flex-col md:flex-row"
-        style={{ height: '100vh', background: '#0D0D0D' }}>
+        style={{ height: '100vh', background: '#0D0D0D', position: 'relative' }}>
 
-        {/* Left — Big number */}
+        {/* Video backgrounds */}
+        {serviceVideos.map((src, i) => (
+          <video
+            key={src}
+            src={src}
+            autoPlay
+            muted
+            loop
+            playsInline
+            style={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              opacity: i === step ? 0.28 : 0,
+              transition: 'opacity 0.8s ease',
+              zIndex: 0,
+            }}
+          />
+        ))}
+
+        {/* Dark overlay */}
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'linear-gradient(to right, rgba(13,13,13,0.92) 33%, rgba(13,13,13,0.72))',
+          zIndex: 1,
+          pointerEvents: 'none',
+        }} />
+
+        {/* Left - Big number */}
         <div className="hidden md:flex items-center justify-center w-1/3 border-r"
-          style={{ borderColor: '#1a1a1a' }}>
+          style={{ borderColor: '#1a1a1a', position: 'relative', zIndex: 2 }}>
           <span className="serif font-light transition-all duration-700"
             style={{ fontSize: 'clamp(6rem,14vw,14rem)', color: '#1a1a1a', lineHeight: 1, userSelect: 'none' }}>
             {s.num}
           </span>
         </div>
 
-        {/* Right — Content */}
-        <div className="flex flex-col justify-center flex-1 px-8 md:px-16 lg:px-24">
+        {/* Right - Content */}
+        <div className="flex flex-col justify-center flex-1 px-8 md:px-16 lg:px-24"
+          style={{ position: 'relative', zIndex: 2 }}>
           {/* Progress dots */}
           <div className="flex gap-2 mb-10 md:mb-14">
             {services.map((_, i) => (
@@ -85,7 +123,8 @@ function StickyServices() {
 
         {/* Scroll hint (only on first step) */}
         {step === 0 && (
-          <div className="absolute bottom-8 right-8 flex flex-col items-center gap-2 opacity-30 hidden md:flex">
+          <div className="absolute bottom-8 right-8 flex flex-col items-center gap-2 opacity-30 hidden md:flex"
+            style={{ zIndex: 2 }}>
             <span style={{ fontFamily:'var(--sans)', fontSize:'0.8rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#fff', writingMode:'vertical-rl' }}>Scroll</span>
             <ArrowDown size={12} color="#fff" />
           </div>
@@ -95,7 +134,7 @@ function StickyServices() {
   )
 }
 
-/* â”€â”€â”€ Stat Counter â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+
 function StatCounter({ target, suffix = '', label }) {
   const [ref, visible] = [useRef(null), false]
   const [count, start] = useCounter(target)
