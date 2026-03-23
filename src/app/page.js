@@ -177,7 +177,7 @@ export default function HomePage() {
             </p>
           </AnimateIn>
 
-          <AnimateIn delay={550} className="flex flex-col sm:flex-row gap-3" style={{ marginBottom:'2.5rem' }}>
+          <AnimateIn delay={550} className="flex flex-col sm:flex-row gap-3">
             <Link href="/collection" className="btn btn-dark w-full sm:w-auto justify-center"
               style={{ background:'#B08D57', borderColor:'#B08D57', color:'#fff' }}>
               Explore Collection <ArrowRight size={13} />
@@ -189,7 +189,7 @@ export default function HomePage() {
 
           {/* Stats */}
           <AnimateIn delay={700}>
-            <div className="grid grid-cols-3 gap-4 mt-0 pt-10 md:pt-14 border-t"
+            <div className="grid grid-cols-3 gap-4 mt-16 md:mt-20 pt-10 md:pt-14 border-t"
               style={{ borderColor:'rgba(255,255,255,0.06)' }}>
               {[['500','+','Watches Sold'],['17','','Luxury Brands'],['5','+','Years Est.']].map(([n,s,l]) => (
                 <div key={l}>
