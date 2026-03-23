@@ -1,7 +1,8 @@
 'use client'
+import Spinner from '@/components/Spinner'
 import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
-import { Plus, Pencil, Trash2, LoaderCircle, Search, Star, Tag, Grid, List } from 'lucide-react'
+import { Plus, Pencil, Trash2, Search, Star, Tag, Grid, List } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 export default function AdminCollection() {
@@ -133,7 +134,7 @@ export default function AdminCollection() {
       {/* ── Content ── */}
       {loading ? (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '6rem 0' }}>
-          <LoaderCircle size={28} style={{ color: '#B08D57', animation: 'spin 1s linear infinite' }} />
+          <Spinner size={28} style={{ color: '#B08D57', animation: 'spin 1s linear infinite' }} />
         </div>
       ) : filtered.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '5rem 0', background: '#fff', border: '1px solid #E8E2D8' }}>
@@ -217,7 +218,7 @@ export default function AdminCollection() {
                     onMouseEnter={e => { e.currentTarget.style.background = '#dc2626'; e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = '#dc2626' }}
                     onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = '#dc2626'; e.currentTarget.style.borderColor = '#fca5a5' }}
                   >
-                    {deleting === w.id ? <LoaderCircle size={11} style={{ animation: 'spin 1s linear infinite' }} /> : <Trash2 size={11} />}
+                    {deleting === w.id ? <Spinner size={11} style={{ animation: 'spin 1s linear infinite' }} /> : <Trash2 size={11} />}
                     Delete
                   </button>
                 </div>
@@ -279,7 +280,7 @@ export default function AdminCollection() {
                   style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', padding: '0.35rem 0.65rem', border: '1px solid #fca5a5', background: '#fff', cursor: 'pointer', fontFamily: 'var(--sans)', fontSize: '0.67rem', color: '#dc2626', borderRadius: '2px' }}
                   onMouseEnter={e => { e.currentTarget.style.background = '#dc2626'; e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = '#dc2626' }}
                   onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = '#dc2626'; e.currentTarget.style.borderColor = '#fca5a5' }}>
-                  {deleting === w.id ? <LoaderCircle size={11} style={{ animation: 'spin 1s linear infinite' }} /> : <Trash2 size={11} />}
+                  {deleting === w.id ? <Spinner size={11} style={{ animation: 'spin 1s linear infinite' }} /> : <Trash2 size={11} />}
                   Delete
                 </button>
               </div>

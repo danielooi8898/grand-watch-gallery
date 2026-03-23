@@ -1,7 +1,8 @@
 'use client'
+import Spinner from '@/components/Spinner'
 import { useState, useMemo, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import { ArrowRight, X, Plus, Pencil, Trash2, LoaderCircle, Search } from 'lucide-react'
+import { ArrowRight, X, Plus, Pencil, Trash2, Search } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
 
@@ -169,7 +170,7 @@ export default function CollectionPage() {
         <div className="container">
           {loading ? (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '8rem 0' }}>
-              <LoaderCircle size={32} style={{ color: '#B08D57', animation: 'spin 1s linear infinite' }} />
+              <Spinner size={32} style={{ color: '#B08D57', animation: 'spin 1s linear infinite' }} />
             </div>
           ) : filtered.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '8rem 0' }}>
@@ -202,7 +203,7 @@ export default function CollectionPage() {
                         style={{ padding: '0.375rem', background: '#111', border: '1px solid #222', cursor: 'pointer' }}
                         className="hover:bg-red-900 transition-colors" title="Delete">
                         {deleteId === w.id
-                          ? <LoaderCircle size={11} style={{ color: '#f87171', animation: 'spin 1s linear infinite' }} />
+                          ? <Spinner size={11} style={{ color: '#f87171', animation: 'spin 1s linear infinite' }} />
                           : <Trash2 size={11} style={{ color: '#fff' }} />}
                       </button>
                     </div>
@@ -433,7 +434,7 @@ export default function CollectionPage() {
                 Cancel
               </button>
               <button onClick={handleSave} disabled={saving} className="btn btn-gold" style={{ padding: '0.75rem 1.75rem' }}>
-                {saving ? <><LoaderCircle size={12} style={{ animation: 'spin 1s linear infinite' }} /> Saving...</> : modal === 'add' ? 'Add Watch' : 'Save Changes'}
+                {saving ? <><Spinner size={12} style={{ animation: 'spin 1s linear infinite' }} /> Saving...</> : modal === 'add' ? 'Add Watch' : 'Save Changes'}
               </button>
             </div>
           </div>

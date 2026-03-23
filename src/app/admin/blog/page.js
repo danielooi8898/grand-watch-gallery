@@ -1,6 +1,7 @@
 'use client'
+import Spinner from '@/components/Spinner'
 import { useEffect, useState, useCallback } from 'react'
-import { Plus, Pencil, Trash2, X, LoaderCircle, ExternalLink } from 'lucide-react'
+import { Plus, Pencil, Trash2, X, ExternalLink } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 const EMPTY = { title:'', category:'Market Update', excerpt:'', source_url:'', source:'', date:'', read_time:'5 min', is_published:true }
@@ -72,7 +73,7 @@ export default function AdminBlog() {
       {/* List */}
       {loading ? (
         <div style={{ display:'flex', justifyContent:'center', padding:'4rem' }}>
-          <LoaderCircle size={24} style={{ color:'#B08D57', animation:'spin 1s linear infinite' }} />
+          <Spinner size={24} style={{ color:'#B08D57', animation:'spin 1s linear infinite' }} />
         </div>
       ) : posts.length === 0 ? (
         <div style={{ textAlign:'center', padding:'4rem', background:'#fff', border:'1px solid #E8E2D8', fontFamily:'var(--sans)', fontSize:'0.85rem', color:'#bbb' }}>
@@ -103,7 +104,7 @@ export default function AdminBlog() {
                   <Pencil size={11}/> Edit
                 </button>
                 <button onClick={() => handleDelete(p.id)} disabled={deleting===p.id} style={{ padding:'0.4rem 0.75rem', border:'1px solid #fca5a5', background:'#fff', cursor:'pointer', fontFamily:'var(--sans)', fontSize:'0.7rem', display:'flex', alignItems:'center', gap:'0.3rem', color:'#dc2626' }}>
-                  {deleting===p.id ? <LoaderCircle size={11} style={{ animation:'spin 1s linear infinite' }}/> : <Trash2 size={11}/>}
+                  {deleting===p.id ? <Spinner size={11} style={{ animation:'spin 1s linear infinite' }}/> : <Trash2 size={11}/>}
                 </button>
               </div>
             </div>
@@ -165,7 +166,7 @@ export default function AdminBlog() {
                 Cancel
               </button>
               <button onClick={handleSave} disabled={saving} style={{ padding:'0.65rem 1.5rem', background:'#B08D57', color:'#fff', border:'none', cursor:'pointer', fontFamily:'var(--sans)', fontSize:'0.75rem', fontWeight:700, letterSpacing:'0.1em', textTransform:'uppercase', display:'flex', alignItems:'center', gap:'0.4rem', opacity:saving?0.7:1 }}>
-                {saving ? <><LoaderCircle size={12} style={{ animation:'spin 1s linear infinite' }}/> Saving…</> : (editId ? 'Save Changes' : 'Add Article')}
+                {saving ? <><Spinner size={12} style={{ animation:'spin 1s linear infinite' }}/> Saving…</> : (editId ? 'Save Changes' : 'Add Article')}
               </button>
             </div>
           </div>

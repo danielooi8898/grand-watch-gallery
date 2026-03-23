@@ -1,8 +1,9 @@
 'use client'
+import Spinner from '@/components/Spinner'
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, ArrowRight, LoaderCircle } from 'lucide-react'
+import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 const CONDITION_LABELS = {
@@ -29,7 +30,7 @@ export default function WatchDetailPage() {
 
   if (loading) return (
     <div style={{ minHeight: '100vh', background: '#0A0A0A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <LoaderCircle size={32} style={{ color: '#B08D57', animation: 'spin 1s linear infinite' }} />
+      <Spinner size={32} style={{ color: '#B08D57', animation: 'spin 1s linear infinite' }} />
     </div>
   )
 

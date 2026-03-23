@@ -1,4 +1,5 @@
 'use client'
+import Spinner from '@/components/Spinner'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Package, BookOpen, Layers, Settings, ArrowRight, TrendingUp, CheckCircle, Clock, Star } from 'lucide-react'
@@ -111,7 +112,7 @@ export default function AdminDashboard() {
 
         {loading ? (
           <div style={{ display:'flex', justifyContent:'center', padding:'2rem' }}>
-            <LoaderCircle size={20} style={{ color:'#B08D57', animation:'spin 1s linear infinite' }} />
+            <Spinner size={20} style={{ color:'#B08D57', animation:'spin 1s linear infinite' }} />
           </div>
         ) : recent.length === 0 ? (
           <div style={{ textAlign:'center', padding:'2.5rem', background:'#F7F6F3', borderRadius:'6px' }}>

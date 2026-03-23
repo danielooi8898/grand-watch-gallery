@@ -1,6 +1,7 @@
 'use client'
+import Spinner from '@/components/Spinner'
 import { useEffect, useState } from 'react'
-import { Save, LoaderCircle, Plus, Trash2, CheckCircle, Eye } from 'lucide-react'
+import { Save, Plus, Trash2, CheckCircle, Eye } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 /* ─── Shared styles ─────────────────────────────────────────────────────── */
@@ -25,7 +26,7 @@ function SaveBar({ section, saving, onSave }) {
         onClick={onSave}
         disabled={saving}
         style={{ display:'inline-flex', alignItems:'center', gap:'0.5rem', background:'#B08D57', color:'#fff', padding:'0.65rem 1.5rem', border:'none', cursor: saving ? 'not-allowed' : 'pointer', fontFamily:'var(--sans)', fontSize:'0.72rem', fontWeight:700, letterSpacing:'0.12em', textTransform:'uppercase', borderRadius:'4px', opacity: saving ? 0.7 : 1, transition:'opacity 0.15s' }}>
-        {saving ? <><LoaderCircle size={13} style={{ animation:'spin 1s linear infinite' }}/> Saving…</> : <><Save size={13}/> Save Changes</>}
+        {saving ? <><Spinner size={13} style={{ animation:'spin 1s linear infinite' }}/> Saving…</> : <><Save size={13}/> Save Changes</>}
       </button>
     </div>
   )
