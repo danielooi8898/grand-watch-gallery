@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
 
-const TIMEOUT_MS = 10000
+const TIMEOUT_MS = 15000
 
 function withTimeout(promise, ms) {
   const timer = new Promise((_, reject) =>
@@ -13,7 +13,7 @@ function withTimeout(promise, ms) {
 }
 
 export default function AdminLogin() {
-  const { signIn } = useAuth()
+  const { signIn, loading: authLoading } = useAuth()
   const router = useRouter()
   const [email,    setEmail]    = useState('')
   const [password, setPassword] = useState('')
@@ -22,6 +22,11 @@ export default function AdminLogin() {
 
   const submit = async (e) => {
     e.preventDefault()
+    // Wait until AuthContext has finished its getSession() so the lock is free
+    if (authLoading) {
+      setError('Still initialising, please wait a moment and try again.')
+      return
+    }
     setLoading(true)
     setError('')
     try {
@@ -104,9 +109,9 @@ export default function AdminLogin() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || authLoading}
             style={{
-              background: loading ? '#888' : '#111',
+              background: (loading || authLoading) ? '#888' : '#111',
               color: '#fff',
               border: 'none',
               padding: '1rem',
@@ -114,14 +119,14 @@ export default function AdminLogin() {
               fontSize: '0.7rem',
               letterSpacing: '0.2em',
               textTransform: 'uppercase',
-              cursor: loading ? 'not-allowed' : 'pointer',
+              cursor: (loading || authLoading) ? 'not-allowed' : 'pointer',
               width: '100%',
               marginTop: '0.5rem',
               transition: 'background 0.2s',
               borderRadius: '2px',
             }}
           >
-            {loading ? 'Signing in…' : 'Sign In'}
+            {authLoading ? 'Initialising…' : loading ? 'Signing in…' : 'Sign In'}
           </button>
         </form>
 
