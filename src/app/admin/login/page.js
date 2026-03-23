@@ -15,20 +15,32 @@ export default function AdminLogin() {
     e.preventDefault()
     setLoading(true)
     setError('')
-    const { error: err } = await signIn(email, password)
-    setLoading(false)
-    if (err) { setError('Invalid credentials. Please try again.'); return }
-    router.push('/admin')
+    try {
+      const { data, error: err } = await signIn(email, password)
+      if (err) {
+        setError(err.message || 'Sign in failed. Please check your credentials.')
+        setLoading(false)
+        return
+      }
+      if (data?.session) {
+        router.push('/admin')
+      } else {
+        setError('No session returned. Please try again.')
+        setLoading(false)
+      }
+    } catch (ex) {
+      setError('Error: ' + (ex?.message || String(ex)))
+      setLoading(false)
+    }
   }
 
-  const inputStyle = { background: '#fff', color: '#111', border: '1px solid #ddd' }
+  const inputStyle = { background: '#fff', color: '#111', border: '1px solid #ccc', outline: 'none' }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: '#F8F5EF' }}>
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-12">
-          <p className="serif font-light tracking-[0.2em] uppercase mb-1"
-            style={{ fontSize: '1.25rem', color: '#111', fontFamily: 'var(--serif)' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 1rem', background: '#F8F5EF' }}>
+      <div style={{ width: '100%', maxWidth: '360px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+          <p style={{ fontSize: '1.25rem', color: '#111', fontFamily: 'var(--serif)', fontWeight: 300, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '0.4rem' }}>
             Grand Watch Gallery
           </p>
           <p style={{ fontFamily: 'var(--sans)', fontSize: '0.55rem', letterSpacing: '0.4em', textTransform: 'uppercase', color: '#B08D57' }}>
@@ -36,32 +48,68 @@ export default function AdminLogin() {
           </p>
           <div style={{ width: '36px', height: '1px', background: '#B08D57', margin: '1.5rem auto 0' }} />
         </div>
-        <form onSubmit={submit} className="flex flex-col gap-4">
+
+        <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           <div>
             <label style={{ fontFamily: 'var(--sans)', fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#888', display: 'block', marginBottom: '0.4rem' }}>
               Email Address
             </label>
-            <input className="input" type="email" value={email} onChange={e => setEmail(e.target.value)}
-              required autoFocus placeholder="admin@gwg.com" style={inputStyle} />
+            <input
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              required
+              autoFocus
+              placeholder="you@example.com"
+              style={{ ...inputStyle, width: '100%', padding: '0.85rem 1rem', fontSize: '0.9rem', fontFamily: 'var(--sans)', boxSizing: 'border-box' }}
+            />
           </div>
+
           <div>
             <label style={{ fontFamily: 'var(--sans)', fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#888', display: 'block', marginBottom: '0.4rem' }}>
               Password
             </label>
-            <input className="input" type="password" value={password} onChange={e => setPassword(e.target.value)}
-              required placeholder="••••••••" style={inputStyle} />
+            <input
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              required
+              placeholder="••••••••"
+              style={{ ...inputStyle, width: '100%', padding: '0.85rem 1rem', fontSize: '0.9rem', fontFamily: 'var(--sans)', boxSizing: 'border-box' }}
+            />
           </div>
+
           {error && (
-            <p style={{ fontFamily: 'var(--sans)', fontSize: '0.75rem', color: '#c0392b', textAlign: 'center' }}>
-              {error}
-            </p>
+            <div style={{ background: '#fff0f0', border: '1px solid #f5c6cb', borderRadius: '4px', padding: '0.75rem 1rem' }}>
+              <p style={{ fontFamily: 'var(--sans)', fontSize: '0.8rem', color: '#c0392b', margin: 0 }}>
+                {error}
+              </p>
+            </div>
           )}
-          <button type="submit" disabled={loading} className="btn btn-dark w-full mt-2"
-            style={{ opacity: loading ? 0.6 : 1 }}>
+
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              background: loading ? '#888' : '#111',
+              color: '#fff',
+              border: 'none',
+              padding: '1rem',
+              fontFamily: 'var(--sans)',
+              fontSize: '0.7rem',
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              width: '100%',
+              marginTop: '0.5rem',
+              transition: 'background 0.2s',
+            }}
+          >
             {loading ? 'Signing in…' : 'Sign In'}
           </button>
         </form>
-        <p className="text-center mt-8" style={{ fontFamily: 'var(--sans)', fontSize: '0.65rem', color: '#bbb' }}>
+
+        <p style={{ textAlign: 'center', marginTop: '2rem', fontFamily: 'var(--sans)', fontSize: '0.65rem', color: '#bbb' }}>
           Grand Watch &amp; Jewellery Sdn. Bhd.
         </p>
       </div>

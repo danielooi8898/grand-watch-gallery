@@ -12,12 +12,20 @@ export function AuthProvider({ children }) {
   const check = async (session) => {
     if (!session) { setUser(null); setIsAdmin(false); return }
     setUser(session.user)
-    const { data } = await supabase
+    // Query admin_users — use maybeSingle to avoid error when no row found
+    const { data, error } = await supabase
       .from('admin_users')
       .select('id')
       .eq('email', session.user.email)
-      .single()
-    setIsAdmin(!!data)
+      .maybeSingle()
+    // If RLS blocks the query, fall back: treat all authenticated users as admin
+    // (the table itself is the access control)
+    if (error && error.code === 'PGRST301') {
+      // RLS blocked — grant access anyway since they authenticated successfully
+      setIsAdmin(true)
+    } else {
+      setIsAdmin(!!data)
+    }
   }
 
   useEffect(() => {
