@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
 
@@ -15,14 +15,19 @@ function withTimeout(promise, ms) {
 export default function AdminLogin() {
   const { signIn, loading: authLoading } = useAuth()
   const router = useRouter()
-  const [email,    setEmail]    = useState('')
-  const [password, setPassword] = useState('')
-  const [error,    setError]    = useState('')
-  const [loading,  setLoading]  = useState(false)
+  const emailRef    = useRef(null)
+  const passwordRef = useRef(null)
+  const [error,   setError]   = useState('')
+  const [loading, setLoading] = useState(false)
 
   const submit = async (e) => {
     e.preventDefault()
-    // Wait until AuthContext has finished its getSession() so the lock is free
+    const email    = emailRef.current?.value?.trim() || ''
+    const password = passwordRef.current?.value || ''
+    if (!email || !password) {
+      setError('Please enter your email and password.')
+      return
+    }
     if (authLoading) {
       setError('Still initialising, please wait a moment and try again.')
       return
@@ -54,6 +59,11 @@ export default function AdminLogin() {
     border: '1px solid #ccc',
     outline: 'none',
     borderRadius: '2px',
+    width: '100%',
+    padding: '0.85rem 1rem',
+    fontSize: '0.9rem',
+    fontFamily: 'var(--sans)',
+    boxSizing: 'border-box',
   }
 
   return (
@@ -75,13 +85,13 @@ export default function AdminLogin() {
               Email Address
             </label>
             <input
+              ref={emailRef}
               type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
+              defaultValue=""
               autoFocus
+              autoComplete="username"
               placeholder="you@example.com"
-              style={{ ...inputStyle, width: '100%', padding: '0.85rem 1rem', fontSize: '0.9rem', fontFamily: 'var(--sans)', boxSizing: 'border-box' }}
+              style={inputStyle}
             />
           </div>
 
@@ -90,12 +100,12 @@ export default function AdminLogin() {
               Password
             </label>
             <input
+              ref={passwordRef}
               type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
+              defaultValue=""
+              autoComplete="current-password"
               placeholder="••••••••"
-              style={{ ...inputStyle, width: '100%', padding: '0.85rem 1rem', fontSize: '0.9rem', fontFamily: 'var(--sans)', boxSizing: 'border-box' }}
+              style={inputStyle}
             />
           </div>
 
@@ -109,9 +119,9 @@ export default function AdminLogin() {
 
           <button
             type="submit"
-            disabled={loading || authLoading}
+            disabled={loading}
             style={{
-              background: (loading || authLoading) ? '#888' : '#111',
+              background: loading ? '#888' : '#111',
               color: '#fff',
               border: 'none',
               padding: '1rem',
@@ -119,14 +129,14 @@ export default function AdminLogin() {
               fontSize: '0.7rem',
               letterSpacing: '0.2em',
               textTransform: 'uppercase',
-              cursor: (loading || authLoading) ? 'not-allowed' : 'pointer',
+              cursor: loading ? 'not-allowed' : 'pointer',
               width: '100%',
               marginTop: '0.5rem',
               transition: 'background 0.2s',
               borderRadius: '2px',
             }}
           >
-            {authLoading ? 'Initialising…' : loading ? 'Signing in…' : 'Sign In'}
+            {loading ? 'Signing in…' : 'Sign In'}
           </button>
         </form>
 
