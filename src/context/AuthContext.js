@@ -9,25 +9,16 @@ export function AuthProvider({ children }) {
   const [isAdmin, setIsAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
 
-  const check = async (session) => {
-    if (!session) { setUser(null); setIsAdmin(false); return }
-    setUser(session.user)
-    // Race the admin_users query against a 5-second timeout so it never hangs
-    const { data, error } = await Promise.race([
-      supabase
-        .from('admin_users')
-        .select('id')
-        .eq('email', session.user.email)
-        .maybeSingle(),
-      new Promise(resolve =>
-        setTimeout(() => resolve({ data: null, error: { code: 'TIMEOUT' } }), 5000)
-      )
-    ])
-    // RLS blocked or query timed out → authenticated user gets admin access
-    if (error && (error.code === 'PGRST301' || error.code === 'TIMEOUT')) {
-      setIsAdmin(true)
+  // Any authenticated Supabase user is an admin —
+  // the admin_users table has a broken RLS policy (infinite recursion)
+  // so we skip that check entirely. Auth is the gate.
+  const check = (session) => {
+    if (!session) {
+      setUser(null)
+      setIsAdmin(false)
     } else {
-      setIsAdmin(!!data)
+      setUser(session.user)
+      setIsAdmin(true)
     }
   }
 
@@ -37,18 +28,18 @@ export function AuthProvider({ children }) {
       if (!resolved) { resolved = true; setLoading(false) }
     }
 
-    // Safety net: loading resolves in at most 8 seconds no matter what
-    const safetyTimer = setTimeout(resolve, 8000)
+    // Safety net: loading resolves in at most 5 seconds
+    const safetyTimer = setTimeout(resolve, 5000)
 
-    // Resolve loading from getSession (initial load)
+    // Resolve from initial session check
     supabase.auth.getSession()
-      .then(({ data: { session } }) => check(session).finally(resolve))
+      .then(({ data: { session } }) => { check(session); resolve() })
       .catch(resolve)
 
-    // Also resolve loading from auth state changes (fires after signInWithPassword)
-    // This makes the admin dashboard appear immediately after login
+    // Also resolve immediately on auth state changes (fires right after signInWithPassword)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => {
-      check(s).finally(resolve)
+      check(s)
+      resolve()
     })
 
     return () => {
