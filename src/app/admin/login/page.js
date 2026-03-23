@@ -21,6 +21,8 @@ export default function AdminLogin() {
     router.push('/admin')
   }
 
+  const inputStyle = { background: '#fff', color: '#111', border: '1px solid #ddd' }
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4" style={{ background: '#F8F5EF' }}>
       <div className="w-full max-w-sm">
@@ -40,14 +42,14 @@ export default function AdminLogin() {
               Email Address
             </label>
             <input className="input" type="email" value={email} onChange={e => setEmail(e.target.value)}
-              required autoFocus placeholder="admin@gwg.com" style={{ background: '#fff' }} />
+              required autoFocus placeholder="admin@gwg.com" style={inputStyle} />
           </div>
           <div>
             <label style={{ fontFamily: 'var(--sans)', fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#888', display: 'block', marginBottom: '0.4rem' }}>
               Password
             </label>
             <input className="input" type="password" value={password} onChange={e => setPassword(e.target.value)}
-              required placeholder="••••••••" style={{ background: '#fff' }} />
+              required placeholder="••••••••" style={inputStyle} />
           </div>
           {error && (
             <p style={{ fontFamily: 'var(--sans)', fontSize: '0.75rem', color: '#c0392b', textAlign: 'center' }}>
