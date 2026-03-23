@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Upload, X, Loader2, Save, Trash2 } from 'lucide-react'
+import { ArrowLeft, Upload, X, LoaderCircle, Save, Trash2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 const COND = ['new','unworn','excellent','good','fair']
@@ -92,7 +92,7 @@ export default function WatchEditPage() {
 
   if (loading) return (
     <div style={{ display:'flex', justifyContent:'center', padding:'6rem' }}>
-      <Loader2 size={24} style={{ color:'#B08D57', animation:'spin 1s linear infinite' }} />
+      <LoaderCircle size={24} style={{ color:'#B08D57', animation:'spin 1s linear infinite' }} />
     </div>
   )
 
@@ -137,7 +137,7 @@ export default function WatchEditPage() {
             </div>
           ))}
           <label style={{ width:'100px', height:'100px', border:'2px dashed #E8E2D8', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', cursor:'pointer', gap:'0.4rem', background:'#FDFAF7' }}>
-            {uploading ? <Loader2 size={18} style={{ color:'#B08D57', animation:'spin 1s linear infinite' }} />
+            {uploading ? <LoaderCircle size={18} style={{ color:'#B08D57', animation:'spin 1s linear infinite' }} />
               : <><Upload size={18} style={{ color:'#ccc' }} /><span style={{ fontFamily:'var(--sans)', fontSize:'0.62rem', color:'#bbb', letterSpacing:'0.1em', textTransform:'uppercase' }}>Upload</span></>}
             <input type="file" accept="image/*" multiple onChange={handleImageUpload} style={{ display:'none' }} />
           </label>
@@ -196,7 +196,7 @@ export default function WatchEditPage() {
 
       {/* Save */}
       <button onClick={handleSave} disabled={saving} style={{ display:'flex', alignItems:'center', gap:'0.5rem', background:'#B08D57', color:'#fff', padding:'0.85rem 2rem', border:'none', cursor:'pointer', fontFamily:'var(--sans)', fontSize:'0.78rem', fontWeight:700, letterSpacing:'0.12em', textTransform:'uppercase', opacity: saving?0.7:1 }}>
-        {saving ? <><Loader2 size={14} style={{ animation:'spin 1s linear infinite' }} /> Saving…</> : <><Save size={14} /> {isNew ? 'Add Watch' : 'Save Changes'}</>}
+        {saving ? <><LoaderCircle size={14} style={{ animation:'spin 1s linear infinite' }} /> Saving…</> : <><Save size={14} /> {isNew ? 'Add Watch' : 'Save Changes'}</>}
       </button>
     </div>
   )

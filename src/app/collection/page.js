@@ -1,7 +1,7 @@
-﻿'use client'
+'use client'
 import { useState, useMemo, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import { ArrowRight, X, Plus, Pencil, Trash2, Loader2, Search } from 'lucide-react'
+import { ArrowRight, X, Plus, Pencil, Trash2, LoaderCircle, Search } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
 
@@ -93,7 +93,7 @@ export default function CollectionPage() {
   return (
     <div style={{ background: '#0A0A0A', minHeight: '100vh' }}>
 
-      {/* â”€â”€ Header â”€â”€ */}
+      {/* ── Header ── */}
       <section style={{ paddingTop: '8rem', paddingBottom: '3rem', borderBottom: '1px solid #1A1A1A' }}>
         <div className="container">
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
@@ -120,7 +120,7 @@ export default function CollectionPage() {
         </div>
       </section>
 
-      {/* â”€â”€ Filters â”€â”€ */}
+      {/* ── Filters ── */}
       <section style={{ borderBottom: '1px solid #1A1A1A', position: 'sticky', top: '68px', zIndex: 40, background: '#0A0A0A' }}>
         <div className="container" style={{ paddingTop: '1.25rem', paddingBottom: '1.25rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
@@ -164,12 +164,12 @@ export default function CollectionPage() {
         </div>
       </section>
 
-      {/* â”€â”€ Grid â”€â”€ */}
+      {/* ── Grid ── */}
       <section style={{ padding: '4rem 0' }}>
         <div className="container">
           {loading ? (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '8rem 0' }}>
-              <Loader2 size={32} style={{ color: '#B08D57', animation: 'spin 1s linear infinite' }} />
+              <LoaderCircle size={32} style={{ color: '#B08D57', animation: 'spin 1s linear infinite' }} />
             </div>
           ) : filtered.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '8rem 0' }}>
@@ -180,7 +180,7 @@ export default function CollectionPage() {
                 onClick={() => { setBrand('All'); setSearch('') }}
                 className="eyebrow hover:text-white transition-colors"
               >
-                Clear filters â†’
+                Clear filters →
               </button>
             </div>
           ) : (
@@ -202,13 +202,13 @@ export default function CollectionPage() {
                         style={{ padding: '0.375rem', background: '#111', border: '1px solid #222', cursor: 'pointer' }}
                         className="hover:bg-red-900 transition-colors" title="Delete">
                         {deleteId === w.id
-                          ? <Loader2 size={11} style={{ color: '#f87171', animation: 'spin 1s linear infinite' }} />
+                          ? <LoaderCircle size={11} style={{ color: '#f87171', animation: 'spin 1s linear infinite' }} />
                           : <Trash2 size={11} style={{ color: '#fff' }} />}
                       </button>
                     </div>
                   )}
 
-                  {/* Watch image area â€” RM style: image floats on black */}
+                  {/* Watch image area — RM style: image floats on black */}
                   <div style={{
                     aspectRatio: '1',
                     display: 'flex',
@@ -327,7 +327,7 @@ export default function CollectionPage() {
         </div>
       </section>
 
-      {/* â”€â”€ Trade-in CTA â”€â”€ */}
+      {/* ── Trade-in CTA ── */}
       <section style={{ borderTop: '1px solid #1A1A1A', padding: '5rem 0' }}>
         <div className="container">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
@@ -352,7 +352,7 @@ export default function CollectionPage() {
         </div>
       </section>
 
-      {/* â”€â”€ Admin Modal â”€â”€ */}
+      {/* ── Admin Modal ── */}
       {modal && (
         <div
           style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', background: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(4px)' }}
@@ -433,7 +433,7 @@ export default function CollectionPage() {
                 Cancel
               </button>
               <button onClick={handleSave} disabled={saving} className="btn btn-gold" style={{ padding: '0.75rem 1.75rem' }}>
-                {saving ? <><Loader2 size={12} style={{ animation: 'spin 1s linear infinite' }} /> Saving...</> : modal === 'add' ? 'Add Watch' : 'Save Changes'}
+                {saving ? <><LoaderCircle size={12} style={{ animation: 'spin 1s linear infinite' }} /> Saving...</> : modal === 'add' ? 'Add Watch' : 'Save Changes'}
               </button>
             </div>
           </div>

@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, ArrowRight, Loader2 } from 'lucide-react'
+import { ArrowLeft, ArrowRight, LoaderCircle } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 const CONDITION_LABELS = {
@@ -29,7 +29,7 @@ export default function WatchDetailPage() {
 
   if (loading) return (
     <div style={{ minHeight: '100vh', background: '#0A0A0A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <Loader2 size={32} style={{ color: '#B08D57', animation: 'spin 1s linear infinite' }} />
+      <LoaderCircle size={32} style={{ color: '#B08D57', animation: 'spin 1s linear infinite' }} />
     </div>
   )
 

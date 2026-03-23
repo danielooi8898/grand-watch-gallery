@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { Save, Loader2, CheckCircle } from 'lucide-react'
+import { Save, LoaderCircle, CheckCircle } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 const inp  = { width:'100%', padding:'0.65rem 0.85rem', fontFamily:'var(--sans)', fontSize:'0.82rem', border:'1px solid #E0DDD8', background:'#fff', outline:'none', borderRadius:'4px', color:'#111', boxSizing:'border-box', transition:'border-color 0.15s' }
@@ -63,7 +63,7 @@ export default function AdminSettings() {
         onClick={() => saveGroup(group, keys)}
         disabled={!!saving}
         style={{ display:'inline-flex', alignItems:'center', gap:'0.5rem', background:'#B08D57', color:'#fff', padding:'0.65rem 1.5rem', border:'none', cursor: saving ? 'not-allowed' : 'pointer', fontFamily:'var(--sans)', fontSize:'0.72rem', fontWeight:700, letterSpacing:'0.12em', textTransform:'uppercase', borderRadius:'4px', opacity: saving === group ? 0.7 : 1 }}>
-        {saving === group ? <><Loader2 size={13} style={{ animation:'spin 1s linear infinite' }}/> Saving…</> : <><Save size={13}/> Save</>}
+        {saving === group ? <><LoaderCircle size={13} style={{ animation:'spin 1s linear infinite' }}/> Saving…</> : <><Save size={13}/> Save</>}
       </button>
     </div>
   )

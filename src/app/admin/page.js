@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Package, BookOpen, Layers, Settings, ArrowRight, TrendingUp, CheckCircle, Clock, Star } from 'lucide-react'
@@ -52,7 +52,7 @@ export default function AdminDashboard() {
         <p style={{ fontFamily:'var(--sans)', fontSize:'0.62rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#B08D57', marginBottom:'0.35rem' }}>Admin</p>
         <h1 style={{ fontFamily:'var(--sans)', fontWeight:800, fontSize:'1.6rem', letterSpacing:'-0.02em', color:'#111' }}>Dashboard</h1>
         <p style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', color:'#888', marginTop:'0.2rem' }}>
-          Welcome back{user?.email ? `, ${user.email.split('@')[0]}` : ''} â€” here's your store at a glance.
+          Welcome back{user?.email ? `, ${user.email.split('@')[0]}` : ''} — here's your store at a glance.
         </p>
       </div>
 
@@ -64,7 +64,7 @@ export default function AdminDashboard() {
               <div>
                 <p style={{ fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#999', marginBottom:'0.5rem' }}>{label}</p>
                 <p style={{ fontFamily:'var(--sans)', fontWeight:800, fontSize:'2rem', letterSpacing:'-0.03em', color:'#111', lineHeight:1 }}>
-                  {loading ? 'â€”' : value}
+                  {loading ? '—' : value}
                 </p>
               </div>
               <div style={{ width:'34px', height:'34px', borderRadius:'8px', background:bg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
@@ -111,13 +111,13 @@ export default function AdminDashboard() {
 
         {loading ? (
           <div style={{ display:'flex', justifyContent:'center', padding:'2rem' }}>
-            <Loader2 size={20} style={{ color:'#B08D57', animation:'spin 1s linear infinite' }} />
+            <LoaderCircle size={20} style={{ color:'#B08D57', animation:'spin 1s linear infinite' }} />
           </div>
         ) : recent.length === 0 ? (
           <div style={{ textAlign:'center', padding:'2.5rem', background:'#F7F6F3', borderRadius:'6px' }}>
             <Package size={24} style={{ color:'#CCC', marginBottom:'0.75rem' }} />
             <p style={{ fontFamily:'var(--sans)', fontSize:'0.82rem', color:'#BBB' }}>No watches yet.</p>
-            <Link href="/admin/collection" style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', color:'#B08D57', textDecoration:'none', fontWeight:600 }}>Add your first watch â†’</Link>
+            <Link href="/admin/collection" style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', color:'#B08D57', textDecoration:'none', fontWeight:600 }}>Add your first watch →</Link>
           </div>
         ) : (
           <div style={{ overflowX:'auto' }}>

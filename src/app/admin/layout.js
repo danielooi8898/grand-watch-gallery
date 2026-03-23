@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
-import { LayoutDashboard, Package, BookOpen, Layers, Settings, LogOut, Globe, Loader2 } from 'lucide-react'
+import { LayoutDashboard, Package, BookOpen, Layers, Settings, LogOut, Globe, LoaderCircle } from 'lucide-react'
 
 const NAV = [
   { href: '/admin',            label: 'Dashboard',  icon: LayoutDashboard },
@@ -27,7 +27,7 @@ export default function AdminLayout({ children }) {
 
   if (loading || !user || !isAdmin) return (
     <div style={{ minHeight:'100vh', background:'#F7F6F3', display:'flex', alignItems:'center', justifyContent:'center' }}>
-      <Loader2 size={28} style={{ color:'#B08D57', animation:'spin 1s linear infinite' }} />
+      <LoaderCircle size={28} style={{ color:'#B08D57', animation:'spin 1s linear infinite' }} />
     </div>
   )
 
