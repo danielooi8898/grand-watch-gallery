@@ -1,10 +1,7 @@
-﻿import { Barlow } from 'next/font/google'
+import { Barlow } from 'next/font/google'
 import './globals.css'
-import Navbar from '@/components/Navbar'
-import Footer from '@/components/Footer'
-import WhatsAppButton from '@/components/WhatsAppButton'
-import AdminBar from '@/components/AdminBar'
 import { AuthProvider } from '@/context/AuthContext'
+import PublicShell from '@/components/PublicShell'
 
 const barlow = Barlow({
   subsets: ['latin'],
@@ -23,11 +20,9 @@ export default function RootLayout({ children }) {
     <html lang="en" className={barlow.variable} data-scroll-behavior="smooth">
       <body>
         <AuthProvider>
-          <AdminBar />
-          <Navbar />
-          <main>{children}</main>
-          <Footer />
-          <WhatsAppButton />
+          <PublicShell>
+            {children}
+          </PublicShell>
         </AuthProvider>
       </body>
     </html>

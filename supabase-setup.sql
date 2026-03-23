@@ -1,182 +1,99 @@
--- ================================================================
--- Grand Watch Gallery — Supabase Database Setup
+-- ============================================================
+-- Grand Watch Gallery — Supabase Setup Script
 -- Run this in: Supabase Dashboard → SQL Editor → New Query
--- ================================================================
+-- ============================================================
 
--- 1. WATCHES TABLE
--- ================================================================
-create table if not exists watches (
-  id           uuid primary key default gen_random_uuid(),
-  brand        text not null,
-  model        text not null,
-  ref          text,
-  price        text,
-  year         integer,
-  type         text default 'Watch',
-  condition    text default 'Excellent',
-  tag          text,
-  description  text,
-  image_url    text,
-  is_featured  boolean default false,
-  is_sold      boolean default false,
-  created_at   timestamptz default now()
+-- 1. Admin users table (if not already created)
+CREATE TABLE IF NOT EXISTS admin_users (
+  id    uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  email text UNIQUE NOT NULL
 );
 
--- 2. ADMIN USERS TABLE
--- ================================================================
-create table if not exists admin_users (
-  id         uuid primary key default gen_random_uuid(),
-  email      text unique not null,
-  created_at timestamptz default now()
+-- 2. Site settings (key-value store for all editable content)
+CREATE TABLE IF NOT EXISTS site_settings (
+  key   text PRIMARY KEY,
+  value jsonb
 );
 
--- INSERT YOUR ADMIN EMAIL HERE:
-insert into admin_users (email) values ('ooimunhong8898@gmail.com');
-
--- 3. APPOINTMENTS TABLE
--- ================================================================
-create table if not exists appointments (
-  id           uuid primary key default gen_random_uuid(),
-  name         text not null,
-  email        text not null,
-  phone        text,
-  date         date,
-  time         text,
-  interest     text,
-  notes        text,
-  status       text default 'pending',
-  created_at   timestamptz default now()
+-- 3. Blog / Journal posts
+CREATE TABLE IF NOT EXISTS blog_posts (
+  id           uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  title        text NOT NULL,
+  category     text DEFAULT 'Market Update',
+  excerpt      text,
+  source_url   text NOT NULL,
+  source       text,
+  date         text,
+  read_time    text DEFAULT '5 min',
+  is_published boolean DEFAULT true,
+  order_index  integer DEFAULT 0,
+  created_at   timestamptz DEFAULT now()
 );
 
--- 4. TRADE-IN REQUESTS TABLE
--- ================================================================
-create table if not exists trade_in_requests (
-  id            uuid primary key default gen_random_uuid(),
-  name          text not null,
-  email         text not null,
-  phone         text,
-  watch_brand   text,
-  watch_model   text,
-  watch_ref     text,
-  watch_year    integer,
-  condition     text,
-  has_papers    boolean default false,
-  has_box       boolean default false,
-  notes         text,
-  status        text default 'pending',
-  created_at    timestamptz default now()
+-- 4. Watches table (if not already created — skip if it exists)
+CREATE TABLE IF NOT EXISTS watches (
+  id          uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  brand       text NOT NULL,
+  model       text NOT NULL,
+  reference   text,
+  price       numeric,
+  condition   text DEFAULT 'excellent',
+  year        integer,
+  description text,
+  features    jsonb DEFAULT '[]',
+  images      text[] DEFAULT '{}',
+  is_featured boolean DEFAULT false,
+  is_sold     boolean DEFAULT false,
+  created_at  timestamptz DEFAULT now(),
+  updated_at  timestamptz DEFAULT now()
 );
 
--- 5. CONTACT MESSAGES TABLE
--- ================================================================
-create table if not exists contact_messages (
-  id         uuid primary key default gen_random_uuid(),
-  name       text not null,
-  email      text not null,
-  phone      text,
-  subject    text,
-  message    text,
-  status     text default 'unread',
-  created_at timestamptz default now()
-);
+-- ============================================================
+-- 5. Row Level Security — allow public reads, auth writes
+-- ============================================================
 
--- 6. CAREER APPLICATIONS TABLE
--- ================================================================
-create table if not exists career_applications (
-  id           uuid primary key default gen_random_uuid(),
-  name         text not null,
-  email        text not null,
-  phone        text,
-  role         text,
-  experience   text,
-  message      text,
-  status       text default 'pending',
-  created_at   timestamptz default now()
-);
+ALTER TABLE watches      ENABLE ROW LEVEL SECURITY;
+ALTER TABLE blog_posts   ENABLE ROW LEVEL SECURITY;
+ALTER TABLE site_settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE admin_users  ENABLE ROW LEVEL SECURITY;
 
--- 7. PARTNER ENQUIRIES TABLE
--- ================================================================
-create table if not exists partner_enquiries (
-  id               uuid primary key default gen_random_uuid(),
-  company_name     text not null,
-  contact_name     text,
-  email            text not null,
-  phone            text,
-  partnership_type text,
-  message          text,
-  status           text default 'pending',
-  created_at       timestamptz default now()
-);
+-- Public can read watches, blog posts, site_settings
+CREATE POLICY "public_read_watches"       ON watches       FOR SELECT USING (true);
+CREATE POLICY "public_read_blog"          ON blog_posts    FOR SELECT USING (true);
+CREATE POLICY "public_read_settings"      ON site_settings FOR SELECT USING (true);
 
--- ================================================================
--- 8. ROW LEVEL SECURITY (RLS) POLICIES
--- ================================================================
+-- Authenticated users can do all operations (admin check is done in app)
+CREATE POLICY "auth_all_watches"          ON watches       FOR ALL USING (auth.role() = 'authenticated');
+CREATE POLICY "auth_all_blog"             ON blog_posts    FOR ALL USING (auth.role() = 'authenticated');
+CREATE POLICY "auth_all_settings"         ON site_settings FOR ALL USING (auth.role() = 'authenticated');
+CREATE POLICY "auth_read_admin_users"     ON admin_users   FOR SELECT USING (auth.role() = 'authenticated');
 
--- Enable RLS on all tables
-alter table watches          enable row level security;
-alter table admin_users      enable row level security;
-alter table appointments     enable row level security;
-alter table trade_in_requests enable row level security;
-alter table contact_messages enable row level security;
-alter table career_applications enable row level security;
-alter table partner_enquiries enable row level security;
+-- ============================================================
+-- 6. Storage bucket for watch images
+-- ============================================================
+-- Run this separately or create via Supabase dashboard:
+-- Storage → New bucket → Name: "watch-images" → Public: ON
 
--- WATCHES: Public can read; anyone can insert (admin controls via app)
-create policy "Public read watches"
-  on watches for select using (true);
+INSERT INTO storage.buckets (id, name, public) VALUES ('watch-images', 'watch-images', true)
+ON CONFLICT (id) DO NOTHING;
 
-create policy "Service role manage watches"
-  on watches for all using (true);
+CREATE POLICY "public_read_images" ON storage.objects FOR SELECT USING (bucket_id = 'watch-images');
+CREATE POLICY "auth_upload_images" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'watch-images' AND auth.role() = 'authenticated');
+CREATE POLICY "auth_delete_images" ON storage.objects FOR DELETE USING  (bucket_id = 'watch-images' AND auth.role() = 'authenticated');
 
--- ADMIN USERS: Public can read (for auth check)
-create policy "Public read admin_users"
-  on admin_users for select using (true);
+-- ============================================================
+-- 7. Seed default blog posts
+-- ============================================================
+INSERT INTO blog_posts (title, category, excerpt, source_url, source, date, read_time, is_published, order_index) VALUES
+('The Secondary Watch Market Rebounds: $17 Billion in 2025','Market Update','After thirteen consecutive quarters of decline, the pre-owned luxury watch market staged its first positive year since 2022, with $17B in measured sales and prices rising 4.9%.','https://www.watchpro.com/pre-owned-watch-market/','WatchPro','Jan 2026','5 min',true,0),
+('Patek Philippe Cuts U.S. Prices by 8% Following Tariff Relief','Market Update','Patek Philippe announced price reductions for U.S. customers starting February 2026, following a drop in Swiss import tariffs from 39% to 15%.','https://www.watchpro.com/patek-philippe/','WatchPro','Feb 2026','4 min',true,1),
+('Phillips Watches Shatters Records with $370M in 2025 Sales','Investment','Phillips Watches achieved its highest annual total with $370M in global sales during its 10th anniversary year.','https://robbreport.com/watches/watch-news/','Robb Report','Dec 2025','6 min',true,2),
+('Rolex and Audemars Piguet Raise Prices as Gold Hits Record Highs','Market Update','Rolex implemented price increases of approximately 7% in the U.S. at the start of 2026, with the steel Submariner officially crossing the $10,000 threshold.','https://robbreport.com/watches/watch-news/','Robb Report','Jan 2026','4 min',true,3),
+('Audemars Piguet Marks 150th Anniversary with Perpetual Calendar Innovations','New Release','Audemars Piguet celebrated 150 years with the Royal Oak Perpetual Calendar Openworked (limited to 150 pieces).','https://www.fratellowatches.com/audemars-piguet/','Fratello Watches','Mid 2025','6 min',true,4),
+('Christie''s Surpasses $1 Billion in Luxury Auctions with 90% Sell-Through','Investment','Christie''s Luxury division broke the billion-dollar barrier in 2025 global sales, with 85% of bids placed online.','https://www.watchpro.com/auctions/','WatchPro','Dec 2025','5 min',true,5)
+ON CONFLICT DO NOTHING;
 
--- FORM SUBMISSIONS: Anyone can insert (public forms)
-create policy "Anyone can submit appointment"
-  on appointments for insert with check (true);
-
-create policy "Anyone can submit trade_in"
-  on trade_in_requests for insert with check (true);
-
-create policy "Anyone can submit contact"
-  on contact_messages for insert with check (true);
-
-create policy "Anyone can submit career_application"
-  on career_applications for insert with check (true);
-
-create policy "Anyone can submit partner_enquiry"
-  on partner_enquiries for insert with check (true);
-
--- ================================================================
--- 9. STORAGE BUCKET: watch-images
--- ================================================================
--- Run this separately in Supabase Storage settings, or via:
-insert into storage.buckets (id, name, public)
-values ('watch-images', 'watch-images', true)
-on conflict (id) do nothing;
-
--- Allow public read on watch-images
-create policy "Public read watch images"
-  on storage.objects for select
-  using (bucket_id = 'watch-images');
-
--- Allow authenticated users to upload
-create policy "Authenticated upload watch images"
-  on storage.objects for insert
-  with check (bucket_id = 'watch-images' and auth.role() = 'authenticated');
-
-create policy "Authenticated delete watch images"
-  on storage.objects for delete
-  using (bucket_id = 'watch-images' and auth.role() = 'authenticated');
-
--- ================================================================
--- 10. SEED DATA — 6 Sample Watches
--- ================================================================
-insert into watches (brand, model, ref, price, year, type, condition, tag, description, is_featured) values
-  ('Rolex', 'Submariner Date', '126610LN', 'MYR 58,000', 2023, 'Watch', 'Mint', 'In Stock', 'Black dial, black ceramic bezel. Full set with box and papers dated 2023. No scratches, unworn condition.', true),
-  ('Patek Philippe', 'Nautilus', '5711/1A-010', 'MYR 420,000', 2022, 'Watch', 'Mint', 'Rare', 'Blue dial, stainless steel. Complete set with original box and papers. One of the most sought-after references in modern watchmaking.', true),
-  ('Audemars Piguet', 'Royal Oak', '15510ST.OO.1320ST.06', 'MYR 185,000', 2023, 'Watch', 'Excellent', 'New Arrival', 'Blue dial, stainless steel bracelet. Self-winding, 41mm. Full set with original documentation.', true),
-  ('Richard Mille', 'RM 011', 'RM011-03', 'MYR 690,000', 2021, 'Watch', 'Excellent', 'Limited', 'Titanium case, flyback chronograph. Annual calendar function. Comes with original Richard Mille box and papers.', true),
-  ('Rolex', 'Daytona', '116500LN', 'MYR 145,000', 2022, 'Watch', 'Excellent', 'In Stock', 'Panda white dial, stainless steel. Oystersteel case, ceramic bezel. Full set box and papers 2022.', false),
-  ('Omega', 'Speedmaster Professional', '311.30.42.30.01.005', 'MYR 28,000', 2021, 'Watch', 'Good', 'In Stock', 'The iconic Moonwatch. Manual wind, 42mm. Hesalite crystal. Full set with inner and outer box.', false);
+-- Done! Now register your admin user:
+-- 1. Create a user in Supabase Auth → Authentication → Users → Add User
+-- 2. Then insert their email into admin_users:
+--    INSERT INTO admin_users (email) VALUES ('your@email.com');
