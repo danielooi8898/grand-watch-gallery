@@ -189,8 +189,8 @@ export default function HomePage() {
 
           {/* Stats */}
           <AnimateIn delay={700}>
-            <div className="grid grid-cols-3 gap-4 mt-16 md:mt-20 pt-10 md:pt-14 border-t"
-              style={{ borderColor:'rgba(255,255,255,0.06)' }}>
+            <div className="grid grid-cols-3 gap-4 pt-10 md:pt-14 border-t"
+              style={{ borderColor:'rgba(255,255,255,0.06)', marginTop:'5rem' }}>
               {[['500','+','Watches Sold'],['17','','Luxury Brands'],['5','+','Years Est.']].map(([n,s,l]) => (
                 <div key={l}>
                   <div className="serif font-light" style={{ fontSize:'clamp(1.5rem,4vw,2.75rem)', color:'#fff', lineHeight:1 }}>
