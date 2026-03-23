@@ -1,28 +1,25 @@
 'use client'
 import { useRef, useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
 
 export default function AdminLogin() {
   const { signIn, user, isAdmin, loading } = useAuth()
-  const router = useRouter()
   const emailRef    = useRef(null)
   const passwordRef = useRef(null)
   const [error,      setError]      = useState('')
   const [submitting, setSubmitting] = useState(false)
-  const [attempted,  setAttempted]  = useState(false)
 
-  // Once auth state propagates after sign-in (or if already logged in), redirect to admin
+  // If already authenticated, redirect immediately (full reload = no race condition)
   useEffect(() => {
     if (!loading && user && isAdmin) {
-      router.replace('/admin')
+      window.location.href = '/admin'
     }
-  }, [loading, user, isAdmin, router])
+  }, [loading, user, isAdmin])
 
   const submit = async (e) => {
     e.preventDefault()
-    const email    = emailRef.current?.value?.trim() || ''
-    const password = passwordRef.current?.value || ''
+    const email    = emailRef.current?.value?.trim()    || ''
+    const password = passwordRef.current?.value         || ''
 
     if (!email || !password) {
       setError('Please enter your email and password.')
@@ -30,7 +27,6 @@ export default function AdminLogin() {
     }
 
     setSubmitting(true)
-    setAttempted(false)
     setError('')
 
     try {
@@ -48,11 +44,10 @@ export default function AdminLogin() {
       }
 
       if (data?.session) {
-        // Mark that we've signed in — the useEffect above will navigate once
-        // the AuthContext state (user/isAdmin) has actually propagated.
-        setAttempted(true)
-        // Keep submitting=true (button stays disabled / shows "Signing in...")
-        // while we wait for the redirect.
+        // Full page reload — Supabase re-reads session from localStorage,
+        // so the admin layout always sees a clean, fully-initialised auth state.
+        // This avoids the React state race condition that caused the redirect loop.
+        window.location.href = '/admin'
       } else {
         setError('No session returned. Please try again.')
         setSubmitting(false)
