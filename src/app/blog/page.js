@@ -4,9 +4,10 @@ import { ArrowRight } from 'lucide-react'
 const posts = [
   {
     slug: 'secondary-watch-market-rebound-2025',
+    url: 'https://www.watchpro.com/pre-owned-watch-market/',
     cat: 'Market Update',
-    title: 'The Secondary Watch Market Rebounds: $17 Billion in 2025',
-    excerpt: 'After thirteen consecutive quarters of decline, the pre-owned luxury watch market staged its first positive year since 2022, with $17B in measured sales and prices rising 4.9%. Millennials and Gen Z now account for 44% of all bidders.',
+    title: 'The Secondary Watch Market Rebounds: \$17 Billion in 2025',
+    excerpt: 'After thirteen consecutive quarters of decline, the pre-owned luxury watch market staged its first positive year since 2022, with \$17B in measured sales and prices rising 4.9%. Millennials and Gen Z now account for 44% of all bidders.',
     date: 'Jan 2026',
     read: '5 min',
     featured: true,
@@ -14,6 +15,7 @@ const posts = [
   },
   {
     slug: 'patek-philippe-price-cuts-tariff-2026',
+    url: 'https://www.watchpro.com/patek-philippe/',
     cat: 'Market Update',
     title: 'Patek Philippe Cuts U.S. Prices by 8% Following Tariff Relief',
     excerpt: 'Patek Philippe announced price reductions for U.S. customers starting February 2026, following a drop in Swiss import tariffs from 39% to 15%. Precious sports models like the Nautilus and Aquanaut see a 3.4% reduction.',
@@ -23,24 +25,27 @@ const posts = [
   },
   {
     slug: 'phillips-370-million-record-2025',
+    url: 'https://robbreport.com/watches/watch-news/',
     cat: 'Investment',
-    title: 'Phillips Watches Shatters Records with $370M in 2025 Sales',
-    excerpt: 'Phillips Watches achieved its highest annual total with $370M in global sales during its 10th anniversary year. A Patek Philippe Ref. 1518 in stainless steel sold for $17.6M — the most valuable vintage Patek ever auctioned.',
+    title: 'Phillips Watches Shatters Records with \$370M in 2025 Sales',
+    excerpt: 'Phillips Watches achieved its highest annual total with \$370M in global sales during its 10th anniversary year. A Patek Philippe Ref. 1518 in stainless steel sold for \$17.6M — the most valuable vintage Patek ever auctioned.',
     date: 'Dec 2025',
     read: '6 min',
     source: 'Robb Report',
   },
   {
     slug: 'rolex-ap-tudor-price-increases-2026',
+    url: 'https://robbreport.com/watches/watch-news/',
     cat: 'Market Update',
     title: 'Rolex and Audemars Piguet Raise Prices as Gold Hits Record Highs',
-    excerpt: 'Rolex implemented price increases of approximately 7% in the U.S. at the start of 2026, with the steel Submariner officially crossing the $10,000 threshold. Audemars Piguet and Tudor followed with their own adjustments.',
+    excerpt: 'Rolex implemented price increases of approximately 7% in the U.S. at the start of 2026, with the steel Submariner officially crossing the \$10,000 threshold. Audemars Piguet and Tudor followed with their own adjustments.',
     date: 'Jan 2026',
     read: '4 min',
     source: 'Robb Report',
   },
   {
     slug: 'audemars-piguet-150th-anniversary-releases',
+    url: 'https://www.fratellowatches.com/audemars-piguet/',
     cat: 'New Release',
     title: 'Audemars Piguet Marks 150th Anniversary with Perpetual Calendar Innovations',
     excerpt: 'Audemars Piguet celebrated 150 years with the Royal Oak Perpetual Calendar Openworked (limited to 150 pieces), new blue ceramic models inspired by the original Royal Oak, and the first Royal Oak flyback chronograph with flying tourbillon.',
@@ -50,8 +55,9 @@ const posts = [
   },
   {
     slug: 'christies-luxury-billion-barrier-2025',
+    url: 'https://www.watchpro.com/auctions/',
     cat: 'Investment',
-    title: "Christie's Surpasses $1 Billion in Luxury Auctions with 90% Sell-Through",
+    title: "Christie's Surpasses \$1 Billion in Luxury Auctions with 90% Sell-Through",
     excerpt: "Christie's Luxury division broke the billion-dollar barrier in 2025 global sales, with 85% of bids placed online and hammer prices averaging 129% above low estimates — reflecting a new generation of digital-first collectors.",
     date: 'Dec 2025',
     read: '5 min',
@@ -114,13 +120,13 @@ export default function BlogPage() {
                 <span style={{ fontFamily: 'var(--sans)', fontSize: '0.75rem', fontWeight: 400, letterSpacing: '0.15em', color: '#fff' }}>
                   {hero.date} · {hero.read} read · <span style={{ color: '#B08D57' }}>{hero.source}</span>
                 </span>
-                <Link href={'/blog/' + hero.slug} style={{
+                <a href={hero.url} target="_blank" rel="noopener noreferrer" style={{
                   fontFamily: 'var(--sans)', fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.2em',
                   textTransform: 'uppercase', color: '#B08D57', textDecoration: 'none',
                   display: 'flex', alignItems: 'center', gap: '0.5rem',
                 }}>
                   Read Article <ArrowRight size={13} />
-                </Link>
+                </a>
               </div>
             </div>
           </div>
@@ -132,7 +138,7 @@ export default function BlogPage() {
         <div className="container" style={{ paddingTop: '4rem', paddingBottom: '4rem' }}>
           <div className="sm:grid-cols-2 lg:grid-cols-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(1, 1fr)', gap: '0' }}>
             {rest.map((p, i) => (
-              <Link key={p.slug} href={'/blog/' + p.slug} style={{
+              <a key={p.slug} href={p.url} target="_blank" rel="noopener noreferrer" style={{
                 display: 'block', textDecoration: 'none',
                 borderRight: i < rest.length - 1 ? '1px solid #1A1A1A' : 'none',
                 borderBottom: '1px solid #1A1A1A',
@@ -168,7 +174,7 @@ export default function BlogPage() {
                     <ArrowRight size={14} style={{ color: '#2A2A2A', transition: 'color 0.2s' }} className="group-hover:text-[#B08D57]" />
                   </div>
                 </div>
-              </Link>
+              </a>
             ))}
           </div>
         </div>

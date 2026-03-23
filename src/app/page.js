@@ -71,11 +71,11 @@ function StickyServices() {
           <div style={{ width:'36px', height:'1px', background:'#B08D57', marginBottom:'2rem' }} />
 
           <p className="transition-all duration-500" key={`p-${step}`}
-            style={{ fontFamily:'var(--sans)', fontSize:'1rem', color:'#fff', lineHeight:1.8, maxWidth:'500px', fontWeight:300 }}>
+            style={{ fontFamily:'var(--sans)', fontSize:'1rem', color:'#fff', lineHeight:1.8, maxWidth:'500px', fontWeight:300, marginBottom:'2.5rem' }}>
             {s.body}
           </p>
 
-          <div className="mt-10 md:mt-14">
+          <div>
             <Link href="/appointment" className="btn btn-outline-white"
               style={{ display:'inline-flex', alignItems:'center', gap:'0.5rem' }}>
               Book a Viewing <ArrowRight size={13} />
@@ -164,7 +164,7 @@ export default function HomePage() {
 
           <AnimateIn delay={250}>
             <h1 className="serif font-light"
-              style={{ fontFamily:'var(--serif)', fontSize:'clamp(3.5rem,10vw,9rem)', color:'#fff', lineHeight:0.92, letterSpacing:'-0.02em', marginBottom:'2rem' }}>
+              style={{ fontFamily:'var(--serif)', fontSize:'clamp(3.5rem,10vw,9rem)', color:'#fff', lineHeight:1.05, letterSpacing:'-0.02em', marginBottom:'2rem' }}>
               The Right<br />
               <em style={{ color:'#B08D57', fontStyle:'normal' }}>Time</em> For Life
             </h1>
@@ -177,7 +177,7 @@ export default function HomePage() {
             </p>
           </AnimateIn>
 
-          <AnimateIn delay={550} className="flex flex-col sm:flex-row gap-3">
+          <AnimateIn delay={550} className="flex flex-col sm:flex-row gap-3" style={{ marginBottom:'2.5rem' }}>
             <Link href="/collection" className="btn btn-dark w-full sm:w-auto justify-center"
               style={{ background:'#B08D57', borderColor:'#B08D57', color:'#fff' }}>
               Explore Collection <ArrowRight size={13} />
@@ -189,7 +189,7 @@ export default function HomePage() {
 
           {/* Stats */}
           <AnimateIn delay={700}>
-            <div className="grid grid-cols-3 gap-4 mt-12 md:mt-16 pt-10 md:pt-14 border-t"
+            <div className="grid grid-cols-3 gap-4 mt-0 pt-10 md:pt-14 border-t"
               style={{ borderColor:'rgba(255,255,255,0.06)' }}>
               {[['500','+','Watches Sold'],['17','','Luxury Brands'],['5','+','Years Est.']].map(([n,s,l]) => (
                 <div key={l}>
@@ -254,10 +254,10 @@ export default function HomePage() {
       <section className="section" style={{ background:'#0D0D0D' }}>
         <div className="container">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-px" style={{ background:'#1A1A1A' }}>
-            <AnimateIn direction="left" className="flex items-center justify-center" style={{ background:'#0D0D0D', minHeight:'360px' }}>
+            <AnimateIn direction="left" className="flex items-center justify-center" style={{ background:'#0A0A0A', minHeight:'360px' }}>
               <span className="serif font-light" style={{ fontSize:'clamp(6rem,14vw,14rem)', color:'#2a2a2a', lineHeight:1, userSelect:'none' }}>PP</span>
             </AnimateIn>
-            <AnimateIn direction="right" className="p-10 md:p-14 lg:p-16 flex flex-col justify-center" style={{ background: '#0A0A0A', borderLeft: '1px solid #1A1A1A' }}>
+            <AnimateIn direction="right" className="p-10 md:p-14 lg:p-16 flex flex-col justify-center" style={{ background: '#0A0A0A', borderLeft: 'none' }}>
               <p style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#B08D57', marginBottom:'1.5rem' }}>Piece of the Month</p>
               <p style={{ fontFamily:'var(--sans)', fontSize:'0.65rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#fff', marginBottom:'0.75rem' }}>Patek Philippe</p>
               <h2 className="serif font-light" style={{ fontFamily:'var(--serif)', fontSize:'clamp(1.75rem,3vw,2.5rem)', color:'#fff', lineHeight:1.1, marginBottom:'1.5rem' }}>

@@ -98,7 +98,7 @@ export default function FindUsPage() {
       {/* Google Map — dark styled */}
       <section style={{ width: '100%', height: '480px', position: 'relative' }}>
         <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3983.7953064960346!2d101.71305931475403!3d3.1488752977055!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cc362abd08e8b5%3A0x2e8e0dff80c0ef0e!2sAtria+Shopping+Gallery+Damansara+Jaya!5e0!3m2!1sen!2smy!4v1680000000000!5m2!1sen!2smy"
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3984.254497!2d101.6139191!3d3.1270963!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cc494ca537b9f1%3A0x887c4a6a2ca357ac!2sAtria%20Shopping%20Gallery!5e0!3m2!1sen!2smy!4v1711700000000!5m2!1sen!2smy"
           width="100%"
           height="100%"
           style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg) brightness(0.85) contrast(1.1)', display: 'block' }}

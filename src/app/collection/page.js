@@ -188,7 +188,8 @@ export default function CollectionPage() {
             className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4"
             >
               {filtered.map(w => (
-                <div key={w.id} style={{ position: 'relative' }} className="group">
+                <Link key={w.id} href={'/collection/' + w.id} style={{ textDecoration: 'none', display: 'block' }} className="group">
+                <div style={{ position: 'relative' }}>
                   {/* Admin controls */}
                   {isAdmin && (
                     <div style={{ position: 'absolute', top: '-0.5rem', right: '-0.5rem', display: 'flex', gap: '0.25rem', zIndex: 10 }}>
@@ -302,7 +303,7 @@ export default function CollectionPage() {
                         {w.price ? fmt(w.price) : 'P.O.A.'}
                       </span>
                       <span style={{ width: '1px', height: '12px', background: '#2A2A2A' }} />
-                      <Link href="/contact" style={{
+                      <span style={{ cursor:'pointer',
                         fontFamily: 'var(--sans)',
                         fontSize: '0.7rem',
                         fontWeight: 500,
@@ -315,10 +316,11 @@ export default function CollectionPage() {
                       className="hover:text-white"
                       >
                         Enquire
-                      </Link>
+                      </span>
                     </div>
                   </div>
                 </div>
+                </Link>
               ))}
             </div>
           )}
