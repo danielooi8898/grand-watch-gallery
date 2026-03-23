@@ -1,15 +1,23 @@
 'use client'
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
 
 export default function AdminLogin() {
-  const { signIn } = useAuth()
+  const { signIn, user, isAdmin, loading } = useAuth()
   const router = useRouter()
   const emailRef    = useRef(null)
   const passwordRef = useRef(null)
-  const [error,   setError]   = useState('')
-  const [loading, setLoading] = useState(false)
+  const [error,      setError]      = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [attempted,  setAttempted]  = useState(false)
+
+  // Once auth state propagates after sign-in (or if already logged in), redirect to admin
+  useEffect(() => {
+    if (!loading && user && isAdmin) {
+      router.replace('/admin')
+    }
+  }, [loading, user, isAdmin, router])
 
   const submit = async (e) => {
     e.preventDefault()
@@ -21,7 +29,8 @@ export default function AdminLogin() {
       return
     }
 
-    setLoading(true)
+    setSubmitting(true)
+    setAttempted(false)
     setError('')
 
     try {
@@ -34,19 +43,23 @@ export default function AdminLogin() {
 
       if (err) {
         setError(err.message || 'Invalid credentials. Please check your email and password.')
-        setLoading(false)
+        setSubmitting(false)
         return
       }
 
       if (data?.session) {
-        router.push('/admin')
+        // Mark that we've signed in — the useEffect above will navigate once
+        // the AuthContext state (user/isAdmin) has actually propagated.
+        setAttempted(true)
+        // Keep submitting=true (button stays disabled / shows "Signing in...")
+        // while we wait for the redirect.
       } else {
         setError('No session returned. Please try again.')
-        setLoading(false)
+        setSubmitting(false)
       }
     } catch (ex) {
       setError(ex?.message || 'Sign in failed. Please try again.')
-      setLoading(false)
+      setSubmitting(false)
     }
   }
 
@@ -116,9 +129,9 @@ export default function AdminLogin() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={submitting}
             style={{
-              background: loading ? '#888' : '#111',
+              background: submitting ? '#888' : '#111',
               color: '#fff',
               border: 'none',
               padding: '1rem',
@@ -126,14 +139,14 @@ export default function AdminLogin() {
               fontSize: '0.7rem',
               letterSpacing: '0.2em',
               textTransform: 'uppercase',
-              cursor: loading ? 'not-allowed' : 'pointer',
+              cursor: submitting ? 'not-allowed' : 'pointer',
               width: '100%',
               marginTop: '0.5rem',
               transition: 'background 0.2s',
               borderRadius: '2px',
             }}
           >
-            {loading ? 'Signing in...' : 'Sign In'}
+            {submitting ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
 
