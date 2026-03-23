@@ -10,7 +10,6 @@ const posts = [
     date: 'Jan 2026',
     read: '5 min',
     featured: true,
-    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=1200&q=80',
     source: 'WatchPro',
   },
   {
@@ -20,7 +19,6 @@ const posts = [
     excerpt: 'Patek Philippe announced price reductions for U.S. customers starting February 2026, following a drop in Swiss import tariffs from 39% to 15%. Precious sports models like the Nautilus and Aquanaut see a 3.4% reduction.',
     date: 'Feb 2026',
     read: '4 min',
-    image: 'https://images.unsplash.com/photo-1547996160-81dfa63595aa?w=800&q=80',
     source: 'WatchPro',
   },
   {
@@ -30,7 +28,6 @@ const posts = [
     excerpt: 'Phillips Watches achieved its highest annual total with $370M in global sales during its 10th anniversary year. A Patek Philippe Ref. 1518 in stainless steel sold for $17.6M — the most valuable vintage Patek ever auctioned.',
     date: 'Dec 2025',
     read: '6 min',
-    image: 'https://images.unsplash.com/photo-1509048191080-d2984bad6ae5?w=800&q=80',
     source: 'Robb Report',
   },
   {
@@ -40,7 +37,6 @@ const posts = [
     excerpt: 'Rolex implemented price increases of approximately 7% in the U.S. at the start of 2026, with the steel Submariner officially crossing the $10,000 threshold. Audemars Piguet and Tudor followed with their own adjustments.',
     date: 'Jan 2026',
     read: '4 min',
-    image: 'https://images.unsplash.com/photo-1551816230-ef5deaed4a26?w=800&q=80',
     source: 'Robb Report',
   },
   {
@@ -50,7 +46,6 @@ const posts = [
     excerpt: 'Audemars Piguet celebrated 150 years with the Royal Oak Perpetual Calendar Openworked (limited to 150 pieces), new blue ceramic models inspired by the original Royal Oak, and the first Royal Oak flyback chronograph with flying tourbillon.',
     date: 'Mid 2025',
     read: '6 min',
-    image: 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=800&q=80',
     source: 'Fratello Watches',
   },
   {
@@ -60,7 +55,6 @@ const posts = [
     excerpt: "Christie's Luxury division broke the billion-dollar barrier in 2025 global sales, with 85% of bids placed online and hammer prices averaging 129% above low estimates — reflecting a new generation of digital-first collectors.",
     date: 'Dec 2025',
     read: '5 min',
-    image: 'https://images.unsplash.com/photo-1566479179817-634e5b70bd4d?w=800&q=80',
     source: 'WatchPro',
   },
 ]
@@ -92,12 +86,10 @@ export default function BlogPage() {
       <section style={{ borderBottom: '1px solid #1A1A1A' }}>
         <div className="container" style={{ paddingTop: '4rem', paddingBottom: '4rem' }}>
           <div className="md:grid-cols-2" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0' }}>
-            {/* Image block */}
-            <div style={{ minHeight: '360px', overflow: 'hidden', borderBottom: '1px solid #1A1A1A', position: 'relative' }}
+            {/* Placeholder block */}
+            <div style={{ minHeight: '360px', background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid #1A1A1A' }}
               className="md:border-b-0 md:border-r">
-              <img src={hero.image} alt={hero.title}
-                style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8, position: 'absolute', inset: 0 }}
-                onError={e => { e.target.style.display = 'none' }} />
+              <span style={{ fontFamily: 'var(--sans)', fontWeight: 900, fontSize: 'clamp(4rem, 10vw, 8rem)', color: '#1A1A1A', letterSpacing: '-0.04em', userSelect: 'none' }}>GWG</span>
             </div>
 
             {/* Content block */}
@@ -148,13 +140,6 @@ export default function BlogPage() {
               }}
               className="hover:bg-[#111] group"
               >
-                {/* Card image */}
-                <div style={{ height: '200px', overflow: 'hidden', borderBottom: '1px solid #1A1A1A', position: 'relative' }}>
-                  <img src={p.image} alt={p.title}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.75, transition: 'transform 0.4s ease' }}
-                    className="group-hover:scale-105"
-                    onError={e => { e.target.style.display = 'none' }} />
-                </div>
                 <div style={{ padding: '2.5rem' }}>
                   <span style={{ fontFamily: 'var(--sans)', fontSize: '0.7rem', fontWeight: 500, letterSpacing: '0.25em', textTransform: 'uppercase', color: '#B08D57', display: 'block', marginBottom: '1.25rem' }}>
                     {p.cat}

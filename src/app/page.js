@@ -228,13 +228,10 @@ export default function HomePage() {
             </Link>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4" style={{ gap:'3rem 2rem' }}>
-            {featured.map((w, wi) => {
-              const _imgs = ["https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80","https://images.unsplash.com/photo-1547996160-81dfa63595aa?w=600&q=80","https://images.unsplash.com/photo-1509048191080-d2984bad6ae5?w=600&q=80","https://images.unsplash.com/photo-1551816230-ef5deaed4a26?w=600&q=80"]
-              return (
+            {featured.map((w) => (
               <Link key={w.ref} href="/collection" style={{ textDecoration:'none', display:'block' }} className="group">
-                <div style={{ background:'#111', aspectRatio:'1/1', marginBottom:'1.5rem', position:'relative', overflow:'hidden' }}>
-                  <img src={_imgs[wi]} alt={w.brand} style={{ width:'100%', height:'100%', objectFit:'cover', opacity:0.85, transition:'transform 0.5s ease' }} className="group-hover:scale-105" onError={e=>{e.target.style.display='none'}} />
-                  
+                <div style={{ background:'#111', aspectRatio:'1/1', display:'flex', alignItems:'center', justifyContent:'center', marginBottom:'1.5rem', position:'relative', overflow:'hidden' }}>
+                  <span style={{ fontFamily:'var(--sans)', fontWeight:900, fontSize:'6rem', color:'#1a1a1a', lineHeight:1, userSelect:'none', letterSpacing:'-0.05em' }}>{w.brand.charAt(0)}</span>
                   <span style={{ position:'absolute', top:'1rem', right:'1rem', fontFamily:'var(--sans)', fontSize:'0.62rem', letterSpacing:'0.15em', textTransform:'uppercase', color:'#B08D57', border:'1px solid rgba(176,141,87,0.5)', padding:'0.2rem 0.6rem' }}>{w.tag}</span>
                 </div>
                 <p style={{ fontFamily:'var(--sans)', fontSize:'0.68rem', letterSpacing:'0.25em', textTransform:'uppercase', color:'#B08D57', marginBottom:'0.4rem' }}>{w.brand}</p>
