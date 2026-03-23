@@ -23,7 +23,7 @@ export function AuthProvider({ children }) {
         setTimeout(() => resolve({ data: null, error: { code: 'TIMEOUT' } }), 5000)
       )
     ])
-    // RLS blocked or query timed out → grant access (user authenticated successfully)
+    // RLS blocked or query timed out → authenticated user gets admin access
     if (error && (error.code === 'PGRST301' || error.code === 'TIMEOUT')) {
       setIsAdmin(true)
     } else {
@@ -32,22 +32,25 @@ export function AuthProvider({ children }) {
   }
 
   useEffect(() => {
-    // Safety net: loading ALWAYS resolves within 10 seconds no matter what
-    const safetyTimer = setTimeout(() => setLoading(false), 10000)
+    let resolved = false
+    const resolve = () => {
+      if (!resolved) { resolved = true; setLoading(false) }
+    }
 
+    // Safety net: loading resolves in at most 8 seconds no matter what
+    const safetyTimer = setTimeout(resolve, 8000)
+
+    // Resolve loading from getSession (initial load)
     supabase.auth.getSession()
-      .then(({ data: { session } }) =>
-        check(session).finally(() => {
-          clearTimeout(safetyTimer)
-          setLoading(false)
-        })
-      )
-      .catch(() => {
-        clearTimeout(safetyTimer)
-        setLoading(false)
-      })
+      .then(({ data: { session } }) => check(session).finally(resolve))
+      .catch(resolve)
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => check(s))
+    // Also resolve loading from auth state changes (fires after signInWithPassword)
+    // This makes the admin dashboard appear immediately after login
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => {
+      check(s).finally(resolve)
+    })
+
     return () => {
       clearTimeout(safetyTimer)
       subscription.unsubscribe()

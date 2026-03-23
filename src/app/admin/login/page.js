@@ -3,17 +3,8 @@ import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
 
-const TIMEOUT_MS = 15000
-
-function withTimeout(promise, ms) {
-  const timer = new Promise((_, reject) =>
-    setTimeout(() => reject(new Error('Request timed out. Please try again.')), ms)
-  )
-  return Promise.race([promise, timer])
-}
-
 export default function AdminLogin() {
-  const { signIn, loading: authLoading } = useAuth()
+  const { signIn } = useAuth()
   const router = useRouter()
   const emailRef    = useRef(null)
   const passwordRef = useRef(null)
@@ -24,23 +15,29 @@ export default function AdminLogin() {
     e.preventDefault()
     const email    = emailRef.current?.value?.trim() || ''
     const password = passwordRef.current?.value || ''
+
     if (!email || !password) {
       setError('Please enter your email and password.')
       return
     }
-    if (authLoading) {
-      setError('Still initialising, please wait a moment and try again.')
-      return
-    }
+
     setLoading(true)
     setError('')
+
     try {
-      const { data, error: err } = await withTimeout(signIn(email, password), TIMEOUT_MS)
+      const { data, error: err } = await Promise.race([
+        signIn(email, password),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Sign in timed out. Please try again.')), 20000)
+        )
+      ])
+
       if (err) {
-        setError(err.message || 'Sign in failed. Please check your credentials.')
+        setError(err.message || 'Invalid credentials. Please check your email and password.')
         setLoading(false)
         return
       }
+
       if (data?.session) {
         router.push('/admin')
       } else {
@@ -48,7 +45,7 @@ export default function AdminLogin() {
         setLoading(false)
       }
     } catch (ex) {
-      setError(ex?.message || String(ex))
+      setError(ex?.message || 'Sign in failed. Please try again.')
       setLoading(false)
     }
   }
@@ -136,7 +133,7 @@ export default function AdminLogin() {
               borderRadius: '2px',
             }}
           >
-            {loading ? 'Signing in…' : 'Sign In'}
+            {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
 
