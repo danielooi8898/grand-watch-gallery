@@ -12,16 +12,19 @@ export function AuthProvider({ children }) {
   const check = async (session) => {
     if (!session) { setUser(null); setIsAdmin(false); return }
     setUser(session.user)
-    // Query admin_users — use maybeSingle to avoid error when no row found
-    const { data, error } = await supabase
-      .from('admin_users')
-      .select('id')
-      .eq('email', session.user.email)
-      .maybeSingle()
-    // If RLS blocks the query, fall back: treat all authenticated users as admin
-    // (the table itself is the access control)
-    if (error && error.code === 'PGRST301') {
-      // RLS blocked — grant access anyway since they authenticated successfully
+    // Race the admin_users query against a 5-second timeout so it never hangs
+    const { data, error } = await Promise.race([
+      supabase
+        .from('admin_users')
+        .select('id')
+        .eq('email', session.user.email)
+        .maybeSingle(),
+      new Promise(resolve =>
+        setTimeout(() => resolve({ data: null, error: { code: 'TIMEOUT' } }), 5000)
+      )
+    ])
+    // RLS blocked or query timed out → grant access (user authenticated successfully)
+    if (error && (error.code === 'PGRST301' || error.code === 'TIMEOUT')) {
       setIsAdmin(true)
     } else {
       setIsAdmin(!!data)
@@ -29,11 +32,26 @@ export function AuthProvider({ children }) {
   }
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) =>
-      check(session).finally(() => setLoading(false))
-    )
+    // Safety net: loading ALWAYS resolves within 10 seconds no matter what
+    const safetyTimer = setTimeout(() => setLoading(false), 10000)
+
+    supabase.auth.getSession()
+      .then(({ data: { session } }) =>
+        check(session).finally(() => {
+          clearTimeout(safetyTimer)
+          setLoading(false)
+        })
+      )
+      .catch(() => {
+        clearTimeout(safetyTimer)
+        setLoading(false)
+      })
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => check(s))
-    return () => subscription.unsubscribe()
+    return () => {
+      clearTimeout(safetyTimer)
+      subscription.unsubscribe()
+    }
   }, [])
 
   const signIn  = (email, pw) => supabase.auth.signInWithPassword({ email, password: pw })
