@@ -31,8 +31,8 @@ const testimonials = [
 /* â”€â”€â”€ Sticky Services Section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const serviceVideos = [
   'https://videos.pexels.com/video-files/6230464/6230464-hd_1920_1080_24fps.mp4',
-  'https://videos.pexels.com/video-files/6328383/6328383-hd_1920_1080_25fps.mp4',
-  'https://videos.pexels.com/video-files/8322334/8322334-hd_1920_1080_25fps.mp4',
+  'https://videos.pexels.com/video-files/6328383/6328383-uhd_2732_1440_25fps.mp4',
+  'https://videos.pexels.com/video-files/8322334/8322334-uhd_2732_1440_25fps.mp4',
 ]
 
 function StickyServices() {
