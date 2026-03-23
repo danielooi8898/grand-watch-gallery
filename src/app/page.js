@@ -43,7 +43,7 @@ function StickyServices() {
   return (
     <div ref={containerRef} style={{ height: '280vh' }}>
       <div className="sticky top-0 overflow-hidden flex flex-col md:flex-row"
-        style={{ height: '100vh', background: '#0D0D0D', position: 'relative' }}>
+        style={{ height: '100vh', background: '#0D0D0D' }}>
 
         {/* Video backgrounds */}
         {serviceVideos.map((src, i) => (
@@ -63,6 +63,7 @@ function StickyServices() {
               opacity: i === step ? 0.28 : 0,
               transition: 'opacity 0.8s ease',
               zIndex: 0,
+              pointerEvents: 'none',
             }}
           />
         ))}
