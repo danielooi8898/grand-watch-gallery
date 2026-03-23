@@ -3,6 +3,15 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
 
+const TIMEOUT_MS = 10000
+
+function withTimeout(promise, ms) {
+  const timer = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error('Request timed out. Please try again.')), ms)
+  )
+  return Promise.race([promise, timer])
+}
+
 export default function AdminLogin() {
   const { signIn } = useAuth()
   const router = useRouter()
@@ -16,7 +25,7 @@ export default function AdminLogin() {
     setLoading(true)
     setError('')
     try {
-      const { data, error: err } = await signIn(email, password)
+      const { data, error: err } = await withTimeout(signIn(email, password), TIMEOUT_MS)
       if (err) {
         setError(err.message || 'Sign in failed. Please check your credentials.')
         setLoading(false)
@@ -29,12 +38,18 @@ export default function AdminLogin() {
         setLoading(false)
       }
     } catch (ex) {
-      setError('Error: ' + (ex?.message || String(ex)))
+      setError(ex?.message || String(ex))
       setLoading(false)
     }
   }
 
-  const inputStyle = { background: '#fff', color: '#111', border: '1px solid #ccc', outline: 'none' }
+  const inputStyle = {
+    background: '#fff',
+    color: '#111',
+    border: '1px solid #ccc',
+    outline: 'none',
+    borderRadius: '2px',
+  }
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 1rem', background: '#F8F5EF' }}>
@@ -103,6 +118,7 @@ export default function AdminLogin() {
               width: '100%',
               marginTop: '0.5rem',
               transition: 'background 0.2s',
+              borderRadius: '2px',
             }}
           >
             {loading ? 'Signing in…' : 'Sign In'}
