@@ -7,7 +7,7 @@ import { useCounter } from '@/hooks/useCounter'
 import { useStickyProgress } from '@/hooks/useStickyProgress'
 import { supabase } from '@/lib/supabase'
 
-/* ─── Defaults (shown instantly; replaced once Supabase responds) ─────────── */
+/* ─── Defaults ───────────────────────────────────────────────────────────── */
 const D_BRANDS = ['Rolex','Patek Philippe','Audemars Piguet','Richard Mille','Vacheron Constantin','A. Lange & Söhne','IWC Schaffhausen','Omega','Hublot','Panerai','Breguet','Cartier','Chopard','Tudor','MB&F','Jacob & Co']
 const D_HERO   = { title:'The Right\nTime For Life', subtitle:'EST. 2020 · AUTHENTICATED TIMEPIECES', description:'Rolex. Patek Philippe. Audemars Piguet. Richard Mille.\nEvery watch authenticated. Every detail considered.' }
 const D_STATS  = [{ n:'500',s:'+',l:'Watches Sold' },{ n:'17',s:'',l:'Luxury Brands' },{ n:'5',s:'+',l:'Years Est.' }]
@@ -22,18 +22,30 @@ const D_TESTI  = [
   { name:'James Lim',     text:'The best pre-owned watch experience in KL. My Royal Oak arrived perfectly serviced with full authentication documents.' },
 ]
 
-const featured = [
-  { brand:'Rolex',           model:'Submariner Date', ref:'126610LN',    price:'MYR 58,000',  tag:'In Stock'   },
-  { brand:'Patek Philippe',  model:'Nautilus',         ref:'5711/1A-010', price:'MYR 420,000', tag:'Rare'       },
-  { brand:'Audemars Piguet', model:'Royal Oak',        ref:'15510ST',     price:'MYR 185,000', tag:'New Arrival' },
-  { brand:'Richard Mille',   model:'RM 011',           ref:'RM011-03',    price:'MYR 690,000', tag:'Limited'    },
-]
-
-/* ─── Helper ─────────────────────────────────────────────────────────────── */
+/* ─── Helpers ────────────────────────────────────────────────────────────── */
 function parse(val, fallback) {
   if (val == null) return fallback
   if (typeof val === 'string') { try { return JSON.parse(val) } catch { return fallback } }
   return val
+}
+function fmtPrice(n) {
+  return n ? 'MYR ' + Number(n).toLocaleString() : 'P.O.A.'
+}
+function conditionTag(w) {
+  if (w.is_featured) return 'Featured'
+  const map = { new:'New', unworn:'Unworn', excellent:'In Stock', good:'In Stock', fair:'In Stock' }
+  return map[w.condition] || 'In Stock'
+}
+// Get up to 2 key details for the spotlight spec grid
+function spotlightSpecs(w) {
+  const specs = []
+  if (w.year)      specs.push(['Year', w.year])
+  if (w.condition) specs.push(['Condition', w.condition.charAt(0).toUpperCase() + w.condition.slice(1)])
+  const features = Array.isArray(w.features) ? w.features : (w.features ? [w.features] : [])
+  features.slice(0, 2).forEach((f, i) => specs.push([`Detail ${i+1}`, f]))
+  // Pad to 4 if needed
+  while (specs.length < 4) specs.push(null)
+  return specs.slice(0, 4)
 }
 
 /* ─── Videos for sticky services ────────────────────────────────────────── */
@@ -56,11 +68,11 @@ function StickyServices({ services }) {
         {serviceVideos.map((src, i) => (
           <video key={src} src={src} autoPlay muted loop playsInline style={{
             position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover',
-            opacity: i === step ? 0.28 : 0, transition:'opacity 0.8s ease', zIndex:0, pointerEvents:'none',
+            opacity: i === step ? 0.48 : 0, transition:'opacity 0.8s ease', zIndex:0, pointerEvents:'none',
           }} />
         ))}
 
-        <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right,rgba(13,13,13,0.92) 33%,rgba(13,13,13,0.72))', zIndex:1, pointerEvents:'none' }} />
+        <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right,rgba(13,13,13,0.88) 33%,rgba(13,13,13,0.60))', zIndex:1, pointerEvents:'none' }} />
 
         <div className="hidden md:flex items-center justify-center w-1/3 border-r"
           style={{ borderColor:'#1a1a1a', position:'relative', zIndex:2 }}>
@@ -121,24 +133,46 @@ function StatCounter({ target, suffix='', label }) {
 export default function HomePage() {
   const heroRef = useRef(null)
 
-  const [hero,    setHero]    = useState(D_HERO)
-  const [stats,   setStats]   = useState(D_STATS)
-  const [services,setServices]= useState(D_SVCS)
-  const [testi,   setTesti]   = useState(D_TESTI)
-  const [brands,  setBrands]  = useState(D_BRANDS)
+  const [hero,     setHero]     = useState(D_HERO)
+  const [stats,    setStats]    = useState(D_STATS)
+  const [services, setServices] = useState(D_SVCS)
+  const [testi,    setTesti]    = useState(D_TESTI)
+  const [brands,   setBrands]   = useState(D_BRANDS)
+  const [watches,  setWatches]  = useState([])       // homepage collection preview
+  const [spotlight,setSpotlight]= useState(null)     // piece of the month
 
   useEffect(() => {
-    supabase.from('site_settings').select('key,value').in('key',['hero','stats','services','testimonials','brands'])
+    // Site settings
+    supabase.from('site_settings').select('key,value')
+      .in('key', ['hero','stats','services','testimonials','brands','spotlight_id'])
       .then(({ data }) => {
         if (!data) return
+        let spotId = null
         data.forEach(({ key, value }) => {
           if (key === 'hero')         setHero(parse(value, D_HERO))
           if (key === 'stats')        setStats(parse(value, D_STATS))
           if (key === 'services')     setServices(parse(value, D_SVCS))
           if (key === 'testimonials') setTesti(parse(value, D_TESTI))
           if (key === 'brands')       setBrands(parse(value, D_BRANDS))
+          if (key === 'spotlight_id') {
+            // value may be stored as a JSON string with quotes
+            spotId = typeof value === 'string' ? value.replace(/^"|"$/g,'') : value
+          }
         })
+        // Fetch spotlight watch once we have its ID
+        if (spotId) {
+          supabase.from('watches').select('*').eq('id', spotId).eq('is_sold', false).single()
+            .then(({ data: w }) => { if (w) setSpotlight(w) })
+        }
       })
+
+    // Collection preview — featured first, newest next, max 4
+    supabase.from('watches').select('*')
+      .eq('is_sold', false)
+      .order('is_featured', { ascending: false })
+      .order('created_at', { ascending: false })
+      .limit(4)
+      .then(({ data }) => { if (data && data.length > 0) setWatches(data) })
   }, [])
 
   useEffect(() => {
@@ -147,11 +181,11 @@ export default function HomePage() {
     return () => window.removeEventListener('scroll', fn)
   }, [])
 
-  const lines  = (hero.title||'').split('\n')
-  const line1  = lines[0] || ''
+  const lines   = (hero.title||'').split('\n')
+  const line1   = lines[0] || ''
   const l2parts = (lines[1]||'').split(' ')
-  const goldW  = l2parts[0] || ''
-  const rest   = l2parts.slice(1).join(' ')
+  const goldW   = l2parts[0] || ''
+  const rest    = l2parts.slice(1).join(' ')
   const descLines = (hero.description||'').split('\n')
 
   return (
@@ -211,71 +245,102 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* 3. FEATURED */}
-      <section style={{ background:'#0A0A0A', padding:'6rem 0' }}>
-        <div className="container">
-          <div className="flex items-end justify-between mb-16" style={{ borderBottom:'1px solid #1A1A1A', paddingBottom:'2rem' }}>
-            <div>
-              <p style={{ fontFamily:'var(--sans)', fontSize:'0.72rem', letterSpacing:'0.35em', textTransform:'uppercase', color:'#B08D57', marginBottom:'0.75rem' }}>Selected Pieces</p>
-              <h2 style={{ fontFamily:'var(--sans)', fontWeight:900, fontSize:'clamp(2.5rem,5vw,4rem)', color:'#fff', textTransform:'uppercase', lineHeight:1 }}>The Collection</h2>
-            </div>
-            <Link href="/collection" style={{ fontFamily:'var(--sans)', fontSize:'0.7rem', letterSpacing:'0.25em', textTransform:'uppercase', color:'#B08D57', textDecoration:'none', display:'flex', alignItems:'center', gap:'0.5rem' }}>
-              View All <ArrowRight size={12} />
-            </Link>
-          </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4" style={{ gap:'3rem 2rem' }}>
-            {featured.map(w => (
-              <Link key={w.ref} href="/collection" style={{ textDecoration:'none', display:'block' }} className="group">
-                <div style={{ background:'#111', aspectRatio:'1/1', display:'flex', alignItems:'center', justifyContent:'center', marginBottom:'1.5rem', position:'relative', overflow:'hidden' }}>
-                  <span style={{ fontFamily:'var(--sans)', fontWeight:900, fontSize:'6rem', color:'#1a1a1a', lineHeight:1, userSelect:'none', letterSpacing:'-0.05em' }}>{w.brand.charAt(0)}</span>
-                  <span style={{ position:'absolute', top:'1rem', right:'1rem', fontFamily:'var(--sans)', fontSize:'0.62rem', letterSpacing:'0.15em', textTransform:'uppercase', color:'#B08D57', border:'1px solid rgba(176,141,87,0.5)', padding:'0.2rem 0.6rem' }}>{w.tag}</span>
-                </div>
-                <p style={{ fontFamily:'var(--sans)', fontSize:'0.68rem', letterSpacing:'0.25em', textTransform:'uppercase', color:'#B08D57', marginBottom:'0.4rem' }}>{w.brand}</p>
-                <h3 style={{ fontFamily:'var(--sans)', fontWeight:700, fontSize:'1rem', color:'#fff', textTransform:'uppercase', letterSpacing:'0.02em', marginBottom:'0.3rem' }}>{w.model}</h3>
-                <p style={{ fontFamily:'var(--sans)', fontSize:'0.72rem', color:'#fff', marginBottom:'0.75rem' }}>Ref. {w.ref}</p>
-                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', paddingTop:'0.75rem', borderTop:'1px solid #1a1a1a' }}>
-                  <span style={{ fontFamily:'var(--sans)', fontWeight:600, fontSize:'0.9rem', color:'#fff' }}>{w.price}</span>
-                  <span style={{ fontFamily:'var(--sans)', fontSize:'0.65rem', letterSpacing:'0.15em', textTransform:'uppercase', color:'#B08D57' }}>Enquire</span>
-                </div>
+      {/* 3. FEATURED COLLECTION — live from Supabase */}
+      {watches.length > 0 && (
+        <section style={{ background:'#0A0A0A', padding:'6rem 0' }}>
+          <div className="container">
+            <div className="flex items-end justify-between mb-16" style={{ borderBottom:'1px solid #1A1A1A', paddingBottom:'2rem' }}>
+              <div>
+                <p style={{ fontFamily:'var(--sans)', fontSize:'0.72rem', letterSpacing:'0.35em', textTransform:'uppercase', color:'#B08D57', marginBottom:'0.75rem' }}>Selected Pieces</p>
+                <h2 style={{ fontFamily:'var(--sans)', fontWeight:900, fontSize:'clamp(2.5rem,5vw,4rem)', color:'#fff', textTransform:'uppercase', lineHeight:1 }}>The Collection</h2>
+              </div>
+              <Link href="/collection" style={{ fontFamily:'var(--sans)', fontSize:'0.7rem', letterSpacing:'0.25em', textTransform:'uppercase', color:'#B08D57', textDecoration:'none', display:'flex', alignItems:'center', gap:'0.5rem' }}>
+                View All <ArrowRight size={12} />
               </Link>
-            ))}
+            </div>
+            <div className="grid grid-cols-2 lg:grid-cols-4" style={{ gap:'3rem 2rem' }}>
+              {watches.map(w => (
+                <Link key={w.id} href={`/collection/${w.id}`} style={{ textDecoration:'none', display:'block' }} className="group">
+                  <div style={{ background:'#111', aspectRatio:'1/1', display:'flex', alignItems:'center', justifyContent:'center', marginBottom:'1.5rem', position:'relative', overflow:'hidden' }}>
+                    {w.images && w.images[0] ? (
+                      <img src={w.images[0]} alt={`${w.brand} ${w.model}`}
+                        style={{ width:'85%', height:'85%', objectFit:'contain', transition:'transform 0.6s ease' }}
+                        className="group-hover:scale-105" />
+                    ) : (
+                      <span style={{ fontFamily:'var(--sans)', fontWeight:900, fontSize:'6rem', color:'#1a1a1a', lineHeight:1, userSelect:'none', letterSpacing:'-0.05em' }}>
+                        {w.brand.charAt(0)}
+                      </span>
+                    )}
+                    <span style={{ position:'absolute', top:'1rem', right:'1rem', fontFamily:'var(--sans)', fontSize:'0.62rem', letterSpacing:'0.15em', textTransform:'uppercase', color:'#B08D57', border:'1px solid rgba(176,141,87,0.5)', padding:'0.2rem 0.6rem' }}>
+                      {conditionTag(w)}
+                    </span>
+                  </div>
+                  <p style={{ fontFamily:'var(--sans)', fontSize:'0.68rem', letterSpacing:'0.25em', textTransform:'uppercase', color:'#B08D57', marginBottom:'0.4rem' }}>{w.brand}</p>
+                  <h3 style={{ fontFamily:'var(--sans)', fontWeight:700, fontSize:'1rem', color:'#fff', textTransform:'uppercase', letterSpacing:'0.02em', marginBottom:'0.3rem' }}>{w.model}</h3>
+                  {w.reference && <p style={{ fontFamily:'var(--sans)', fontSize:'0.72rem', color:'#fff', marginBottom:'0.75rem' }}>Ref. {w.reference}</p>}
+                  <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', paddingTop:'0.75rem', borderTop:'1px solid #1a1a1a' }}>
+                    <span style={{ fontFamily:'var(--sans)', fontWeight:600, fontSize:'0.9rem', color:'#fff' }}>{fmtPrice(w.price)}</span>
+                    <span style={{ fontFamily:'var(--sans)', fontSize:'0.65rem', letterSpacing:'0.15em', textTransform:'uppercase', color:'#B08D57' }}>Enquire</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* 4. STICKY SERVICES */}
       <StickyServices services={services} />
 
-      {/* 5. SPOTLIGHT */}
-      <section className="section" style={{ background:'#0D0D0D' }}>
-        <div className="container">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-px" style={{ background:'#1A1A1A' }}>
-            <AnimateIn direction="left" className="flex items-center justify-center" style={{ background:'#0A0A0A', minHeight:'360px' }}>
-              <span className="serif font-light" style={{ fontSize:'clamp(6rem,14vw,14rem)', color:'#2a2a2a', lineHeight:1, userSelect:'none' }}>PP</span>
-            </AnimateIn>
-            <AnimateIn direction="right" className="p-10 md:p-14 lg:p-16 flex flex-col justify-center" style={{ background:'#0A0A0A' }}>
-              <p style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#B08D57', marginBottom:'1.5rem' }}>Piece of the Month</p>
-              <p style={{ fontFamily:'var(--sans)', fontSize:'0.65rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#fff', marginBottom:'0.75rem' }}>Patek Philippe</p>
-              <h2 className="serif font-light" style={{ fontFamily:'var(--serif)', fontSize:'clamp(1.75rem,3vw,2.5rem)', color:'#fff', lineHeight:1.1, marginBottom:'1.5rem' }}>Nautilus<br/>5711/1A-010</h2>
-              <div style={{ width:'36px', height:'1px', background:'#B08D57', marginBottom:'1.5rem' }} />
-              <p style={{ fontFamily:'var(--sans)', fontSize:'0.875rem', color:'#fff', lineHeight:1.8, fontWeight:300, marginBottom:'2rem' }}>
-                Stainless steel, blue dial, bracelet. Presented in exceptional condition with original box and papers, dated 2022.
-              </p>
-              <div className="grid grid-cols-2 gap-3 mb-12">
-                {[['Year','2022'],['Condition','Mint'],['Papers','Full Set'],['Movement','Cal. 26-330 S C']].map(([k,v]) => (
-                  <div key={k} style={{ borderTop:'1px solid #1A1A1A', paddingTop:'0.75rem' }}>
-                    <p style={{ fontFamily:'var(--sans)', fontSize:'0.8rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#fff', marginBottom:'0.3rem' }}>{k}</p>
-                    <p style={{ fontFamily:'var(--sans)', fontSize:'0.8rem', color:'#fff', fontWeight:400 }}>{v}</p>
-                  </div>
-                ))}
-              </div>
-              <Link href="/contact" style={{ display:'inline-flex', alignItems:'center', gap:'0.5rem', fontFamily:'var(--sans)', fontSize:'0.72rem', fontWeight:600, letterSpacing:'0.22em', textTransform:'uppercase', textDecoration:'none', padding:'0.9rem 2rem', background:'#fff', color:'#0A0A0A', alignSelf:'flex-start' }}>
-                Enquire Now <ArrowRight size={13} />
-              </Link>
-            </AnimateIn>
+      {/* 5. SPOTLIGHT — Piece of the Month, shown only when set by admin */}
+      {spotlight && (
+        <section className="section" style={{ background:'#0D0D0D' }}>
+          <div className="container">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-px" style={{ background:'#1A1A1A' }}>
+              {/* Image panel */}
+              <AnimateIn direction="left" className="flex items-center justify-center" style={{ background:'#0A0A0A', minHeight:'360px', position:'relative', overflow:'hidden' }}>
+                {spotlight.images?.[0] ? (
+                  <img src={spotlight.images[0]} alt={`${spotlight.brand} ${spotlight.model}`}
+                    style={{ width:'75%', height:'75%', objectFit:'contain', position:'relative', zIndex:1 }} />
+                ) : (
+                  <span className="serif font-light" style={{ fontSize:'clamp(6rem,14vw,14rem)', color:'#2a2a2a', lineHeight:1, userSelect:'none' }}>
+                    {spotlight.brand.substring(0,2).toUpperCase()}
+                  </span>
+                )}
+              </AnimateIn>
+              {/* Info panel */}
+              <AnimateIn direction="right" className="p-10 md:p-14 lg:p-16 flex flex-col justify-center" style={{ background:'#0A0A0A' }}>
+                <p style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#B08D57', marginBottom:'1.5rem' }}>Piece of the Month</p>
+                <p style={{ fontFamily:'var(--sans)', fontSize:'0.65rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#fff', marginBottom:'0.75rem' }}>{spotlight.brand}</p>
+                <h2 className="serif font-light" style={{ fontFamily:'var(--serif)', fontSize:'clamp(1.75rem,3vw,2.5rem)', color:'#fff', lineHeight:1.1, marginBottom:'1.5rem' }}>
+                  {spotlight.model}{spotlight.reference ? <><br/><span style={{ fontSize:'0.7em', opacity:0.7 }}>{spotlight.reference}</span></> : null}
+                </h2>
+                <div style={{ width:'36px', height:'1px', background:'#B08D57', marginBottom:'1.5rem' }} />
+                {spotlight.description && (
+                  <p style={{ fontFamily:'var(--sans)', fontSize:'0.875rem', color:'#fff', lineHeight:1.8, fontWeight:300, marginBottom:'2rem' }}>
+                    {spotlight.description}
+                  </p>
+                )}
+                <div className="grid grid-cols-2 gap-3 mb-12">
+                  {spotlightSpecs(spotlight).map((spec, i) =>
+                    spec ? (
+                      <div key={i} style={{ borderTop:'1px solid #1A1A1A', paddingTop:'0.75rem' }}>
+                        <p style={{ fontFamily:'var(--sans)', fontSize:'0.8rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#fff', marginBottom:'0.3rem' }}>{spec[0]}</p>
+                        <p style={{ fontFamily:'var(--sans)', fontSize:'0.8rem', color:'#fff', fontWeight:400 }}>{spec[1]}</p>
+                      </div>
+                    ) : (
+                      <div key={i} />
+                    )
+                  )}
+                </div>
+                <Link href={`/collection/${spotlight.id}`} style={{ display:'inline-flex', alignItems:'center', gap:'0.5rem', fontFamily:'var(--sans)', fontSize:'0.72rem', fontWeight:600, letterSpacing:'0.22em', textTransform:'uppercase', textDecoration:'none', padding:'0.9rem 2rem', background:'#fff', color:'#0A0A0A', alignSelf:'flex-start' }}>
+                  View Details <ArrowRight size={13} />
+                </Link>
+              </AnimateIn>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* 6. STATS */}
       <section className="section" style={{ background:'#0D0D0D', borderTop:'1px solid #1A1A1A', borderBottom:'1px solid #1A1A1A' }}>

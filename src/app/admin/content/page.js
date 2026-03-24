@@ -1,7 +1,7 @@
 'use client'
 import Spinner from '@/components/Spinner'
 import { useEffect, useState } from 'react'
-import { Save, Plus, Trash2, CheckCircle, Eye } from 'lucide-react'
+import { Save, Plus, Trash2, CheckCircle, Eye, Star } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 /* ─── Shared styles ─────────────────────────────────────────────────────── */
@@ -72,7 +72,7 @@ const DEF_TESTIMONIALS = [
   { name:'Michelle T.',   text:'I traded in my Rolex and received an outstanding valuation. Transparent, professional, and genuinely fair.' },
   { name:'James Lim',     text:'The best pre-owned watch experience in KL. My Royal Oak arrived perfectly serviced with full authentication documents.' },
 ]
-const TABS = ['Hero', 'Stats', 'Services', 'Testimonials', 'Brands']
+const TABS = ['Hero', 'Stats', 'Services', 'Testimonials', 'Brands', 'Spotlight']
 
 export default function AdminContent() {
   const [hero,         setHero,         saveHero]         = useKV('hero', { title:'The Right\nTime For Life', subtitle:'EST. 2020 · AUTHENTICATED TIMEPIECES', description:'Rolex. Patek Philippe. Audemars Piguet. Richard Mille.\nEvery watch authenticated. Every detail considered.' })
@@ -81,17 +81,51 @@ export default function AdminContent() {
   const [testimonials, setTestimonials, saveTestimonials] = useKV('testimonials', DEF_TESTIMONIALS)
   const [brands,       setBrands,       ]                 = useKV('brands', ['Rolex','Patek Philippe','Audemars Piguet','Richard Mille','Vacheron Constantin','A. Lange & Söhne','IWC Schaffhausen','Omega','Hublot','Panerai','Breguet','Cartier','Chopard','Tudor','MB&F','Jacob & Co'])
 
-  // Separate raw text state for brands textarea — preserves newlines/cursor while typing
+  // Brands textarea state (preserves newlines/cursor while typing)
   const [brandsText,   setBrandsText]   = useState('')
   const [brandsLoaded, setBrandsLoaded] = useState(false)
-
-  // Sync brandsText from DB on first load
   useEffect(() => {
     if (!brandsLoaded && brands && brands.length > 0) {
       setBrandsText(brands.join('\n'))
       setBrandsLoaded(true)
     }
   }, [brands, brandsLoaded])
+
+  // Spotlight state
+  const [spotlightId,    setSpotlightId]    = useState('')     // saved watch ID
+  const [spotlightIdLoaded, setSpotlightIdLoaded] = useState(false)
+  const [allWatches,     setAllWatches]     = useState([])
+  const [spotlightWatch, setSpotlightWatch] = useState(null)   // preview of selected watch
+
+  // Load saved spotlight_id from site_settings
+  useEffect(() => {
+    supabase.from('site_settings').select('value').eq('key','spotlight_id').single()
+      .then(({ data }) => {
+        if (data?.value) {
+          const id = typeof data.value === 'string' ? data.value.replace(/"/g,'') : data.value
+          setSpotlightId(id)
+        }
+        setSpotlightIdLoaded(true)
+      })
+  }, [])
+
+  // Load all available watches for the dropdown
+  useEffect(() => {
+    supabase.from('watches').select('id,brand,model,reference,year,condition,price,images,description,features')
+      .eq('is_sold', false)
+      .order('created_at', { ascending: false })
+      .then(({ data }) => { if (data) setAllWatches(data) })
+  }, [])
+
+  // When spotlightId or allWatches changes, update the preview
+  useEffect(() => {
+    if (spotlightId && allWatches.length > 0) {
+      const w = allWatches.find(w => w.id === spotlightId)
+      setSpotlightWatch(w || null)
+    } else {
+      setSpotlightWatch(null)
+    }
+  }, [spotlightId, allWatches])
 
   const [activeTab, setActiveTab] = useState('Hero')
   const [saving,    setSaving]    = useState(false)
@@ -105,14 +139,19 @@ export default function AdminContent() {
     setTimeout(() => setSaved(false), 2500)
   }
 
-  // Direct brands save — reads brandsText, cleans, upserts
   const saveBrandsDirect = async () => {
     const cleaned = brandsText.split('\n').map(s => s.trim()).filter(Boolean)
     setBrands(cleaned)
     await supabase.from('site_settings').upsert({ key: 'brands', value: cleaned }, { onConflict:'key' })
   }
 
+  const saveSpotlight = async () => {
+    await supabase.from('site_settings').upsert({ key: 'spotlight_id', value: spotlightId }, { onConflict:'key' })
+  }
+
   const card = { background:'#fff', borderRadius:'8px', border:'1px solid #EDE9E3', padding:'1.75rem', boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }
+
+  const fmtPrice = (n) => n ? 'MYR ' + Number(n).toLocaleString() : 'P.O.A.'
 
   return (
     <div style={{ padding:'1.5rem 1.5rem 4rem', maxWidth:'900px' }}>
@@ -309,6 +348,88 @@ export default function AdminContent() {
           </Field>
           <p style={hint}>{brandsText.split('\n').filter(s => s.trim()).length} brands configured</p>
           <SaveBar saving={saving} onSave={() => doSave(saveBrandsDirect)} />
+        </div>
+      )}
+
+      {/* ── Spotlight Tab ── */}
+      {activeTab === 'Spotlight' && (
+        <div style={card}>
+          <div style={{ marginBottom:'1.5rem' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:'0.5rem', marginBottom:'0.25rem' }}>
+              <Star size={15} style={{ color:'#B08D57' }} />
+              <p style={{ fontFamily:'var(--sans)', fontWeight:700, fontSize:'0.9rem', color:'#111' }}>Piece of the Month</p>
+            </div>
+            <p style={{ fontFamily:'var(--sans)', fontSize:'0.75rem', color:'#999' }}>
+              Choose a watch from your collection to feature in the "Piece of the Month" spotlight on the homepage.
+            </p>
+          </div>
+
+          {!spotlightIdLoaded ? (
+            <div style={{ display:'flex', justifyContent:'center', padding:'2rem' }}>
+              <Spinner size={24} style={{ color:'#B08D57', animation:'spin 1s linear infinite' }} />
+            </div>
+          ) : allWatches.length === 0 ? (
+            <div style={{ padding:'1.5rem', background:'#F7F6F3', borderRadius:'6px', textAlign:'center' }}>
+              <p style={{ fontFamily:'var(--sans)', fontSize:'0.8rem', color:'#999' }}>No watches in your collection yet. Add watches first from the Collection admin page.</p>
+            </div>
+          ) : (
+            <>
+              <Field label="Select Watch" hint="Only unsold watches are shown. Details are pulled automatically from the collection.">
+                <select
+                  style={{ ...inp, cursor:'pointer' }}
+                  value={spotlightId}
+                  onChange={e => setSpotlightId(e.target.value)}
+                  onFocus={e => e.target.style.borderColor='#B08D57'}
+                  onBlur={e => e.target.style.borderColor='#E0DDD8'}
+                >
+                  <option value="">— Choose a watch —</option>
+                  {allWatches.map(w => (
+                    <option key={w.id} value={w.id}>
+                      {w.brand} {w.model}{w.reference ? ` (${w.reference})` : ''}{w.year ? ` · ${w.year}` : ''}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+
+              {/* Preview card */}
+              {spotlightWatch && (
+                <div style={{ marginTop:'1.25rem', padding:'1.25rem', background:'#F7F6F3', borderRadius:'6px', border:'1px solid #EDE9E3', display:'grid', gridTemplateColumns:'80px 1fr', gap:'1rem', alignItems:'start' }}>
+                  {/* Thumbnail */}
+                  <div style={{ aspectRatio:'1/1', background:'#E8E4DE', borderRadius:'4px', overflow:'hidden', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                    {spotlightWatch.images?.[0] ? (
+                      <img src={spotlightWatch.images[0]} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+                    ) : (
+                      <span style={{ fontFamily:'var(--sans)', fontWeight:900, fontSize:'2rem', color:'#C8B99A', userSelect:'none' }}>
+                        {spotlightWatch.brand.charAt(0)}
+                      </span>
+                    )}
+                  </div>
+                  {/* Details */}
+                  <div>
+                    <p style={{ fontFamily:'var(--sans)', fontSize:'0.62rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#B08D57', marginBottom:'0.2rem' }}>{spotlightWatch.brand}</p>
+                    <p style={{ fontFamily:'var(--sans)', fontWeight:700, fontSize:'0.95rem', color:'#111', marginBottom:'0.25rem' }}>{spotlightWatch.model}</p>
+                    {spotlightWatch.reference && <p style={{ fontFamily:'var(--sans)', fontSize:'0.75rem', color:'#666', marginBottom:'0.4rem' }}>Ref. {spotlightWatch.reference}</p>}
+                    <div style={{ display:'flex', gap:'1rem', flexWrap:'wrap' }}>
+                      {spotlightWatch.year && <span style={{ fontFamily:'var(--sans)', fontSize:'0.72rem', color:'#555' }}>Year: {spotlightWatch.year}</span>}
+                      {spotlightWatch.condition && <span style={{ fontFamily:'var(--sans)', fontSize:'0.72rem', color:'#555', textTransform:'capitalize' }}>Condition: {spotlightWatch.condition}</span>}
+                      {spotlightWatch.price && <span style={{ fontFamily:'var(--sans)', fontSize:'0.72rem', color:'#555' }}>{fmtPrice(spotlightWatch.price)}</span>}
+                    </div>
+                    {spotlightWatch.features?.length > 0 && (
+                      <p style={{ fontFamily:'var(--sans)', fontSize:'0.72rem', color:'#888', marginTop:'0.4rem' }}>
+                        Features: {(Array.isArray(spotlightWatch.features) ? spotlightWatch.features : [spotlightWatch.features]).join(', ')}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {!spotlightId && (
+                <p style={{ ...hint, marginTop:'0.75rem' }}>No spotlight selected — the section will be hidden on the homepage.</p>
+              )}
+            </>
+          )}
+
+          <SaveBar saving={saving} onSave={() => doSave(saveSpotlight)} />
         </div>
       )}
 
