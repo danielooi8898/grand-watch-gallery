@@ -1,7 +1,7 @@
-'use client'
+﻿'use client'
 import Spinner from '@/components/Spinner'
 import { useEffect, useState, useCallback } from 'react'
-import { Plus, Pencil, Trash2, X, ExternalLink, Lock } from 'lucide-react'
+import { Plus, Pencil, Trash2, X, ExternalLink, Lock, Upload } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
 
@@ -23,6 +23,7 @@ export default function AdminBlog() {
   const [saving, setSaving]     = useState(false)
   const [deleting, setDeleting] = useState(null)
   const [error, setError]       = useState('')
+  const [uploadingCover, setUploadingCover] = useState(false)
 
   const fetch = useCallback(async () => {
     setLoading(true)
@@ -31,6 +32,18 @@ export default function AdminBlog() {
     setLoading(false)
   }, [])
   useEffect(() => { fetch() }, [fetch])
+
+  const handleCoverUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploadingCover(true)
+    const path = `blog/${Date.now()}-${file.name.replace(/\s+/g, '-')}`
+    const { data, error: upErr } = await supabase.storage.from('media').upload(path, file, { upsert: true })
+    if (upErr) { alert('Upload failed: ' + upErr.message); setUploadingCover(false); return }
+    const { data: urlData } = supabase.storage.from('media').getPublicUrl(data.path)
+    setEdit(p => ({ ...p, image_url: urlData.publicUrl }))
+    setUploadingCover(false)
+  }
 
   const openAdd  = () => { setEdit(EMPTY); setEditId(null); setError(''); setOpen(true) }
   const openEdit = (p) => {
@@ -167,6 +180,41 @@ export default function AdminBlog() {
             <div style={{ padding:'1.5rem', display:'flex', flexDirection:'column', gap:'1rem' }}>
               {error && <div style={{ background:'#fee2e2', padding:'0.6rem 0.85rem', fontFamily:'var(--sans)', fontSize:'0.78rem', color:'#dc2626', borderRadius:'2px' }}>{error}</div>}
 
+
+              {/* ── Cover Image upload (prominent) ── */}
+              <div style={{ border:'1px solid #E8E2D8', borderRadius:'4px', padding:'1rem', background:'#FAFAF8' }}>
+                <label style={{ ...lbl, marginBottom:'0.75rem', fontSize:'0.65rem' }}>Cover Image <span style={{ color:'#B08D57', fontWeight:700, textTransform:'none', letterSpacing:0 }}>(optional)</span></label>
+                {edit.image_url ? (
+                  <div style={{ position:'relative', borderRadius:'4px', overflow:'hidden', height:'140px', background:'#f5f4f1', marginBottom:'0.75rem' }}>
+                    <img src={edit.image_url} alt="Cover preview" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+                    <button
+                      onClick={() => setEdit(p => ({ ...p, image_url: '' }))}
+                      title="Remove image"
+                      style={{ position:'absolute', top:'0.4rem', right:'0.4rem', background:'rgba(0,0,0,0.55)', border:'none', borderRadius:'50%', width:'24px', height:'24px', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', color:'#fff' }}>
+                      <X size={12} />
+                    </button>
+                  </div>
+                ) : (
+                  <div style={{ height:'100px', border:'1px dashed #D4CEC6', borderRadius:'4px', display:'flex', alignItems:'center', justifyContent:'center', background:'#f5f4f1', marginBottom:'0.75rem' }}>
+                    <p style={{ fontFamily:'var(--sans)', fontSize:'0.75rem', color:'#bbb' }}>No cover image</p>
+                  </div>
+                )}
+                <label style={{
+                  display:'inline-flex', alignItems:'center', gap:'0.5rem',
+                  padding:'0.6rem 1rem', background:'#fff', border:'1px solid #B08D57',
+                  borderRadius:'3px', cursor: uploadingCover ? 'not-allowed' : 'pointer',
+                  fontFamily:'var(--sans)', fontSize:'0.75rem', color:'#B08D57', fontWeight:600,
+                  opacity: uploadingCover ? 0.7 : 1,
+                }}>
+                  <Upload size={13} />
+                  {uploadingCover ? 'Uploading\u2026' : edit.image_url ? 'Replace Image' : 'Upload Cover Image'}
+                  <input type="file" accept="image/*" style={{ display:'none' }}
+                    onChange={handleCoverUpload} disabled={uploadingCover} />
+                </label>
+                <p style={{ fontFamily:'var(--sans)', fontSize:'0.67rem', color:'#A09890', marginTop:'0.5rem' }}>JPG, PNG or WebP recommended</p>
+              </div>
+
+
               <div>
                 <label style={lbl}>Title *</label>
                 <input style={inp} value={edit.title} onChange={e=>setEdit(p=>({...p,title:e.target.value}))} placeholder="Article title" />
@@ -186,15 +234,6 @@ export default function AdminBlog() {
               <div>
                 <label style={lbl}>Source URL *</label>
                 <input style={inp} value={edit.source_url} onChange={e=>setEdit(p=>({...p,source_url:e.target.value}))} placeholder="https://..." />
-              </div>
-              <div>
-                <label style={lbl}>Cover Image URL <span style={{ color:'#aaa', textTransform:'none', letterSpacing:0, fontWeight:400 }}>(optional — paste a direct image link)</span></label>
-                <input style={inp} value={edit.image_url} onChange={e=>setEdit(p=>({...p,image_url:e.target.value}))} placeholder="https://example.com/image.jpg" />
-                {edit.image_url && (
-                  <div style={{ marginTop:'0.5rem', height:'80px', borderRadius:'2px', overflow:'hidden', background:'#f5f4f1' }}>
-                    <img src={edit.image_url} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} onError={e => e.target.style.display='none'} />
-                  </div>
-                )}
               </div>
               <div>
                 <label style={lbl}>Excerpt</label>

@@ -1,7 +1,7 @@
 'use client'
 import Spinner from '@/components/Spinner'
 import { useEffect, useState } from 'react'
-import { Save, CheckCircle, Lock } from 'lucide-react'
+import { Save, CheckCircle, Lock, Upload, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
 
@@ -32,6 +32,7 @@ export default function AdminSettings() {
   const [saving,    setSaving]  = useState('')
   const [saved,     setSaved]   = useState(false)
   const [activeTab, setActive]  = useState('Contact')
+  const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
     supabase.from('site_settings').select('key,value').in('key', Object.keys(DEF))
@@ -77,6 +78,18 @@ export default function AdminSettings() {
     setSaving('')
     setSaved(true)
     setTimeout(() => setSaved(false), 2500)
+  }
+
+  const handleGalleryUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    const path = `gallery/${Date.now()}-${file.name.replace(/\s+/g, '-')}`
+    const { data, error: upErr } = await supabase.storage.from('media').upload(path, file, { upsert: true })
+    if (upErr) { alert('Upload failed: ' + upErr.message); setUploading(false); return }
+    const { data: urlData } = supabase.storage.from('media').getPublicUrl(data.path)
+    set('gallery_image_url', urlData.publicUrl)
+    setUploading(false)
   }
 
   const focusStyle  = e => { e.target.style.borderColor = '#B08D57' }
@@ -217,19 +230,39 @@ export default function AdminSettings() {
             The image shown in the &ldquo;A Private Gallery Experience&rdquo; section on the Find Us page. Leave blank to show the default GWG placeholder.
           </p>
           <div>
-            <label style={lbl}>Gallery Image URL</label>
-            <input style={inp} value={form.gallery_image_url}
-              onChange={e => set('gallery_image_url', e.target.value)}
-              onFocus={focusStyle} onBlur={blurStyle}
-              placeholder="https://example.com/gallery-interior.jpg" />
-            <p style={{ fontFamily:'var(--sans)', fontSize:'0.68rem', color:'#A09890', marginTop:'0.3rem' }}>
-              Paste a direct image URL. Recommended aspect ratio: 4:3.
+            <label style={lbl}>Upload Image</label>
+            <label style={{
+              display:'inline-flex', alignItems:'center', gap:'0.6rem',
+              padding:'0.75rem 1.25rem', background:'#F7F6F3',
+              border:'2px dashed #B08D57', borderRadius:'6px',
+              cursor: uploading ? 'not-allowed' : 'pointer',
+              fontFamily:'var(--sans)', fontSize:'0.8rem', color:'#555',
+              opacity: uploading ? 0.7 : 1, transition:'opacity 0.15s',
+            }}>
+              <Upload size={15} style={{ color:'#B08D57', flexShrink:0 }} />
+              {uploading ? 'Uploading…' : form.gallery_image_url ? 'Replace Image' : 'Choose Image File'}
+              <input type="file" accept="image/*" style={{ display:'none' }}
+                onChange={handleGalleryUpload} disabled={uploading} />
+            </label>
+            <p style={{ fontFamily:'var(--sans)', fontSize:'0.68rem', color:'#A09890', marginTop:'0.5rem' }}>
+              JPG, PNG or WebP · Recommended aspect ratio 4:3
             </p>
           </div>
           {form.gallery_image_url && (
-            <div style={{ marginTop:'1rem', borderRadius:'6px', overflow:'hidden', height:'180px', background:'#F7F6F3' }}>
+            <div style={{ marginTop:'1.25rem', position:'relative', borderRadius:'6px', overflow:'hidden', height:'200px', background:'#F7F6F3' }}>
               <img src={form.gallery_image_url} alt="Gallery preview"
                 style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+              <button
+                onClick={() => set('gallery_image_url', '')}
+                title="Remove image"
+                style={{
+                  position:'absolute', top:'0.5rem', right:'0.5rem',
+                  background:'rgba(0,0,0,0.55)', border:'none', borderRadius:'50%',
+                  width:'26px', height:'26px', display:'flex', alignItems:'center',
+                  justifyContent:'center', cursor:'pointer', color:'#fff',
+                }}>
+                <X size={13} />
+              </button>
             </div>
           )}
           <SaveBtn group="gallery" keys={['gallery_image_url']} />
