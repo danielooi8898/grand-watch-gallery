@@ -25,10 +25,14 @@ CREATE TABLE IF NOT EXISTS blog_posts (
   source       text,
   date         text,
   read_time    text DEFAULT '5 min',
+  image_url    text,
   is_published boolean DEFAULT true,
   order_index  integer DEFAULT 0,
   created_at   timestamptz DEFAULT now()
 );
+
+-- If blog_posts already exists without image_url, run this:
+-- ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS image_url TEXT;
 
 -- 4. Watches table (if not already created — skip if it exists)
 CREATE TABLE IF NOT EXISTS watches (
