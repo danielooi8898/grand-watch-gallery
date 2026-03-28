@@ -26,6 +26,10 @@ export default function AdminBlog() {
   const [deleting, setDeleting] = useState(null)
   const [error,    setError]    = useState('')
 
+  // auto-fetch state
+  const [fetching,  setFetching]  = useState(false)
+  const [fetchMsg,  setFetchMsg]  = useState('')
+
   // image upload states
   const [uploadingCover, setUploadingCover] = useState(false)
   const [coverCrop, setCoverCrop] = useState(null)  // { src, fileName } — edit modal cover
@@ -81,6 +85,24 @@ export default function AdminBlog() {
   }
 
   /* ── CRUD ────────────────────────────────────────────────────────── */
+  /* ── auto-fetch from RSS ──────────────────────────────────────────────── */
+  const fetchLatest = async () => {
+    setFetching(true)
+    setFetchMsg('')
+    try {
+      const res  = await fetch('/api/fetch-journal', { method: 'POST' })
+      const json = await res.json()
+      if (!res.ok) throw new Error(json.error || 'Unknown error')
+      setFetchMsg(json.added > 0 ? `✓ ${json.added} new article${json.added !== 1 ? 's' : ''} added` : '✓ Already up to date')
+      if (json.added > 0) loadPosts()
+    } catch (err) {
+      setFetchMsg('✗ ' + err.message)
+    } finally {
+      setFetching(false)
+      setTimeout(() => setFetchMsg(''), 5000)
+    }
+  }
+
   const openAdd  = () => { setEdit(EMPTY); setEditId(null); setError(''); setOpen(true) }
   const openEdit = (p) => {
     setEdit({
@@ -166,9 +188,19 @@ export default function AdminBlog() {
           <h1 style={{ fontFamily:'var(--sans)', fontWeight:800, fontSize:'1.75rem', letterSpacing:'-0.02em', color:'#111' }}>Journal Articles</h1>
           <p style={{ fontFamily:'var(--sans)', fontSize:'0.8rem', color:'#888', marginTop:'0.25rem' }}>{posts.length} articles</p>
         </div>
-        <button onClick={openAdd} style={{ display:'inline-flex', alignItems:'center', gap:'0.5rem', background:'#B08D57', color:'#fff', padding:'0.7rem 1.25rem', fontFamily:'var(--sans)', fontSize:'0.72rem', fontWeight:700, letterSpacing:'0.12em', textTransform:'uppercase', border:'none', cursor:'pointer' }}>
-          <Plus size={14} /> Add Article
-        </button>
+        <div style={{ display:'flex', alignItems:'center', gap:'0.75rem' }}>
+          {fetchMsg && (
+            <span style={{ fontFamily:'var(--sans)', fontSize:'0.72rem', color: fetchMsg.startsWith('✓') ? '#2a7a2a' : '#c0392b', background: fetchMsg.startsWith('✓') ? '#f0fff0' : '#fff0f0', border: `1px solid ${fetchMsg.startsWith('✓') ? '#a3d9a3' : '#f5aaaa'}`, padding:'0.35rem 0.75rem', borderRadius:'3px' }}>
+              {fetchMsg}
+            </span>
+          )}
+          <button onClick={fetchLatest} disabled={fetching} style={{ display:'inline-flex', alignItems:'center', gap:'0.5rem', background:'#fff', color:'#555', padding:'0.65rem 1.1rem', fontFamily:'var(--sans)', fontSize:'0.72rem', fontWeight:600, letterSpacing:'0.1em', textTransform:'uppercase', border:'1px solid #D0CCC4', cursor: fetching ? 'not-allowed' : 'pointer', opacity: fetching ? 0.6 : 1 }}>
+            <Upload size={13} /> {fetching ? 'Fetching…' : 'Fetch Latest'}
+          </button>
+          <button onClick={openAdd} style={{ display:'inline-flex', alignItems:'center', gap:'0.5rem', background:'#B08D57', color:'#fff', padding:'0.7rem 1.25rem', fontFamily:'var(--sans)', fontSize:'0.72rem', fontWeight:700, letterSpacing:'0.12em', textTransform:'uppercase', border:'none', cursor:'pointer' }}>
+            <Plus size={14} /> Add Article
+          </button>
+        </div>
       </div>
 
       {/* Featured hero preview */}
