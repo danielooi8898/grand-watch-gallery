@@ -151,6 +151,59 @@ export default function AdminBlog() {
         </button>
       </div>
 
+      {/* ── Featured Article Hero Preview ── */}
+      {!loading && posts.length > 0 && (() => {
+        const hero = posts[0]
+        return (
+          <div style={{ marginBottom:'2rem', border:'1px solid #E8E2D8', borderRadius:'6px', overflow:'hidden', background:'#fff' }}>
+            <div style={{ padding:'0.75rem 1.25rem', borderBottom:'1px solid #F0EDE8', display:'flex', justifyContent:'space-between', alignItems:'center', background:'#FAFAF8' }}>
+              <div style={{ display:'flex', alignItems:'center', gap:'0.6rem' }}>
+                <span style={{ fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.2em', textTransform:'uppercase', fontWeight:700, color:'#B08D57' }}>Featured Article</span>
+                <span style={{ fontFamily:'var(--sans)', fontSize:'0.65rem', color:'#bbb' }}>· First article in list · shown as hero on public Journal page</span>
+              </div>
+              <button onClick={() => openEdit(hero)} style={{ fontFamily:'var(--sans)', fontSize:'0.7rem', color:'#555', border:'1px solid #E0DDD8', background:'#fff', padding:'0.3rem 0.75rem', borderRadius:'3px', cursor:'pointer' }}>
+                Edit Article
+              </button>
+            </div>
+            {/* Hero preview */}
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', minHeight:'200px' }}>
+              {/* Left: image zone — click to change */}
+              <label style={{ display:'block', cursor:'pointer', position:'relative', background:'#111', minHeight:'200px', overflow:'hidden' }} title="Click to change featured image">
+                {hero.image_url ? (
+                  <>
+                    <img src={hero.image_url} alt="" style={{ width:'100%', height:'100%', objectFit:'cover', position:'absolute', inset:0, opacity:0.7 }} />
+                    <div style={{ position:'absolute', inset:0, background:'rgba(0,0,0,0)', display:'flex', alignItems:'center', justifyContent:'center', gap:'0.5rem', flexDirection:'column', opacity:0, transition:'opacity 0.2s' }}
+                      onMouseEnter={e => e.currentTarget.style.opacity=1}
+                      onMouseLeave={e => e.currentTarget.style.opacity=0}>
+                      <Upload size={20} style={{ color:'#fff' }} />
+                      <span style={{ fontFamily:'var(--sans)', fontSize:'0.75rem', color:'#fff', fontWeight:600 }}>Replace Image</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div style={{ position:'absolute', inset:0, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:'0.75rem' }}>
+                      <span style={{ fontFamily:'var(--sans)', fontWeight:900, fontSize:'3rem', color:'#1A1A1A', letterSpacing:'-0.04em', userSelect:'none' }}>GWG</span>
+                      <div style={{ display:'flex', alignItems:'center', gap:'0.5rem', background:'rgba(176,141,87,0.15)', border:'1px solid #B08D57', borderRadius:'4px', padding:'0.4rem 0.9rem' }}>
+                        <Upload size={13} style={{ color:'#B08D57' }} />
+                        <span style={{ fontFamily:'var(--sans)', fontSize:'0.72rem', color:'#B08D57', fontWeight:600 }}>Click to add featured image</span>
+                      </div>
+                    </div>
+                  </>
+                )}
+                <input type="file" accept="image/*" style={{ display:'none' }} onChange={e => onQuickImageSelect(e, hero.id)} />
+              </label>
+              {/* Right: article info */}
+              <div style={{ padding:'2rem', background:'#111', display:'flex', flexDirection:'column', justifyContent:'center', borderLeft:'1px solid #1A1A1A' }}>
+                <span style={{ fontFamily:'var(--sans)', fontSize:'0.65rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#B08D57', display:'block', marginBottom:'0.75rem' }}>Featured · {hero.category}</span>
+                <p style={{ fontFamily:'var(--sans)', fontWeight:800, fontSize:'1rem', letterSpacing:'-0.01em', textTransform:'uppercase', color:'#fff', lineHeight:1.2, marginBottom:'0.75rem' }}>{hero.title}</p>
+                <p style={{ fontFamily:'var(--sans)', fontSize:'0.75rem', color:'#999', lineHeight:1.6, marginBottom:'1rem' }}>{hero.excerpt?.slice(0, 100)}{hero.excerpt?.length > 100 ? '…' : ''}</p>
+                <span style={{ fontFamily:'var(--sans)', fontSize:'0.65rem', color:'#555' }}>{hero.date} · {hero.source}</span>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
       {loading ? (
         <div style={{ display:'flex', justifyContent:'center', padding:'4rem' }}>
           <Spinner size={24} style={{ color:'#B08D57', animation:'spin 1s linear infinite' }} />
