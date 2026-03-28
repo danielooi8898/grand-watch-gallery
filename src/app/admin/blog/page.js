@@ -26,6 +26,7 @@ export default function AdminBlog() {
   const [error, setError]       = useState('')
   const [uploadingCover, setUploadingCover] = useState(false)
   const [cropData, setCropData] = useState(null)
+  const [quickCrop, setQuickCrop] = useState(null) // { src, fileName, articleId }
 
   const fetch = useCallback(async () => {
     setLoading(true)
@@ -34,6 +35,24 @@ export default function AdminBlog() {
     setLoading(false)
   }, [])
   useEffect(() => { fetch() }, [fetch])
+
+  const onQuickImageSelect = (e, articleId) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setQuickCrop({ src: URL.createObjectURL(file), fileName: file.name, articleId })
+    e.target.value = ''
+  }
+
+  const onQuickCropApply = async (blob, outFileName) => {
+    const { articleId } = quickCrop
+    setQuickCrop(null)
+    const path = `blog/${Date.now()}-${outFileName}`
+    const { data, error: upErr } = await supabase.storage.from('watch-images').upload(path, blob, { upsert: true, contentType: 'image/jpeg' })
+    if (upErr) { alert('Upload failed: ' + upErr.message); return }
+    const { data: urlData } = supabase.storage.from('watch-images').getPublicUrl(data.path)
+    await supabase.from('blog_posts').update({ image_url: urlData.publicUrl }).eq('id', articleId)
+    fetch()
+  }
 
   const onCoverFileSelect = (e) => {
     const file = e.target.files?.[0]
@@ -144,11 +163,25 @@ export default function AdminBlog() {
         <div style={{ display:'flex', flexDirection:'column', gap:'0.75rem' }}>
           {posts.map(p => (
             <div key={p.id} style={{ background:'#fff', border:'1px solid #E8E2D8', borderRadius:'2px', padding:'1.25rem 1.5rem', display:'flex', alignItems:'center', gap:'1rem' }}>
-              {p.image_url && (
-                <div style={{ width:'56px', height:'56px', flexShrink:0, borderRadius:'2px', overflow:'hidden', background:'#f5f4f1' }}>
-                  <img src={p.image_url} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
-                </div>
-              )}
+              {/* Clickable image thumbnail — always visible, click to change */}
+              <label title="Click to change cover image" style={{ width:'64px', height:'64px', flexShrink:0, borderRadius:'3px', overflow:'hidden', background:'#f5f4f1', cursor:'pointer', display:'block', position:'relative', border:'1px solid #E8E2D8' }}>
+                {p.image_url ? (
+                  <>
+                    <img src={p.image_url} alt="" style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }} />
+                    <div style={{ position:'absolute', inset:0, background:'rgba(0,0,0,0.45)', display:'flex', alignItems:'center', justifyContent:'center', opacity:0, transition:'opacity 0.18s' }}
+                      onMouseEnter={e => e.currentTarget.style.opacity=1}
+                      onMouseLeave={e => e.currentTarget.style.opacity=0}>
+                      <Upload size={14} style={{ color:'#fff' }} />
+                    </div>
+                  </>
+                ) : (
+                  <div style={{ width:'100%', height:'100%', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:'2px', border:'1.5px dashed #D4CEC6', borderRadius:'3px' }}>
+                    <Upload size={13} style={{ color:'#B08D57' }} />
+                    <span style={{ fontFamily:'var(--sans)', fontSize:'0.48rem', letterSpacing:'0.08em', textTransform:'uppercase', color:'#B08D57', fontWeight:700 }}>Add</span>
+                  </div>
+                )}
+                <input type="file" accept="image/*" style={{ display:'none' }} onChange={e => onQuickImageSelect(e, p.id)} />
+              </label>
               <div style={{ flex:1, minWidth:0 }}>
                 <div style={{ display:'flex', alignItems:'center', gap:'0.6rem', marginBottom:'0.3rem' }}>
                   <span style={{ fontFamily:'var(--sans)', fontSize:'0.62rem', letterSpacing:'0.1em', textTransform:'uppercase', padding:'0.15rem 0.5rem', background:'#F4EFE9', color:'#B08D57', borderRadius:'999px' }}>{p.category}</span>
@@ -291,6 +324,16 @@ export default function AdminBlog() {
           aspectRatio={16/9}
           onApply={onCoverCropApply}
           onCancel={() => setCropData(null)}
+        />
+      )}
+
+      {quickCrop && (
+        <ImageCropModal
+          src={quickCrop.src}
+          fileName={quickCrop.fileName}
+          aspectRatio={16/9}
+          onApply={onQuickCropApply}
+          onCancel={() => setQuickCrop(null)}
         />
       )}
     </div>
