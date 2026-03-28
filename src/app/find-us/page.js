@@ -5,11 +5,12 @@ import { supabase } from '@/lib/supabase'
 import { ArrowUpRight, Phone, Navigation, Clock } from 'lucide-react'
 
 const D = {
-  phone:    '+6016-682 4848',
-  whatsapp: '60162241804',
-  address:  'Lot G31, Ground Floor\nAtria Shopping Gallery\nJalan SS 22/23, Damansara Jaya\n47400 Petaling Jaya, Selangor',
-  hours:    'Mon – Sat: 10:00am – 7:00pm\nSunday: By appointment only',
-  map_embed:'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3984.254497!2d101.6139191!3d3.1270963!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cc494ca537b9f1%3A0x887c4a6a2ca357ac!2sAtria%20Shopping%20Gallery!5e0!3m2!1sen!2smy!4v1711700000000!5m2!1sen!2smy',
+  phone:             '+6016-682 4848',
+  whatsapp:          '60162241804',
+  address:           'Lot G31, Ground Floor\nAtria Shopping Gallery\nJalan SS 22/23, Damansara Jaya\n47400 Petaling Jaya, Selangor',
+  hours:             'Mon \u2013 Sat: 10:00am \u2013 7:00pm\nSunday: By appointment only',
+  map_embed:         'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3984.254497!2d101.6139191!3d3.1270963!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cc494ca537b9f1%3A0x887c4a6a2ca357ac!2sAtria%20Shopping%20Gallery!5e0!3m2!1sen!2smy!4v1711700000000!5m2!1sen!2smy',
+  gallery_image_url: '',
 }
 
 export default function FindUsPage() {
@@ -17,7 +18,7 @@ export default function FindUsPage() {
 
   useEffect(() => {
     supabase.from('site_settings').select('key,value')
-      .in('key', ['phone','whatsapp','address','hours','map_embed'])
+      .in('key', ['phone','whatsapp','address','hours','map_embed','gallery_image_url'])
       .then(({ data }) => {
         if (!data) return
         const loaded = { ...D }
@@ -34,7 +35,7 @@ export default function FindUsPage() {
       {/* Info Section */}
       <section style={{ background:'#0A0A0A', paddingTop:'8rem', paddingBottom:'5rem', minHeight:'55vh' }}>
         <div className="container">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))', gap:'4rem' }}>
 
             {/* Left */}
             <div>
@@ -54,7 +55,6 @@ export default function FindUsPage() {
                   Book an Appointment <ArrowUpRight size={14} />
                 </Link>
               </div>
-
               <div style={{ display:'flex', gap:'0.75rem' }}>
                 <a href="https://www.google.com/maps/dir/?api=1&destination=Atria+Shopping+Gallery+Petaling+Jaya"
                   target="_blank" rel="noopener noreferrer"
@@ -91,7 +91,7 @@ export default function FindUsPage() {
                 })}
               </div>
               <div style={{ marginTop:'2.5rem', paddingTop:'2rem', borderTop:'1px solid #1A1A1A' }}>
-                <p style={{ fontFamily:'var(--sans)', fontSize:'0.68rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#B08D57', marginBottom:'0.75rem' }}>Phone & WhatsApp</p>
+                <p style={{ fontFamily:'var(--sans)', fontSize:'0.68rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#B08D57', marginBottom:'0.75rem' }}>Phone &amp; WhatsApp</p>
                 <p style={{ fontFamily:'var(--sans)', fontSize:'1rem', color:'#fff', fontWeight:300, lineHeight:2 }}>{info.phone}</p>
               </div>
             </div>
@@ -118,7 +118,7 @@ export default function FindUsPage() {
       {/* Bottom CTA */}
       <section style={{ background:'#0A0A0A', padding:'5rem 0', borderTop:'1px solid #1A1A1A' }}>
         <div className="container">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))', gap:'3rem', alignItems:'center' }}>
             <div>
               <p style={{ fontFamily:'var(--sans)', fontSize:'0.72rem', letterSpacing:'0.35em', textTransform:'uppercase', color:'#B08D57', marginBottom:'1.25rem' }}>Visit Us</p>
               <h2 style={{ fontFamily:'var(--sans)', fontWeight:900, fontSize:'clamp(2rem,4vw,3rem)', color:'#fff', textTransform:'uppercase', lineHeight:1.05, marginBottom:'1.5rem' }}>
@@ -131,11 +131,19 @@ export default function FindUsPage() {
                 Book a Private Viewing <ArrowUpRight size={13} />
               </Link>
             </div>
-            <div style={{ background:'#111', aspectRatio:'4/3', display:'flex', alignItems:'center', justifyContent:'center' }}>
-              <div style={{ textAlign:'center' }}>
-                <div style={{ fontFamily:'var(--sans)', fontWeight:900, fontSize:'4rem', color:'#1a1a1a', letterSpacing:'-0.05em' }}>GWG</div>
-                <p style={{ fontFamily:'var(--sans)', fontSize:'0.65rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#fff', marginTop:'0.5rem' }}>Gallery Interior</p>
-              </div>
+            <div style={{ background:'#111', aspectRatio:'4/3', overflow:'hidden', display:'flex', alignItems:'center', justifyContent:'center' }}>
+              {info.gallery_image_url ? (
+                <img
+                  src={info.gallery_image_url}
+                  alt="Gallery Interior"
+                  style={{ width:'100%', height:'100%', objectFit:'cover' }}
+                />
+              ) : (
+                <div style={{ textAlign:'center' }}>
+                  <div style={{ fontFamily:'var(--sans)', fontWeight:900, fontSize:'4rem', color:'#1a1a1a', letterSpacing:'-0.05em' }}>GWG</div>
+                  <p style={{ fontFamily:'var(--sans)', fontSize:'0.65rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#fff', marginTop:'0.5rem' }}>Gallery Interior</p>
+                </div>
+              )}
             </div>
           </div>
         </div>

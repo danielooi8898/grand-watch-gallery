@@ -1,32 +1,37 @@
 'use client'
 import Spinner from '@/components/Spinner'
 import { useEffect, useState } from 'react'
-import { Save, CheckCircle } from 'lucide-react'
+import { Save, CheckCircle, Lock } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/context/AuthContext'
+
+const OWNER_EMAIL = 'ooimunhong8898@gmail.com'
 
 const inp  = { width:'100%', padding:'0.65rem 0.85rem', fontFamily:'var(--sans)', fontSize:'0.82rem', border:'1px solid #E0DDD8', background:'#fff', outline:'none', borderRadius:'4px', color:'#111', boxSizing:'border-box', transition:'border-color 0.15s' }
 const lbl  = { fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#6B6560', display:'block', marginBottom:'0.4rem', fontWeight:600 }
 
 const DEF = {
-  phone:          '+6016-682 4848',
-  whatsapp:       '60162241804',
-  email:          'info@grandwatchgallery.com',
-  address:        'Lot G31, Ground Floor\nAtria Shopping Gallery\nJalan SS 22/23, Damansara Jaya\n47400 Petaling Jaya, Selangor',
-  hours:          'Mon – Sat: 10:00am – 7:00pm\nSunday: By appointment only',
-  about_headline: 'A Curated Gallery of Authenticated Luxury Timepieces',
-  about_body:     'Grand Watch Gallery was founded in 2020 with a singular mission — to bring transparency, trust, and expertise to the pre-owned luxury watch market in Malaysia. Every timepiece in our collection is hand-selected and rigorously authenticated by our in-house specialists.',
-  map_embed:      'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3984.254497!2d101.6139191!3d3.1270963!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cc494ca537b9f1%3A0x887c4a6a2ca357ac!2sAtria%20Shopping%20Gallery!5e0!3m2!1sen!2smy!4v1711700000000!5m2!1sen!2smy',
-  meta_title:     'Grand Watch Gallery | The Right Time For Life',
-  meta_desc:      "Malaysia's premier authenticated pre-owned luxury watch gallery. Rolex, Patek Philippe, Audemars Piguet, Richard Mille and more.",
+  phone:             '+6016-682 4848',
+  whatsapp:          '60162241804',
+  email:             'info@grandwatchgallery.com',
+  address:           'Lot G31, Ground Floor\nAtria Shopping Gallery\nJalan SS 22/23, Damansara Jaya\n47400 Petaling Jaya, Selangor',
+  hours:             'Mon \u2013 Sat: 10:00am \u2013 7:00pm\nSunday: By appointment only',
+  about_headline:    'A Curated Gallery of Authenticated Luxury Timepieces',
+  about_body:        'Grand Watch Gallery was founded in 2020 with a singular mission \u2014 to bring transparency, trust, and expertise to the pre-owned luxury watch market in Malaysia.',
+  map_embed:         'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3984.254497!2d101.6139191!3d3.1270963!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cc494ca537b9f1%3A0x887c4a6a2ca357ac!2sAtria%20Shopping%20Gallery!5e0!3m2!1sen!2smy!4v1711700000000!5m2!1sen!2smy',
+  meta_title:        'Grand Watch Gallery | The Right Time For Life',
+  meta_desc:         "Malaysia's premier authenticated pre-owned luxury watch gallery.",
+  gallery_image_url: '',
 }
 
-const TABS = ['Contact', 'Location', 'About', 'SEO']
+const TABS = ['Contact', 'Location', 'About', 'Gallery', 'SEO']
 
 export default function AdminSettings() {
-  const [form,     setForm]    = useState(DEF)
-  const [saving,   setSaving]  = useState('')
-  const [saved,    setSaved]   = useState(false)
-  const [activeTab, setActive] = useState('Contact')
+  const { user, isOwner } = useAuth()
+  const [form,      setForm]    = useState(DEF)
+  const [saving,    setSaving]  = useState('')
+  const [saved,     setSaved]   = useState(false)
+  const [activeTab, setActive]  = useState('Contact')
 
   useEffect(() => {
     supabase.from('site_settings').select('key,value').in('key', Object.keys(DEF))
@@ -41,6 +46,27 @@ export default function AdminSettings() {
         setForm(loaded)
       })
   }, [])
+
+  /* ── Owner-only guard ─────────────────────────────────────────────────── */
+  if (!isOwner) {
+    return (
+      <div style={{ padding:'2rem', maxWidth:'600px' }}>
+        <div style={{ background:'#FFF9F0', border:'1px solid rgba(176,141,87,0.3)', borderRadius:'8px', padding:'2rem', display:'flex', gap:'1rem', alignItems:'flex-start' }}>
+          <Lock size={20} style={{ color:'#B08D57', flexShrink:0, marginTop:'2px' }} />
+          <div>
+            <p style={{ fontFamily:'var(--sans)', fontWeight:700, fontSize:'0.9rem', color:'#111', marginBottom:'0.4rem' }}>Owner Access Only</p>
+            <p style={{ fontFamily:'var(--sans)', fontSize:'0.8rem', color:'#6B6560', lineHeight:1.7, marginBottom:'0.75rem' }}>
+              Site settings can only be edited by the gallery owner. Please contact{' '}
+              <strong style={{ color:'#111' }}>{OWNER_EMAIL}</strong> to request changes.
+            </p>
+            <p style={{ fontFamily:'var(--sans)', fontSize:'0.75rem', color:'#999', lineHeight:1.6 }}>
+              You are signed in as <strong>{user?.email}</strong>.
+            </p>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   const set = (k, v) => setForm(p => ({ ...p, [k]: v }))
 
@@ -64,7 +90,7 @@ export default function AdminSettings() {
         onClick={() => saveGroup(group, keys)}
         disabled={!!saving}
         style={{ display:'inline-flex', alignItems:'center', gap:'0.5rem', background:'#B08D57', color:'#fff', padding:'0.65rem 1.5rem', border:'none', cursor: saving ? 'not-allowed' : 'pointer', fontFamily:'var(--sans)', fontSize:'0.72rem', fontWeight:700, letterSpacing:'0.12em', textTransform:'uppercase', borderRadius:'4px', opacity: saving === group ? 0.7 : 1 }}>
-        {saving === group ? <><Spinner size={13} style={{ animation:'spin 1s linear infinite' }}/> Saving…</> : <><Save size={13}/> Save</>}
+        {saving === group ? <><Spinner size={13} /> Saving\u2026</> : <><Save size={13}/> Save</>}
       </button>
     </div>
   )
@@ -73,9 +99,9 @@ export default function AdminSettings() {
     <div style={{ padding:'2rem 2rem 4rem', maxWidth:'860px' }}>
       {/* Header */}
       <div style={{ marginBottom:'2rem', paddingBottom:'1.5rem', borderBottom:'1px solid #EDE9E3' }}>
-        <p style={{ fontFamily:'var(--sans)', fontSize:'0.62rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#B08D57', marginBottom:'0.35rem' }}>Admin · Settings</p>
+        <p style={{ fontFamily:'var(--sans)', fontSize:'0.62rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#B08D57', marginBottom:'0.35rem' }}>Admin \u00b7 Settings</p>
         <h1 style={{ fontFamily:'var(--sans)', fontWeight:800, fontSize:'1.6rem', letterSpacing:'-0.02em', color:'#111' }}>Site Settings</h1>
-        <p style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', color:'#888', marginTop:'0.2rem' }}>Contact details, location, about content, and SEO settings.</p>
+        <p style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', color:'#888', marginTop:'0.2rem' }}>Contact details, location, about content, gallery image, and SEO settings.</p>
       </div>
 
       {/* Toast */}
@@ -89,8 +115,8 @@ export default function AdminSettings() {
       <div style={{ display:'flex', gap:'0.25rem', marginBottom:'1.5rem', background:'#EDE9E3', padding:'0.25rem', borderRadius:'6px', flexWrap:'wrap' }}>
         {TABS.map(tab => (
           <button key={tab} onClick={() => setActive(tab)} style={{
-            flex:1, minWidth:'80px', padding:'0.5rem 0.75rem', border:'none', cursor:'pointer', borderRadius:'4px',
-            fontFamily:'var(--sans)', fontSize:'0.75rem', fontWeight: activeTab === tab ? 600 : 400,
+            flex:1, minWidth:'70px', padding:'0.5rem 0.5rem', border:'none', cursor:'pointer', borderRadius:'4px',
+            fontFamily:'var(--sans)', fontSize:'0.72rem', fontWeight: activeTab === tab ? 600 : 400,
             background: activeTab === tab ? '#fff' : 'transparent',
             color: activeTab === tab ? '#111' : '#888',
             boxShadow: activeTab === tab ? '0 1px 2px rgba(0,0,0,0.08)' : 'none',
@@ -101,7 +127,7 @@ export default function AdminSettings() {
         ))}
       </div>
 
-      {/* ── Contact Tab ── */}
+      {/* Contact Tab */}
       {activeTab === 'Contact' && (
         <div style={card}>
           <p style={{ fontFamily:'var(--sans)', fontWeight:700, fontSize:'0.9rem', color:'#111', marginBottom:'0.25rem' }}>Contact Information</p>
@@ -130,10 +156,10 @@ export default function AdminSettings() {
         </div>
       )}
 
-      {/* ── Location Tab ── */}
+      {/* Location Tab */}
       {activeTab === 'Location' && (
         <div style={card}>
-          <p style={{ fontFamily:'var(--sans)', fontWeight:700, fontSize:'0.9rem', color:'#111', marginBottom:'0.25rem' }}>Location & Hours</p>
+          <p style={{ fontFamily:'var(--sans)', fontWeight:700, fontSize:'0.9rem', color:'#111', marginBottom:'0.25rem' }}>Location &amp; Hours</p>
           <p style={{ fontFamily:'var(--sans)', fontSize:'0.75rem', color:'#999', marginBottom:'1.25rem', paddingBottom:'1rem', borderBottom:'1px solid #EDE9E3' }}>
             Physical address, opening hours, and Google Maps embed shown on the Find Us page.
           </p>
@@ -146,7 +172,6 @@ export default function AdminSettings() {
             <div>
               <label style={lbl}>Opening Hours</label>
               <textarea style={{ ...inp, minHeight:'72px', resize:'vertical' }} value={form.hours}
-                placeholder="Mon – Sat: 10:00am – 7:00pm&#10;Sunday: By appointment only"
                 onChange={e => set('hours', e.target.value)} onFocus={focusStyle} onBlur={blurStyle} />
               <p style={{ fontFamily:'var(--sans)', fontSize:'0.68rem', color:'#A09890', marginTop:'0.3rem' }}>Use a new line for each hours entry</p>
             </div>
@@ -154,19 +179,19 @@ export default function AdminSettings() {
               <label style={lbl}>Google Maps Embed URL</label>
               <textarea style={{ ...inp, minHeight:'80px', resize:'vertical', fontFamily:'monospace', fontSize:'0.72rem' }}
                 value={form.map_embed} onChange={e => set('map_embed', e.target.value)} onFocus={focusStyle} onBlur={blurStyle} />
-              <p style={{ fontFamily:'var(--sans)', fontSize:'0.68rem', color:'#A09890', marginTop:'0.3rem' }}>Paste the iframe src URL from Google Maps → Share → Embed</p>
+              <p style={{ fontFamily:'var(--sans)', fontSize:'0.68rem', color:'#A09890', marginTop:'0.3rem' }}>Paste the iframe src URL from Google Maps &rarr; Share &rarr; Embed</p>
             </div>
           </div>
           <SaveBtn group="location" keys={['address','hours','map_embed']} />
         </div>
       )}
 
-      {/* ── About Tab ── */}
+      {/* About Tab */}
       {activeTab === 'About' && (
         <div style={card}>
           <p style={{ fontFamily:'var(--sans)', fontWeight:700, fontSize:'0.9rem', color:'#111', marginBottom:'0.25rem' }}>About Page Content</p>
           <p style={{ fontFamily:'var(--sans)', fontSize:'0.75rem', color:'#999', marginBottom:'1.25rem', paddingBottom:'1rem', borderBottom:'1px solid #EDE9E3' }}>
-            Headline and body text shown on the About/Find Us page.
+            Headline and body text shown on the About page.
           </p>
           <div style={{ display:'grid', gap:'1rem' }}>
             <div>
@@ -184,10 +209,37 @@ export default function AdminSettings() {
         </div>
       )}
 
-      {/* ── SEO Tab ── */}
+      {/* Gallery Tab */}
+      {activeTab === 'Gallery' && (
+        <div style={card}>
+          <p style={{ fontFamily:'var(--sans)', fontWeight:700, fontSize:'0.9rem', color:'#111', marginBottom:'0.25rem' }}>Gallery Interior Image</p>
+          <p style={{ fontFamily:'var(--sans)', fontSize:'0.75rem', color:'#999', marginBottom:'1.25rem', paddingBottom:'1rem', borderBottom:'1px solid #EDE9E3' }}>
+            The image shown in the &ldquo;A Private Gallery Experience&rdquo; section on the Find Us page. Leave blank to show the default GWG placeholder.
+          </p>
+          <div>
+            <label style={lbl}>Gallery Image URL</label>
+            <input style={inp} value={form.gallery_image_url}
+              onChange={e => set('gallery_image_url', e.target.value)}
+              onFocus={focusStyle} onBlur={blurStyle}
+              placeholder="https://example.com/gallery-interior.jpg" />
+            <p style={{ fontFamily:'var(--sans)', fontSize:'0.68rem', color:'#A09890', marginTop:'0.3rem' }}>
+              Paste a direct image URL. Recommended aspect ratio: 4:3.
+            </p>
+          </div>
+          {form.gallery_image_url && (
+            <div style={{ marginTop:'1rem', borderRadius:'6px', overflow:'hidden', height:'180px', background:'#F7F6F3' }}>
+              <img src={form.gallery_image_url} alt="Gallery preview"
+                style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+            </div>
+          )}
+          <SaveBtn group="gallery" keys={['gallery_image_url']} />
+        </div>
+      )}
+
+      {/* SEO Tab */}
       {activeTab === 'SEO' && (
         <div style={card}>
-          <p style={{ fontFamily:'var(--sans)', fontWeight:700, fontSize:'0.9rem', color:'#111', marginBottom:'0.25rem' }}>SEO & Metadata</p>
+          <p style={{ fontFamily:'var(--sans)', fontWeight:700, fontSize:'0.9rem', color:'#111', marginBottom:'0.25rem' }}>SEO &amp; Metadata</p>
           <p style={{ fontFamily:'var(--sans)', fontSize:'0.75rem', color:'#999', marginBottom:'1.25rem', paddingBottom:'1rem', borderBottom:'1px solid #EDE9E3' }}>
             Page title and meta description used by Google search results and social previews.
           </p>
@@ -197,7 +249,7 @@ export default function AdminSettings() {
               <input style={inp} value={form.meta_title}
                 onChange={e => set('meta_title', e.target.value)} onFocus={focusStyle} onBlur={blurStyle} />
               <p style={{ fontFamily:'var(--sans)', fontSize:'0.68rem', color: form.meta_title.length > 60 ? '#DC2626' : '#A09890', marginTop:'0.3rem' }}>
-                {form.meta_title.length}/60 characters {form.meta_title.length > 60 ? '— too long' : '(recommended)'}
+                {form.meta_title.length}/60 characters {form.meta_title.length > 60 ? '\u2014 too long' : '(recommended)'}
               </p>
             </div>
             <div>
@@ -205,7 +257,7 @@ export default function AdminSettings() {
               <textarea style={{ ...inp, minHeight:'90px', resize:'vertical' }} value={form.meta_desc}
                 onChange={e => set('meta_desc', e.target.value)} onFocus={focusStyle} onBlur={blurStyle} />
               <p style={{ fontFamily:'var(--sans)', fontSize:'0.68rem', color: form.meta_desc.length > 160 ? '#DC2626' : '#A09890', marginTop:'0.3rem' }}>
-                {form.meta_desc.length}/160 characters {form.meta_desc.length > 160 ? '— too long' : '(recommended)'}
+                {form.meta_desc.length}/160 characters {form.meta_desc.length > 160 ? '\u2014 too long' : '(recommended)'}
               </p>
             </div>
           </div>
@@ -217,11 +269,11 @@ export default function AdminSettings() {
       <div style={{ ...card, marginTop:'1.5rem', background:'#FFFBF5', borderColor:'rgba(176,141,87,0.2)' }}>
         <p style={{ fontFamily:'var(--sans)', fontWeight:700, fontSize:'0.85rem', color:'#111', marginBottom:'0.5rem' }}>Admin Access</p>
         <p style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', color:'#6B6560', lineHeight:1.7, marginBottom:'0.75rem' }}>
-          To add or remove admin users, go to your Supabase dashboard → Table Editor → admin_users table.
+          To add or remove admin users, go to your Supabase dashboard &rarr; Table Editor &rarr; admin_users table.
         </p>
         <a href="https://supabase.com/dashboard" target="_blank" rel="noopener noreferrer"
           style={{ fontFamily:'var(--sans)', fontSize:'0.75rem', color:'#B08D57', textDecoration:'none', fontWeight:600 }}>
-          Open Supabase Dashboard →
+          Open Supabase Dashboard &rarr;
         </a>
       </div>
     </div>

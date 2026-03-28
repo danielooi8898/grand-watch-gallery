@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { ArrowRight, CheckCircle } from 'lucide-react'
@@ -29,7 +29,14 @@ export default function AppointmentPage() {
     setLoading(true)
     try {
       const { error } = await supabase.from('appointments').insert([form])
-      if (!error) setSent(true)
+      if (!error) {
+        setSent(true)
+        fetch('/api/notify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'appointment', data: form }),
+        }).catch(() => {})
+      }
     } catch(err) { console.error(err) }
     finally { setLoading(false) }
   }
@@ -41,7 +48,7 @@ export default function AppointmentPage() {
   return (
     <div style={{ background: '#0A0A0A', minHeight: '100vh' }}>
 
-      {/* ── Header ── */}
+      {/* Header */}
       <section style={{ paddingTop: '10rem', paddingBottom: '5rem', borderBottom: '1px solid #1A1A1A' }}>
         <div className="container">
           <p className="eyebrow mb-6">Exclusive Experience</p>
@@ -59,15 +66,15 @@ export default function AppointmentPage() {
           </h1>
           <p className="body-sm" style={{ maxWidth: '520px' }}>
             Arrange a one-on-one session with our experts at our gallery.
-            We'll prepare a curated selection based on your preferences.
+            We&apos;ll prepare a curated selection based on your preferences.
           </p>
         </div>
       </section>
 
-      {/* ── What to expect ── */}
+      {/* What to expect */}
       <section style={{ borderBottom: '1px solid #1A1A1A' }}>
         <div className="container" style={{ paddingTop: '4rem', paddingBottom: '4rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(1, 1fr)', gap: '2.5rem' }} className="sm:grid-cols-3">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: '2.5rem' }}>
             {[
               ['Personalised',    'We tailor the viewing to your specific interests and budget.'],
               ['No Obligation',   'Browse freely with zero pressure to purchase.'],
@@ -90,7 +97,7 @@ export default function AppointmentPage() {
         </div>
       </section>
 
-      {/* ── Form ── */}
+      {/* Form */}
       <section style={{ padding: '6rem 0' }}>
         <div className="container">
           <div style={{ maxWidth: '640px' }}>
@@ -118,7 +125,7 @@ export default function AppointmentPage() {
                 <p className="eyebrow mb-10">Your Details</p>
                 <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: '1.5rem' }}>
                     <div>
                       <label style={labelStyle}>Full Name *</label>
                       <input className="input" name="name" value={form.name} onChange={set} required placeholder="Your full name" />
@@ -134,7 +141,7 @@ export default function AppointmentPage() {
                     <input className="input" name="phone" value={form.phone} onChange={set} required placeholder="+601X-XXX XXXX" />
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: '1.5rem' }}>
                     <div>
                       <label style={labelStyle}>Preferred Date *</label>
                       <input className="input" type="date" name="date" value={form.date} onChange={set} required min={minDateStr} />
@@ -173,7 +180,7 @@ export default function AppointmentPage() {
                   </button>
 
                   <p style={{ fontFamily: 'var(--sans)', fontSize: '0.75rem', fontWeight: 400, letterSpacing: '0.12em', color: '#fff', textAlign: 'center' }}>
-                    Mon–Sat · 10:00 AM – 7:00 PM
+                    Mon-Sat &middot; 10:00 AM - 7:00 PM
                   </p>
                 </form>
               </>

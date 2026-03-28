@@ -4,21 +4,23 @@ import { supabase } from '@/lib/supabase'
 
 const Ctx = createContext(null)
 
+const OWNER_EMAIL = 'ooimunhong8898@gmail.com'
+
 export function AuthProvider({ children }) {
   const [user,    setUser]    = useState(null)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [isOwner, setIsOwner] = useState(false)
   const [loading, setLoading] = useState(true)
 
-  // Any authenticated Supabase user is an admin —
-  // the admin_users table has a broken RLS policy (infinite recursion)
-  // so we skip that check entirely. Auth is the gate.
   const check = (session) => {
     if (!session) {
       setUser(null)
       setIsAdmin(false)
+      setIsOwner(false)
     } else {
       setUser(session.user)
       setIsAdmin(true)
+      setIsOwner(session.user?.email === OWNER_EMAIL)
     }
   }
 
@@ -28,15 +30,12 @@ export function AuthProvider({ children }) {
       if (!resolved) { resolved = true; setLoading(false) }
     }
 
-    // Safety net: loading resolves in at most 5 seconds
     const safetyTimer = setTimeout(resolve, 5000)
 
-    // Resolve from initial session check
     supabase.auth.getSession()
       .then(({ data: { session } }) => { check(session); resolve() })
       .catch(resolve)
 
-    // Also resolve immediately on auth state changes (fires right after signInWithPassword)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => {
       check(s)
       resolve()
@@ -52,7 +51,7 @@ export function AuthProvider({ children }) {
   const signOut = () => supabase.auth.signOut()
 
   return (
-    <Ctx.Provider value={{ user, isAdmin, loading, signIn, signOut }}>
+    <Ctx.Provider value={{ user, isAdmin, isOwner, loading, signIn, signOut }}>
       {children}
     </Ctx.Provider>
   )

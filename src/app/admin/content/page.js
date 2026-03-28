@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { Save, Plus, Trash2, CheckCircle, Eye, Star } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
-/* ─── Shared styles ─────────────────────────────────────────────────────── */
+/* Shared styles */
 const inp = {
   width:'100%', padding:'0.65rem 0.85rem', fontFamily:'var(--sans)', fontSize:'0.82rem',
   border:'1px solid #E0DDD8', background:'#fff', outline:'none', borderRadius:'4px',
@@ -38,14 +38,14 @@ function SaveBar({ saving, onSave }) {
         opacity: saving ? 0.7 : 1, transition:'opacity 0.15s'
       }}>
         {saving
-          ? <><Spinner size={13} style={{ animation:'spin 1s linear infinite' }}/> Saving…</>
+          ? <><Spinner size={13} /> Saving\u2026</>
           : <><Save size={13}/> Save Changes</>}
       </button>
     </div>
   )
 }
 
-/* ─── useKV hook ─────────────────────────────────────────────────────────── */
+/* useKV hook */
 function useKV(key, def) {
   const [val, setVal] = useState(def)
   useEffect(() => {
@@ -72,16 +72,29 @@ const DEF_TESTIMONIALS = [
   { name:'Michelle T.',   text:'I traded in my Rolex and received an outstanding valuation. Transparent, professional, and genuinely fair.' },
   { name:'James Lim',     text:'The best pre-owned watch experience in KL. My Royal Oak arrived perfectly serviced with full authentication documents.' },
 ]
-const TABS = ['Hero', 'Stats', 'Services', 'Testimonials', 'Brands', 'Spotlight']
+const DEF_BRANDS = ['Rolex','Patek Philippe','Audemars Piguet','Richard Mille','Vacheron Constantin','A. Lange & S\u00f6hne','IWC Schaffhausen','Omega','Hublot','Panerai','Breguet','Cartier','Chopard','Tudor','MB&F','Jacob & Co']
+const DEF_CAREERS = [
+  { title:'Watch Specialist',            dept:'Sales',      type:'Full-time', location:'Kuala Lumpur', desc:'Advise clients on timepiece selection, authenticate watches, and build long-term relationships with collectors.' },
+  { title:'Watch Technician',            dept:'Operations', type:'Full-time', location:'Kuala Lumpur', desc:'Authenticate, service, and assess pre-owned timepieces. Watchmaking qualification or equivalent experience required.' },
+  { title:'Customer Relations Associate',dept:'Operations', type:'Full-time', location:'Kuala Lumpur', desc:'First point of contact for enquiries via WhatsApp, email and phone. Passion for luxury goods essential.' },
+]
+const DEF_PARTNERS = [
+  { title:'Watch Dealers',        desc:'Trade stock, source specific references, and access our authenticated inventory for your own clients.' },
+  { title:'Corporate Gifting',    desc:'Source authenticated luxury timepieces for corporate milestones, awards, and executive gifts.' },
+  { title:'Estate & Consignment', desc:'We handle the sale of inherited or consigned watches with full discretion and fair valuation.' },
+  { title:'Referral Programme',   desc:'Earn a commission by referring clients who complete a purchase. Simple, transparent, rewarding.' },
+]
+const TABS = ['Hero', 'Stats', 'Services', 'Testimonials', 'Brands', 'Spotlight', 'Careers', 'Partners']
 
 export default function AdminContent() {
-  const [hero,         setHero,         saveHero]         = useKV('hero', { title:'The Right\nTime For Life', subtitle:'EST. 2020 · AUTHENTICATED TIMEPIECES', description:'Rolex. Patek Philippe. Audemars Piguet. Richard Mille.\nEvery watch authenticated. Every detail considered.' })
+  const [hero,         setHero,         saveHero]         = useKV('hero', { title:'The Right\nTime For Life', subtitle:'EST. 2020 \u00b7 AUTHENTICATED TIMEPIECES', description:'Rolex. Patek Philippe. Audemars Piguet. Richard Mille.\nEvery watch authenticated. Every detail considered.' })
   const [stats,        setStats,        saveStats]        = useKV('stats', [{ n:'500', s:'+', l:'Watches Sold' },{ n:'17', s:'', l:'Luxury Brands' },{ n:'5', s:'+', l:'Years Est.' }])
   const [services,     setServices,     saveServices]     = useKV('services', DEF_SERVICES)
   const [testimonials, setTestimonials, saveTestimonials] = useKV('testimonials', DEF_TESTIMONIALS)
-  const [brands,       setBrands,       ]                 = useKV('brands', ['Rolex','Patek Philippe','Audemars Piguet','Richard Mille','Vacheron Constantin','A. Lange & Söhne','IWC Schaffhausen','Omega','Hublot','Panerai','Breguet','Cartier','Chopard','Tudor','MB&F','Jacob & Co'])
+  const [brands,       setBrands,       ]                 = useKV('brands', DEF_BRANDS)
+  const [careersRoles, setCareersRoles, saveCareersRolesKV] = useKV('careers_roles', DEF_CAREERS)
+  const [partnerTypes, setPartnerTypes, savePartnerTypesKV] = useKV('partner_types', DEF_PARTNERS)
 
-  // Brands textarea state (preserves newlines/cursor while typing)
   const [brandsText,   setBrandsText]   = useState('')
   const [brandsLoaded, setBrandsLoaded] = useState(false)
   useEffect(() => {
@@ -91,13 +104,12 @@ export default function AdminContent() {
     }
   }, [brands, brandsLoaded])
 
-  // Spotlight state
-  const [spotlightId,    setSpotlightId]    = useState('')     // saved watch ID
+  /* Spotlight state */
+  const [spotlightId,       setSpotlightId]       = useState('')
   const [spotlightIdLoaded, setSpotlightIdLoaded] = useState(false)
-  const [allWatches,     setAllWatches]     = useState([])
-  const [spotlightWatch, setSpotlightWatch] = useState(null)   // preview of selected watch
+  const [allWatches,        setAllWatches]         = useState([])
+  const [spotlightWatch,    setSpotlightWatch]     = useState(null)
 
-  // Load saved spotlight_id from site_settings
   useEffect(() => {
     supabase.from('site_settings').select('value').eq('key','spotlight_id').single()
       .then(({ data }) => {
@@ -109,19 +121,15 @@ export default function AdminContent() {
       })
   }, [])
 
-  // Load all available watches for the dropdown
   useEffect(() => {
-    supabase.from('watches').select('id,brand,model,reference,year,condition,price,images,description,features')
-      .eq('is_sold', false)
-      .order('created_at', { ascending: false })
+    supabase.from('watches').select('id,brand,model,reference,year,condition,price,images,features')
+      .eq('is_sold', false).order('created_at', { ascending: false })
       .then(({ data }) => { if (data) setAllWatches(data) })
   }, [])
 
-  // When spotlightId or allWatches changes, update the preview
   useEffect(() => {
     if (spotlightId && allWatches.length > 0) {
-      const w = allWatches.find(w => w.id === spotlightId)
-      setSpotlightWatch(w || null)
+      setSpotlightWatch(allWatches.find(w => w.id === spotlightId) || null)
     } else {
       setSpotlightWatch(null)
     }
@@ -144,13 +152,13 @@ export default function AdminContent() {
     setBrands(cleaned)
     await supabase.from('site_settings').upsert({ key: 'brands', value: cleaned }, { onConflict:'key' })
   }
-
   const saveSpotlight = async () => {
     await supabase.from('site_settings').upsert({ key: 'spotlight_id', value: spotlightId }, { onConflict:'key' })
   }
+  const saveCareers  = () => saveCareersRolesKV()
+  const savePartners = () => savePartnerTypesKV()
 
-  const card = { background:'#fff', borderRadius:'8px', border:'1px solid #EDE9E3', padding:'1.75rem', boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }
-
+  const card     = { background:'#fff', borderRadius:'8px', border:'1px solid #EDE9E3', padding:'1.75rem', boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }
   const fmtPrice = (n) => n ? 'MYR ' + Number(n).toLocaleString() : 'P.O.A.'
 
   return (
@@ -159,15 +167,11 @@ export default function AdminContent() {
       {/* Header */}
       <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', marginBottom:'2rem', paddingBottom:'1.5rem', borderBottom:'1px solid #EDE9E3', flexWrap:'wrap', gap:'1rem' }}>
         <div>
-          <p style={{ fontFamily:'var(--sans)', fontSize:'0.62rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#B08D57', marginBottom:'0.35rem' }}>Admin · Content</p>
+          <p style={{ fontFamily:'var(--sans)', fontSize:'0.62rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#B08D57', marginBottom:'0.35rem' }}>Admin \u00b7 Content</p>
           <h1 style={{ fontFamily:'var(--sans)', fontWeight:800, fontSize:'1.6rem', letterSpacing:'-0.02em', color:'#111' }}>Homepage Editor</h1>
           <p style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', color:'#888', marginTop:'0.2rem' }}>All changes go live immediately after saving.</p>
         </div>
-        <a href="/" target="_blank" rel="noopener noreferrer" style={{
-          display:'inline-flex', alignItems:'center', gap:'0.4rem', padding:'0.5rem 1rem',
-          border:'1px solid #EDE9E3', borderRadius:'4px', background:'#fff', textDecoration:'none',
-          fontFamily:'var(--sans)', fontSize:'0.72rem', color:'#666', transition:'border-color 0.15s'
-        }}
+        <a href="/" target="_blank" rel="noopener noreferrer" style={{ display:'inline-flex', alignItems:'center', gap:'0.4rem', padding:'0.5rem 1rem', border:'1px solid #EDE9E3', borderRadius:'4px', background:'#fff', textDecoration:'none', fontFamily:'var(--sans)', fontSize:'0.72rem', color:'#666', transition:'border-color 0.15s' }}
           onMouseEnter={e => e.currentTarget.style.borderColor='#B08D57'}
           onMouseLeave={e => e.currentTarget.style.borderColor='#EDE9E3'}>
           <Eye size={13} /> Preview Site
@@ -177,8 +181,7 @@ export default function AdminContent() {
       {/* Toast */}
       {saved && (
         <div style={{ display:'flex', alignItems:'center', gap:'0.5rem', background:'#ECFDF5', border:'1px solid #A7F3D0', color:'#065F46', padding:'0.75rem 1rem', borderRadius:'6px', fontFamily:'var(--sans)', fontSize:'0.8rem', marginBottom:'1.5rem' }}>
-          <CheckCircle size={15} style={{ flexShrink:0 }} />
-          Saved! Changes are now live on the website.
+          <CheckCircle size={15} style={{ flexShrink:0 }} /> Saved! Changes are now live on the website.
         </div>
       )}
 
@@ -186,20 +189,18 @@ export default function AdminContent() {
       <div style={{ display:'flex', gap:'0.25rem', marginBottom:'1.5rem', background:'#EDE9E3', padding:'0.25rem', borderRadius:'6px', flexWrap:'wrap' }}>
         {TABS.map(tab => (
           <button key={tab} onClick={() => setActiveTab(tab)} style={{
-            flex:1, minWidth:'60px', padding:'0.5rem 0.5rem', border:'none', cursor:'pointer',
-            borderRadius:'4px', fontFamily:'var(--sans)', fontSize:'0.72rem',
+            flex:1, minWidth:'55px', padding:'0.5rem 0.4rem', border:'none', cursor:'pointer',
+            borderRadius:'4px', fontFamily:'var(--sans)', fontSize:'0.68rem',
             fontWeight: activeTab === tab ? 600 : 400,
             background: activeTab === tab ? '#fff' : 'transparent',
             color: activeTab === tab ? '#111' : '#888',
             boxShadow: activeTab === tab ? '0 1px 2px rgba(0,0,0,0.08)' : 'none',
             transition:'all 0.15s',
-          }}>
-            {tab}
-          </button>
+          }}>{tab}</button>
         ))}
       </div>
 
-      {/* ── Hero Tab ── */}
+      {/* Hero Tab */}
       {activeTab === 'Hero' && (
         <div style={card}>
           <div style={{ marginBottom:'1.25rem' }}>
@@ -211,7 +212,7 @@ export default function AdminContent() {
               <input style={inp} value={hero.subtitle || ''} onChange={e => setHero(p => ({ ...p, subtitle: e.target.value }))}
                 onFocus={e => e.target.style.borderColor='#B08D57'} onBlur={e => e.target.style.borderColor='#E0DDD8'} />
             </Field>
-            <Field label="Headline" hint='Use Enter to split into 2 lines. The first word of line 2 shows in gold.'>
+            <Field label="Headline" hint='Use Enter to split into 2 lines. First word of line 2 shows in gold.'>
               <textarea style={{ ...inp, minHeight:'72px', resize:'vertical' }} value={hero.title || ''} onChange={e => setHero(p => ({ ...p, title: e.target.value }))}
                 onFocus={e => e.target.style.borderColor='#B08D57'} onBlur={e => e.target.style.borderColor='#E0DDD8'} />
             </Field>
@@ -224,17 +225,17 @@ export default function AdminContent() {
         </div>
       )}
 
-      {/* ── Stats Tab ── */}
+      {/* Stats Tab */}
       {activeTab === 'Stats' && (
         <div style={card}>
           <div style={{ marginBottom:'1.25rem' }}>
             <p style={{ fontFamily:'var(--sans)', fontWeight:700, fontSize:'0.9rem', color:'#111', marginBottom:'0.25rem' }}>KPI Statistics</p>
-            <p style={{ fontFamily:'var(--sans)', fontSize:'0.75rem', color:'#999' }}>The three numbers shown below the hero buttons.</p>
+            <p style={{ fontFamily:'var(--sans)', fontSize:'0.75rem', color:'#999' }}>The three numbers shown in the stats section.</p>
           </div>
           <div style={{ display:'grid', gap:'1rem' }}>
             {(stats || []).map((s, i) => (
               <div key={i} style={{ display:'grid', gridTemplateColumns:'1fr 80px 2fr', gap:'0.75rem', alignItems:'end', padding:'1rem', background:'#F7F6F3', borderRadius:'6px' }}>
-                <Field label={`Stat ${i+1} — Number`}>
+                <Field label={`Stat ${i+1} \u2014 Number`}>
                   <input style={inp} value={s.n} placeholder="500" onChange={e => { const a=[...stats]; a[i]={...a[i],n:e.target.value}; setStats(a) }}
                     onFocus={e => e.target.style.borderColor='#B08D57'} onBlur={e => e.target.style.borderColor='#E0DDD8'} />
                 </Field>
@@ -253,7 +254,7 @@ export default function AdminContent() {
         </div>
       )}
 
-      {/* ── Services Tab ── */}
+      {/* Services Tab */}
       {activeTab === 'Services' && (
         <div style={card}>
           <div style={{ marginBottom:'1.25rem' }}>
@@ -285,7 +286,7 @@ export default function AdminContent() {
         </div>
       )}
 
-      {/* ── Testimonials Tab ── */}
+      {/* Testimonials Tab */}
       {activeTab === 'Testimonials' && (
         <div style={card}>
           <div style={{ marginBottom:'1.25rem' }}>
@@ -307,7 +308,7 @@ export default function AdminContent() {
                       onFocus={e => e.target.style.borderColor='#B08D57'} onBlur={e => e.target.style.borderColor='#E0DDD8'} />
                   </Field>
                   <Field label="Quote">
-                    <textarea style={{ ...inp, minHeight:'80px', resize:'vertical' }} value={t.text} placeholder="Their quote here…" onChange={e => { const a=[...testimonials]; a[i]={...a[i],text:e.target.value}; setTestimonials(a) }}
+                    <textarea style={{ ...inp, minHeight:'80px', resize:'vertical' }} value={t.text} placeholder="Their quote here\u2026" onChange={e => { const a=[...testimonials]; a[i]={...a[i],text:e.target.value}; setTestimonials(a) }}
                       onFocus={e => e.target.style.borderColor='#B08D57'} onBlur={e => e.target.style.borderColor='#E0DDD8'} />
                   </Field>
                 </div>
@@ -315,11 +316,7 @@ export default function AdminContent() {
             ))}
           </div>
           <div style={{ display:'flex', gap:'0.75rem', marginTop:'1rem' }}>
-            <button onClick={() => setTestimonials([...(testimonials||[]),{name:'',text:''}])} style={{
-              display:'inline-flex', alignItems:'center', gap:'0.4rem', padding:'0.6rem 1rem',
-              border:'1px solid #EDE9E3', background:'#fff', cursor:'pointer',
-              fontFamily:'var(--sans)', fontSize:'0.72rem', color:'#555', borderRadius:'4px', transition:'border-color 0.15s'
-            }}
+            <button onClick={() => setTestimonials([...(testimonials||[]),{name:'',text:''}])} style={{ display:'inline-flex', alignItems:'center', gap:'0.4rem', padding:'0.6rem 1rem', border:'1px solid #EDE9E3', background:'#fff', cursor:'pointer', fontFamily:'var(--sans)', fontSize:'0.72rem', color:'#555', borderRadius:'4px', transition:'border-color 0.15s' }}
               onMouseEnter={e => e.currentTarget.style.borderColor='#B08D57'}
               onMouseLeave={e => e.currentTarget.style.borderColor='#EDE9E3'}>
               <Plus size={13}/> Add Testimonial
@@ -329,12 +326,12 @@ export default function AdminContent() {
         </div>
       )}
 
-      {/* ── Brands Tab ── */}
+      {/* Brands Tab */}
       {activeTab === 'Brands' && (
         <div style={card}>
           <div style={{ marginBottom:'1.25rem' }}>
             <p style={{ fontFamily:'var(--sans)', fontWeight:700, fontSize:'0.9rem', color:'#111', marginBottom:'0.25rem' }}>Brand Marquee Strip</p>
-            <p style={{ fontFamily:'var(--sans)', fontSize:'0.75rem', color:'#999' }}>Brands shown in the scrolling strip. One brand per line. Press Enter to add a new brand.</p>
+            <p style={{ fontFamily:'var(--sans)', fontSize:'0.75rem', color:'#999' }}>Brands shown in the scrolling strip. One brand per line.</p>
           </div>
           <Field label="Brand List (one per line)">
             <textarea
@@ -351,60 +348,45 @@ export default function AdminContent() {
         </div>
       )}
 
-      {/* ── Spotlight Tab ── */}
+      {/* Spotlight Tab */}
       {activeTab === 'Spotlight' && (
         <div style={card}>
-          <div style={{ marginBottom:'1.5rem' }}>
-            <div style={{ display:'flex', alignItems:'center', gap:'0.5rem', marginBottom:'0.25rem' }}>
-              <Star size={15} style={{ color:'#B08D57' }} />
-              <p style={{ fontFamily:'var(--sans)', fontWeight:700, fontSize:'0.9rem', color:'#111' }}>Piece of the Month</p>
-            </div>
+          <div style={{ marginBottom:'1.25rem' }}>
+            <p style={{ fontFamily:'var(--sans)', fontWeight:700, fontSize:'0.9rem', color:'#111', marginBottom:'0.25rem' }}>
+              <Star size={14} style={{ display:'inline', marginRight:'0.4rem', color:'#B08D57', verticalAlign:'middle' }} />
+              Piece of the Month
+            </p>
             <p style={{ fontFamily:'var(--sans)', fontSize:'0.75rem', color:'#999' }}>
-              Choose a watch from your collection to feature in the "Piece of the Month" spotlight on the homepage.
+              Choose a watch from your collection to feature in the spotlight section on the homepage.
             </p>
           </div>
-
           {!spotlightIdLoaded ? (
-            <div style={{ display:'flex', justifyContent:'center', padding:'2rem' }}>
-              <Spinner size={24} style={{ color:'#B08D57', animation:'spin 1s linear infinite' }} />
-            </div>
-          ) : allWatches.length === 0 ? (
-            <div style={{ padding:'1.5rem', background:'#F7F6F3', borderRadius:'6px', textAlign:'center' }}>
-              <p style={{ fontFamily:'var(--sans)', fontSize:'0.8rem', color:'#999' }}>No watches in your collection yet. Add watches first from the Collection admin page.</p>
-            </div>
+            <p style={hint}>Loading watches\u2026</p>
           ) : (
             <>
-              <Field label="Select Watch" hint="Only unsold watches are shown. Details are pulled automatically from the collection.">
-                <select
-                  style={{ ...inp, cursor:'pointer' }}
-                  value={spotlightId}
-                  onChange={e => setSpotlightId(e.target.value)}
-                  onFocus={e => e.target.style.borderColor='#B08D57'}
-                  onBlur={e => e.target.style.borderColor='#E0DDD8'}
-                >
-                  <option value="">— Choose a watch —</option>
+              <Field label="Select Watch">
+                <select style={inp} value={spotlightId} onChange={e => setSpotlightId(e.target.value)}
+                  onFocus={e => e.target.style.borderColor='#B08D57'} onBlur={e => e.target.style.borderColor='#E0DDD8'}>
+                  <option value="">-- No spotlight --</option>
                   {allWatches.map(w => (
                     <option key={w.id} value={w.id}>
-                      {w.brand} {w.model}{w.reference ? ` (${w.reference})` : ''}{w.year ? ` · ${w.year}` : ''}
+                      {w.brand} {w.model}{w.reference ? ` (${w.reference})` : ''}
                     </option>
                   ))}
                 </select>
               </Field>
 
-              {/* Preview card */}
               {spotlightWatch && (
                 <div style={{ marginTop:'1.25rem', padding:'1.25rem', background:'#F7F6F3', borderRadius:'6px', border:'1px solid #EDE9E3', display:'grid', gridTemplateColumns:'80px 1fr', gap:'1rem', alignItems:'start' }}>
-                  {/* Thumbnail */}
                   <div style={{ aspectRatio:'1/1', background:'#E8E4DE', borderRadius:'4px', overflow:'hidden', display:'flex', alignItems:'center', justifyContent:'center' }}>
                     {spotlightWatch.images?.[0] ? (
                       <img src={spotlightWatch.images[0]} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
                     ) : (
                       <span style={{ fontFamily:'var(--sans)', fontWeight:900, fontSize:'2rem', color:'#C8B99A', userSelect:'none' }}>
-                        {spotlightWatch.brand.charAt(0)}
+                        {spotlightWatch.brand?.charAt(0)}
                       </span>
                     )}
                   </div>
-                  {/* Details */}
                   <div>
                     <p style={{ fontFamily:'var(--sans)', fontSize:'0.62rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#B08D57', marginBottom:'0.2rem' }}>{spotlightWatch.brand}</p>
                     <p style={{ fontFamily:'var(--sans)', fontWeight:700, fontSize:'0.95rem', color:'#111', marginBottom:'0.25rem' }}>{spotlightWatch.model}</p>
@@ -414,22 +396,86 @@ export default function AdminContent() {
                       {spotlightWatch.condition && <span style={{ fontFamily:'var(--sans)', fontSize:'0.72rem', color:'#555', textTransform:'capitalize' }}>Condition: {spotlightWatch.condition}</span>}
                       {spotlightWatch.price && <span style={{ fontFamily:'var(--sans)', fontSize:'0.72rem', color:'#555' }}>{fmtPrice(spotlightWatch.price)}</span>}
                     </div>
-                    {spotlightWatch.features?.length > 0 && (
-                      <p style={{ fontFamily:'var(--sans)', fontSize:'0.72rem', color:'#888', marginTop:'0.4rem' }}>
-                        Features: {(Array.isArray(spotlightWatch.features) ? spotlightWatch.features : [spotlightWatch.features]).join(', ')}
-                      </p>
-                    )}
                   </div>
                 </div>
               )}
-
               {!spotlightId && (
-                <p style={{ ...hint, marginTop:'0.75rem' }}>No spotlight selected — the section will be hidden on the homepage.</p>
+                <p style={{ ...hint, marginTop:'0.75rem' }}>No spotlight selected \u2014 the section will be hidden on the homepage.</p>
               )}
             </>
           )}
-
           <SaveBar saving={saving} onSave={() => doSave(saveSpotlight)} />
+        </div>
+      )}
+
+      {/* Careers Tab */}
+      {activeTab === 'Careers' && (
+        <div style={card}>
+          <div style={{ marginBottom:'1.25rem' }}>
+            <p style={{ fontFamily:'var(--sans)', fontWeight:700, fontSize:'0.9rem', color:'#111', marginBottom:'0.25rem' }}>Open Positions</p>
+            <p style={{ fontFamily:'var(--sans)', fontSize:'0.75rem', color:'#999' }}>Roles listed on the Careers page. Each has a title, department, type, location and description.</p>
+          </div>
+          <div style={{ display:'grid', gap:'1rem' }}>
+            {(careersRoles || []).map((r, i) => (
+              <div key={i} style={{ padding:'1.25rem', background:'#F7F6F3', borderRadius:'6px', border:'1px solid #EDE9E3' }}>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'0.75rem' }}>
+                  <p style={{ ...lbl, marginBottom:0, fontSize:'0.65rem' }}>Role {i+1}</p>
+                  <button onClick={() => setCareersRoles(careersRoles.filter((_,j)=>j!==i))} style={{ padding:'0.3rem 0.6rem', border:'1px solid #FCA5A5', background:'#FFF5F5', cursor:'pointer', color:'#DC2626', borderRadius:'4px', display:'flex', alignItems:'center', gap:'0.3rem', fontFamily:'var(--sans)', fontSize:'0.68rem' }}>
+                    <Trash2 size={11}/> Remove
+                  </button>
+                </div>
+                <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(150px,1fr))', gap:'0.75rem', marginBottom:'0.75rem' }}>
+                  <Field label="Title"><input style={inp} value={r.title||''} onChange={e=>{const a=[...careersRoles];a[i]={...a[i],title:e.target.value};setCareersRoles(a)}} onFocus={e=>e.target.style.borderColor='#B08D57'} onBlur={e=>e.target.style.borderColor='#E0DDD8'} /></Field>
+                  <Field label="Department"><input style={inp} value={r.dept||''} onChange={e=>{const a=[...careersRoles];a[i]={...a[i],dept:e.target.value};setCareersRoles(a)}} onFocus={e=>e.target.style.borderColor='#B08D57'} onBlur={e=>e.target.style.borderColor='#E0DDD8'} /></Field>
+                  <Field label="Type"><input style={inp} value={r.type||''} placeholder="Full-time" onChange={e=>{const a=[...careersRoles];a[i]={...a[i],type:e.target.value};setCareersRoles(a)}} onFocus={e=>e.target.style.borderColor='#B08D57'} onBlur={e=>e.target.style.borderColor='#E0DDD8'} /></Field>
+                  <Field label="Location"><input style={inp} value={r.location||''} placeholder="Kuala Lumpur" onChange={e=>{const a=[...careersRoles];a[i]={...a[i],location:e.target.value};setCareersRoles(a)}} onFocus={e=>e.target.style.borderColor='#B08D57'} onBlur={e=>e.target.style.borderColor='#E0DDD8'} /></Field>
+                </div>
+                <Field label="Description">
+                  <textarea style={{ ...inp, minHeight:'70px', resize:'vertical' }} value={r.desc||''} onChange={e=>{const a=[...careersRoles];a[i]={...a[i],desc:e.target.value};setCareersRoles(a)}} onFocus={e=>e.target.style.borderColor='#B08D57'} onBlur={e=>e.target.style.borderColor='#E0DDD8'} />
+                </Field>
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop:'1rem' }}>
+            <button onClick={() => setCareersRoles([...(careersRoles||[]),{title:'',dept:'',type:'Full-time',location:'Kuala Lumpur',desc:''}])} style={{ display:'inline-flex', alignItems:'center', gap:'0.4rem', padding:'0.6rem 1rem', border:'1px solid #EDE9E3', background:'#fff', cursor:'pointer', fontFamily:'var(--sans)', fontSize:'0.72rem', color:'#555', borderRadius:'4px', transition:'border-color 0.15s' }} onMouseEnter={e=>e.currentTarget.style.borderColor='#B08D57'} onMouseLeave={e=>e.currentTarget.style.borderColor='#EDE9E3'}>
+              <Plus size={13}/> Add Role
+            </button>
+          </div>
+          <SaveBar saving={saving} onSave={() => doSave(saveCareers)} />
+        </div>
+      )}
+
+      {/* Partners Tab */}
+      {activeTab === 'Partners' && (
+        <div style={card}>
+          <div style={{ marginBottom:'1.25rem' }}>
+            <p style={{ fontFamily:'var(--sans)', fontWeight:700, fontSize:'0.9rem', color:'#111', marginBottom:'0.25rem' }}>Partner Types</p>
+            <p style={{ fontFamily:'var(--sans)', fontSize:'0.75rem', color:'#999' }}>Partnership categories shown on the Partner With Us page.</p>
+          </div>
+          <div style={{ display:'grid', gap:'1rem' }}>
+            {(partnerTypes || []).map((p, i) => (
+              <div key={i} style={{ padding:'1.25rem', background:'#F7F6F3', borderRadius:'6px', border:'1px solid #EDE9E3' }}>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'0.75rem' }}>
+                  <p style={{ ...lbl, marginBottom:0, fontSize:'0.65rem' }}>Type {i+1}</p>
+                  <button onClick={() => setPartnerTypes(partnerTypes.filter((_,j)=>j!==i))} style={{ padding:'0.3rem 0.6rem', border:'1px solid #FCA5A5', background:'#FFF5F5', cursor:'pointer', color:'#DC2626', borderRadius:'4px', display:'flex', alignItems:'center', gap:'0.3rem', fontFamily:'var(--sans)', fontSize:'0.68rem' }}>
+                    <Trash2 size={11}/> Remove
+                  </button>
+                </div>
+                <div style={{ display:'grid', gap:'0.75rem' }}>
+                  <Field label="Title"><input style={inp} value={p.title||''} onChange={e=>{const a=[...partnerTypes];a[i]={...a[i],title:e.target.value};setPartnerTypes(a)}} onFocus={e=>e.target.style.borderColor='#B08D57'} onBlur={e=>e.target.style.borderColor='#E0DDD8'} /></Field>
+                  <Field label="Description">
+                    <textarea style={{ ...inp, minHeight:'70px', resize:'vertical' }} value={p.desc||''} onChange={e=>{const a=[...partnerTypes];a[i]={...a[i],desc:e.target.value};setPartnerTypes(a)}} onFocus={e=>e.target.style.borderColor='#B08D57'} onBlur={e=>e.target.style.borderColor='#E0DDD8'} />
+                  </Field>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop:'1rem' }}>
+            <button onClick={() => setPartnerTypes([...(partnerTypes||[]),{title:'',desc:''}])} style={{ display:'inline-flex', alignItems:'center', gap:'0.4rem', padding:'0.6rem 1rem', border:'1px solid #EDE9E3', background:'#fff', cursor:'pointer', fontFamily:'var(--sans)', fontSize:'0.72rem', color:'#555', borderRadius:'4px', transition:'border-color 0.15s' }} onMouseEnter={e=>e.currentTarget.style.borderColor='#B08D57'} onMouseLeave={e=>e.currentTarget.style.borderColor='#EDE9E3'}>
+              <Plus size={13}/> Add Partner Type
+            </button>
+          </div>
+          <SaveBar saving={saving} onSave={() => doSave(savePartners)} />
         </div>
       )}
 

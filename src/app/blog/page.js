@@ -11,7 +11,6 @@ async function getPosts() {
     const { data } = await sb.from('blog_posts').select('*').eq('is_published', true).order('order_index')
     if (data && data.length > 0) return data
   } catch {}
-  // Fallback to hardcoded if table not yet seeded
   return [
     { id:'1', title:'The Secondary Watch Market Rebounds: $17 Billion in 2025', category:'Market Update', excerpt:'After thirteen consecutive quarters of decline, the pre-owned luxury watch market staged its first positive year since 2022, with $17B in measured sales and prices rising 4.9%.', source_url:'https://www.watchpro.com/pre-owned-watch-market/', source:'WatchPro', date:'Jan 2026', read_time:'5 min' },
     { id:'2', title:'Patek Philippe Cuts U.S. Prices by 8% Following Tariff Relief', category:'Market Update', excerpt:'Patek Philippe announced price reductions for U.S. customers starting February 2026.', source_url:'https://www.watchpro.com/patek-philippe/', source:'WatchPro', date:'Feb 2026', read_time:'4 min' },
@@ -41,11 +40,17 @@ export default async function BlogPage() {
       {hero && (
         <section style={{ borderBottom:'1px solid #1A1A1A' }}>
           <div className="container" style={{ paddingTop:'4rem', paddingBottom:'4rem' }}>
-            <div className="md:grid-cols-2" style={{ display:'grid', gridTemplateColumns:'1fr', gap:'0' }}>
-              <div style={{ minHeight:'360px', background:'#111', display:'flex', alignItems:'center', justifyContent:'center', borderBottom:'1px solid #1A1A1A' }} className="md:border-b-0 md:border-r">
-                <span style={{ fontFamily:'var(--sans)', fontWeight:900, fontSize:'clamp(4rem, 10vw, 8rem)', color:'#1A1A1A', letterSpacing:'-0.04em', userSelect:'none' }}>GWG</span>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(1,1fr)', gap:'0' }} className="md:grid-cols-2">
+              {/* Image or placeholder */}
+              <div style={{ minHeight:'360px', background:'#111', display:'flex', alignItems:'center', justifyContent:'center', borderBottom:'1px solid #1A1A1A', overflow:'hidden', position:'relative' }} className="md:border-b-0 md:border-r">
+                {hero.image_url ? (
+                  <img src={hero.image_url} alt={hero.title}
+                    style={{ width:'100%', height:'100%', objectFit:'cover', position:'absolute', inset:0, opacity:0.7 }} />
+                ) : (
+                  <span style={{ fontFamily:'var(--sans)', fontWeight:900, fontSize:'clamp(4rem, 10vw, 8rem)', color:'#1A1A1A', letterSpacing:'-0.04em', userSelect:'none' }}>GWG</span>
+                )}
               </div>
-              <div style={{ padding:'3rem 3rem 3rem 3.5rem', display:'flex', flexDirection:'column', justifyContent:'center' }}>
+              <div style={{ padding:'3rem 3.5rem', display:'flex', flexDirection:'column', justifyContent:'center' }}>
                 <div style={{ display:'flex', alignItems:'center', gap:'1rem', marginBottom:'2rem' }}>
                   <span className="eyebrow">Featured</span>
                   <span style={{ width:'1px', height:'12px', background:'#2A2A2A' }} />
@@ -72,11 +77,16 @@ export default async function BlogPage() {
       {/* Grid */}
       <section style={{ borderBottom:'1px solid #1A1A1A' }}>
         <div className="container" style={{ paddingTop:'4rem', paddingBottom:'4rem' }}>
-          <div className="sm:grid-cols-2 lg:grid-cols-3" style={{ display:'grid', gridTemplateColumns:'repeat(1, 1fr)', gap:'0' }}>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(1, 1fr)', gap:'0' }} className="sm:grid-cols-2 lg:grid-cols-3">
             {rest.map((p, i) => (
               <a key={p.id} href={p.source_url} target="_blank" rel="noopener noreferrer"
                 style={{ display:'block', textDecoration:'none', borderRight: i < rest.length-1 ? '1px solid #1A1A1A' : 'none', borderBottom:'1px solid #1A1A1A', transition:'background 0.2s' }}
                 className="hover:bg-[#111] group">
+                {p.image_url && (
+                  <div style={{ height:'200px', overflow:'hidden' }}>
+                    <img src={p.image_url} alt={p.title} style={{ width:'100%', height:'100%', objectFit:'cover', opacity:0.7, transition:'opacity 0.3s' }} className="group-hover:opacity-90" />
+                  </div>
+                )}
                 <div style={{ padding:'2.5rem' }}>
                   <span style={{ fontFamily:'var(--sans)', fontSize:'0.7rem', fontWeight:500, letterSpacing:'0.25em', textTransform:'uppercase', color:'#B08D57', display:'block', marginBottom:'1.25rem' }}>{p.category}</span>
                   <h3 style={{ fontFamily:'var(--sans)', fontWeight:700, fontSize:'clamp(1rem, 1.5vw, 1.2rem)', letterSpacing:'-0.01em', textTransform:'uppercase', color:'#fff', lineHeight:1.2, marginBottom:'1rem', transition:'color 0.2s' }} className="group-hover:text-[#B08D57]">

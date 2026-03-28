@@ -8,7 +8,7 @@ const D_CONTACT = {
   whatsapp: '60162241804',
   email:    'info@grandwatchgallery.com',
   address:  'Lot G31, Ground Floor\nAtria Shopping Gallery\nJalan SS 22/23, Damansara Jaya\n47400 Petaling Jaya, Selangor',
-  hours:    'Mon – Sat: 10:00am – 7:00pm\nSunday: By appointment only',
+  hours:    'Mon \u2013 Sat: 10:00am \u2013 7:00pm\nSunday: By appointment only',
 }
 
 const labelStyle = {
@@ -40,7 +40,14 @@ export default function ContactPage() {
     e.preventDefault(); setLoading(true)
     try {
       const { error } = await supabase.from('contact_messages').insert([form])
-      if (!error) setSent(true)
+      if (!error) {
+        setSent(true)
+        fetch('/api/notify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'contact', data: form }),
+        }).catch(() => {})
+      }
     } catch {}
     finally { setLoading(false) }
   }
@@ -61,7 +68,7 @@ export default function ContactPage() {
 
       <section style={{ background:'#0A0A0A', padding:'5rem 0 6rem' }}>
         <div className="container">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))', gap:'4rem' }}>
 
             {/* Left – Info */}
             <div style={{ display:'flex', flexDirection:'column', gap:'2.5rem' }}>
@@ -81,7 +88,7 @@ export default function ContactPage() {
               </div>
 
               <div style={{ paddingBottom:'2.5rem', borderBottom:'1px solid #1a1a1a' }}>
-                <p style={labelStyle}>Phone & WhatsApp</p>
+                <p style={labelStyle}>Phone &amp; WhatsApp</p>
                 <p style={{ fontFamily:'var(--sans)', fontSize:'0.95rem', color:'#fff', lineHeight:2, fontWeight:300 }}>{info.phone}</p>
                 {info.email && <p style={{ fontFamily:'var(--sans)', fontSize:'0.95rem', color:'#fff', lineHeight:2, fontWeight:300 }}>{info.email}</p>}
               </div>
@@ -131,7 +138,7 @@ export default function ContactPage() {
                 <>
                   <p style={{ fontFamily:'var(--sans)', fontSize:'0.72rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#B08D57', marginBottom:'2rem' }}>Send a Message</p>
                   <form onSubmit={submit} style={{ display:'flex', flexDirection:'column', gap:'1.5rem' }}>
-                    <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap:'1.5rem' }}>
+                    <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(200px,1fr))', gap:'1.5rem' }}>
                       <div><label style={labelStyle}>Name *</label><input className="input" name="name" value={form.name} onChange={set} required placeholder="Your name" /></div>
                       <div><label style={labelStyle}>Email *</label><input className="input" name="email" type="email" value={form.email} onChange={set} required /></div>
                       <div><label style={labelStyle}>Phone</label><input className="input" name="phone" value={form.phone} onChange={set} placeholder="+601X-XXX XXXX" /></div>
@@ -140,7 +147,7 @@ export default function ContactPage() {
                         <select className="input" name="subject" value={form.subject} onChange={set} required>
                           <option value="">Select subject</option>
                           <option>Watch Enquiry</option><option>Trade-In / Sell</option>
-                          <option>Book Appointment</option><option>Pricing & Availability</option>
+                          <option>Book Appointment</option><option>Pricing &amp; Availability</option>
                           <option>Partnership</option><option>Other</option>
                         </select>
                       </div>
@@ -151,7 +158,7 @@ export default function ContactPage() {
                     </div>
                     <button type="submit" disabled={loading}
                       style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:'0.75rem', padding:'1rem 2rem', background:'#fff', color:'#0A0A0A', border:'none', fontFamily:'var(--sans)', fontSize:'0.72rem', letterSpacing:'0.2em', textTransform:'uppercase', fontWeight:700, cursor:'pointer', width:'100%' }}>
-                      {loading ? 'Sending…' : <><span>Send Message</span><ArrowRight size={13} /></>}
+                      {loading ? 'Sending\u2026' : <><span>Send Message</span><ArrowRight size={13} /></>}
                     </button>
                   </form>
                 </>
