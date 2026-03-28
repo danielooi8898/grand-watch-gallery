@@ -65,13 +65,29 @@ export default function AdminBlog() {
   const [coverCrop, setCoverCrop] = useState(null)
   const [heroCrop,  setHeroCrop]  = useState(null)
 
-  /* load posts */
+  /* image map helpers — images stored in site_settings to avoid schema issues */
+  const getImgMap = useCallback(async () => {
+    const { data } = await supabase.from('site_settings').select('value').eq('key', 'blog_images').single()
+    return (data?.value && typeof data.value === 'object') ? data.value : {}
+  }, [])
+
+  const saveImgMap = useCallback(async (postId, imageUrl) => {
+    const map = await getImgMap()
+    if (imageUrl) { map[postId] = imageUrl } else { delete map[postId] }
+    await supabase.from('site_settings').upsert({ key: 'blog_images', value: map })
+  }, [getImgMap])
+
+  /* load posts — merges image map from site_settings */
   const loadPosts = useCallback(async () => {
     setLoading(true)
-    const { data } = await supabase.from('blog_posts').select('*').order('order_index', { ascending: true })
-    setPosts(data || [])
+    const [{ data: rows }, imgMap] = await Promise.all([
+      supabase.from('blog_posts').select('*').order('order_index', { ascending: true }),
+      getImgMap(),
+    ])
+    const merged = (rows || []).map(p => ({ ...p, image_url: imgMap[p.id] || p.image_url || '' }))
+    setPosts(merged)
     setLoading(false)
-  }, [])
+  }, [getImgMap])
   useEffect(() => { loadPosts() }, [loadPosts])
 
   /* hero image upload */
@@ -87,7 +103,7 @@ export default function AdminBlog() {
     const { data, error: upErr } = await supabase.storage.from('watch-images').upload(path, blob, { upsert:true, contentType:'image/jpeg' })
     if (upErr) { alert('Upload failed: ' + upErr.message); return }
     const { data: urlData } = supabase.storage.from('watch-images').getPublicUrl(data.path)
-    await supabase.from('blog_posts').update({ image_url: urlData.publicUrl }).eq('id', heroId)
+    await saveImgMap(heroId, urlData.publicUrl)   // store in site_settings, not blog_posts
     loadPosts()
   }
 
@@ -132,42 +148,37 @@ export default function AdminBlog() {
   const handleSave = async () => {
     if (!edit.title || !edit.source_url) { setError('Title and source URL are required.'); return }
     setSaving(true); setError('')
-    // Base payload without image_url — saves even if image_url column missing
-    const base = {
-      title: edit.title.trim(), category: edit.category, excerpt: edit.excerpt.trim(),
-      source_url: edit.source_url.trim(), source: edit.source.trim(), date: edit.date,
-      read_time: edit.read_time, is_published: edit.is_published,
-      order_index: editId ? undefined : posts.length,
+
+    // ── Step 1: save all TEXT fields — never includes image_url so it always works ──
+    const textPayload = {
+      title:       edit.title.trim(),
+      category:    edit.category,
+      excerpt:     edit.excerpt.trim(),
+      source_url:  edit.source_url.trim(),
+      source:      edit.source.trim(),
+      date:        edit.date,
+      read_time:   edit.read_time,
+      is_published: edit.is_published,
     }
-    if (!editId) delete base.order_index // let it be set on insert only
-    const payload = { ...base, order_index: editId ? undefined : posts.length }
-    if (!editId) delete payload.order_index
+    if (!editId) textPayload.order_index = posts.length
 
-    // Try with image_url first; fall back without it if column missing
-    const withImg = { ...base, image_url: edit.image_url?.trim() || null, order_index: editId ? undefined : posts.length }
-    if (!editId) withImg.order_index = posts.length
-    if (editId) delete withImg.order_index
+    const { error: textErr, data: inserted } = editId
+      ? await supabase.from('blog_posts').update(textPayload).eq('id', editId)
+      : await supabase.from('blog_posts').insert(textPayload).select('id').single()
 
-    const { error: err } = editId
-      ? await supabase.from('blog_posts').update(withImg).eq('id', editId)
-      : await supabase.from('blog_posts').insert(withImg)
+    if (textErr) { setSaving(false); setError(textErr.message); return }
 
-    if (err && err.message?.includes('image_url')) {
-      // image_url column not yet added — save without it
-      const noImg = { ...base }
-      if (!editId) noImg.order_index = posts.length
-      const { error: err2 } = editId
-        ? await supabase.from('blog_posts').update(noImg).eq('id', editId)
-        : await supabase.from('blog_posts').insert(noImg)
-      setSaving(false)
-      if (err2) { setError(err2.message + '\n\nNote: Run the SQL to add image_url column — see admin instructions.'); return }
-      setError('Saved (without image) — please add image_url column to enable images.')
-      loadPosts(); return
+    // ── Step 2: save image in site_settings (never touches blog_posts schema) ──
+    const targetId  = editId || inserted?.id
+    const newImgUrl = edit.image_url?.trim() || null
+    const origImg   = posts.find(p => p.id === editId)?.image_url || null
+    if (targetId && newImgUrl !== origImg) {
+      await saveImgMap(targetId, newImgUrl || '')
     }
 
     setSaving(false)
-    if (err) { setError(err.message); return }
-    setOpen(false); loadPosts()
+    setOpen(false)
+    loadPosts()
   }
 
   const handleDelete = async (id) => {

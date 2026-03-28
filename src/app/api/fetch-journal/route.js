@@ -109,7 +109,9 @@ async function runFetch() {
 
       for (const item of items.slice(0, 15)) {
         if (!seen.has(item.source_url)) {
-          toInsert.push({ ...item, order_index: nextOrder++ })
+          // Strip image_url — column doesn't exist in blog_posts schema
+          const { image_url: _img, ...safeItem } = item
+          toInsert.push({ ...safeItem, order_index: nextOrder++ })
           seen.add(item.source_url)
         }
       }

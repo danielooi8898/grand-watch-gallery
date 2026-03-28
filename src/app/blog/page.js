@@ -2,14 +2,23 @@ import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 
+// Always fetch fresh data — no static caching
+export const revalidate = 0
+
 async function getPosts() {
   try {
     const sb = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
     )
-    const { data } = await sb.from('blog_posts').select('*').eq('is_published', true).order('order_index')
-    if (data && data.length > 0) return data
+    const [{ data }, { data: imgSetting }] = await Promise.all([
+      sb.from('blog_posts').select('*').eq('is_published', true).order('order_index'),
+      sb.from('site_settings').select('value').eq('key', 'blog_images').single(),
+    ])
+    const imgMap = (imgSetting?.value && typeof imgSetting.value === 'object') ? imgSetting.value : {}
+    if (data && data.length > 0) {
+      return data.map(p => ({ ...p, image_url: imgMap[p.id] || p.image_url || '' }))
+    }
   } catch {}
   return [
     { id:'1', title:'The Secondary Watch Market Rebounds: $17 Billion in 2025', category:'Market Update', excerpt:'After thirteen consecutive quarters of decline, the pre-owned luxury watch market staged its first positive year since 2022, with $17B in measured sales and prices rising 4.9%.', source_url:'https://www.watchpro.com/pre-owned-watch-market/', source:'WatchPro', date:'Jan 2026', read_time:'5 min' },
