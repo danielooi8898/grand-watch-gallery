@@ -1,7 +1,6 @@
 import { Resend } from 'resend'
 import { NextResponse } from 'next/server'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
 const ADMIN_EMAILS = ['ooimunhong8898@gmail.com']
 const FROM = process.env.RESEND_FROM || 'GWG Notifications <onboarding@resend.dev>'
 
@@ -27,7 +26,7 @@ function template(title, badge, rows) {
     <table width="100%" cellpadding="0" cellspacing="0">${rows}</table>
   </td></tr>
   <tr><td style="padding:16px 24px;border-top:1px solid #ede9e3;background:#faf9f7;">
-    <p style="margin:0;font-size:11px;color:#aaa;font-family:sans-serif;">Grand Watch Gallery Admin System · This is an automated notification</p>
+    <p style="margin:0;font-size:11px;color:#aaa;font-family:sans-serif;">Grand Watch Gallery Admin System &middot; This is an automated notification</p>
   </td></tr>
 </table>
 </td></tr></table>
@@ -35,6 +34,9 @@ function template(title, badge, rows) {
 }
 
 export async function POST(req) {
+  // Initialise Resend inside the handler so missing env var never crashes the build
+  const resend = new Resend(process.env.RESEND_API_KEY)
+
   try {
     const { type, data } = await req.json()
     let subject = ''
@@ -42,7 +44,7 @@ export async function POST(req) {
 
     switch (type) {
       case 'appointment':
-        subject = `📅 New Appointment — ${data.name}`
+        subject = `New Appointment Request \u2014 ${data.name}`
         html = template('New Appointment Request', 'Appointment',
           row('Name', data.name) + row('Email', data.email) + row('Phone', data.phone) +
           row('Date', data.date) + row('Time', data.time) + row('Purpose', data.interest) +
@@ -50,7 +52,7 @@ export async function POST(req) {
         break
 
       case 'trade_in':
-        subject = `⌚ Trade-In Request — ${data.brand} ${data.model} · ${data.name}`
+        subject = `Trade-In Request \u2014 ${data.brand} ${data.model} \u00b7 ${data.name}`
         html = template('New Trade-In Request', 'Trade-In',
           row('Name', data.name) + row('Email', data.email) + row('Phone', data.phone) +
           row('Brand', data.brand) + row('Model', data.model) + row('Reference', data.ref) +
@@ -59,21 +61,21 @@ export async function POST(req) {
         break
 
       case 'career':
-        subject = `💼 Job Application — ${data.role} · ${data.name}`
+        subject = `Job Application \u2014 ${data.role} \u00b7 ${data.name}`
         html = template('New Job Application', 'Career',
           row('Name', data.name) + row('Email', data.email) + row('Phone', data.phone) +
           row('Position', data.role) + row('Message', data.message))
         break
 
       case 'partner':
-        subject = `🤝 Partner Enquiry — ${data.type} · ${data.name}`
+        subject = `Partner Enquiry \u2014 ${data.type} \u00b7 ${data.name}`
         html = template('New Partner Enquiry', 'Partnership',
           row('Name', data.name) + row('Email', data.email) + row('Phone', data.phone) +
           row('Company', data.company) + row('Type', data.type) + row('Message', data.message))
         break
 
       case 'contact':
-        subject = `✉️ Contact Message — ${data.name}`
+        subject = `Contact Message \u2014 ${data.name}`
         html = template('New Contact Message', 'Contact',
           row('Name', data.name) + row('Email', data.email) + row('Phone', data.phone) +
           row('Subject', data.subject) + row('Message', data.message))
@@ -84,7 +86,10 @@ export async function POST(req) {
     }
 
     const { error } = await resend.emails.send({ from: FROM, to: ADMIN_EMAILS, subject, html })
-    if (error) { console.error('Resend error:', error); return NextResponse.json({ error: error.message }, { status: 500 }) }
+    if (error) {
+      console.error('Resend error:', error)
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
 
     return NextResponse.json({ ok: true })
   } catch (err) {
