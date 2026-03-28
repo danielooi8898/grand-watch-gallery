@@ -38,9 +38,9 @@ export default function AdminBlog() {
     if (!file) return
     setUploadingCover(true)
     const path = `blog/${Date.now()}-${file.name.replace(/\s+/g, '-')}`
-    const { data, error: upErr } = await supabase.storage.from('media').upload(path, file, { upsert: true })
+    const { data, error: upErr } = await supabase.storage.from('watch-images').upload(path, file, { upsert: true })
     if (upErr) { alert('Upload failed: ' + upErr.message); setUploadingCover(false); return }
-    const { data: urlData } = supabase.storage.from('media').getPublicUrl(data.path)
+    const { data: urlData } = supabase.storage.from('watch-images').getPublicUrl(data.path)
     setEdit(p => ({ ...p, image_url: urlData.publicUrl }))
     setUploadingCover(false)
   }
