@@ -2,6 +2,7 @@
 import Spinner from '@/components/Spinner'
 import { useEffect, useState, useCallback } from 'react'
 import { Plus, Pencil, Trash2, X, ExternalLink, Lock, Upload } from 'lucide-react'
+import ImageCropModal from '@/components/ImageCropModal'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
 
@@ -24,6 +25,7 @@ export default function AdminBlog() {
   const [deleting, setDeleting] = useState(null)
   const [error, setError]       = useState('')
   const [uploadingCover, setUploadingCover] = useState(false)
+  const [cropData, setCropData] = useState(null)
 
   const fetch = useCallback(async () => {
     setLoading(true)
@@ -33,12 +35,18 @@ export default function AdminBlog() {
   }, [])
   useEffect(() => { fetch() }, [fetch])
 
-  const handleCoverUpload = async (e) => {
+  const onCoverFileSelect = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
+    setCropData({ src: URL.createObjectURL(file), fileName: file.name })
+    e.target.value = ''
+  }
+
+  const onCoverCropApply = async (blob, outFileName) => {
     setUploadingCover(true)
-    const path = `blog/${Date.now()}-${file.name.replace(/\s+/g, '-')}`
-    const { data, error: upErr } = await supabase.storage.from('watch-images').upload(path, file, { upsert: true })
+    setCropData(null)
+    const path = `blog/${Date.now()}-${outFileName}`
+    const { data, error: upErr } = await supabase.storage.from('watch-images').upload(path, blob, { upsert: true, contentType: 'image/jpeg' })
     if (upErr) { alert('Upload failed: ' + upErr.message); setUploadingCover(false); return }
     const { data: urlData } = supabase.storage.from('watch-images').getPublicUrl(data.path)
     setEdit(p => ({ ...p, image_url: urlData.publicUrl }))
@@ -181,37 +189,47 @@ export default function AdminBlog() {
               {error && <div style={{ background:'#fee2e2', padding:'0.6rem 0.85rem', fontFamily:'var(--sans)', fontSize:'0.78rem', color:'#dc2626', borderRadius:'2px' }}>{error}</div>}
 
 
-              {/* ── Cover Image upload (prominent) ── */}
-              <div style={{ border:'1px solid #E8E2D8', borderRadius:'4px', padding:'1rem', background:'#FAFAF8' }}>
-                <label style={{ ...lbl, marginBottom:'0.75rem', fontSize:'0.65rem' }}>Cover Image <span style={{ color:'#B08D57', fontWeight:700, textTransform:'none', letterSpacing:0 }}>(optional)</span></label>
-                {edit.image_url ? (
-                  <div style={{ position:'relative', borderRadius:'4px', overflow:'hidden', height:'140px', background:'#f5f4f1', marginBottom:'0.75rem' }}>
-                    <img src={edit.image_url} alt="Cover preview" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
-                    <button
-                      onClick={() => setEdit(p => ({ ...p, image_url: '' }))}
-                      title="Remove image"
-                      style={{ position:'absolute', top:'0.4rem', right:'0.4rem', background:'rgba(0,0,0,0.55)', border:'none', borderRadius:'50%', width:'24px', height:'24px', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', color:'#fff' }}>
-                      <X size={12} />
+              {/* ── Cover Image upload ── */}
+              <div style={{ border:'1px solid #E8E2D8', borderRadius:'4px', overflow:'hidden', background:'#FAFAF8' }}>
+                <div style={{ padding:'0.6rem 1rem', borderBottom:'1px solid #F0EDE8', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                  <span style={{ fontFamily:'var(--sans)', fontSize:'0.62rem', letterSpacing:'0.18em', textTransform:'uppercase', color:'#777', fontWeight:600 }}>Cover Image</span>
+                  <span style={{ fontFamily:'var(--sans)', fontSize:'0.65rem', color:'#B08D57', fontWeight:600 }}>optional</span>
+                </div>
+                <label style={{ display:'block', cursor: uploadingCover ? 'not-allowed' : 'pointer', opacity: uploadingCover ? 0.7 : 1 }}>
+                  {uploadingCover ? (
+                    <div style={{ height:'120px', display:'flex', alignItems:'center', justifyContent:'center', background:'#f5f4f1' }}>
+                      <p style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', color:'#B08D57' }}>Uploading…</p>
+                    </div>
+                  ) : edit.image_url ? (
+                    <div style={{ position:'relative', height:'160px', background:'#f0ede8', overflow:'hidden' }}>
+                      <img src={edit.image_url} alt="Cover" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+                      <div style={{ position:'absolute', inset:0, background:'rgba(0,0,0,0.35)', display:'flex', alignItems:'center', justifyContent:'center', opacity:0, transition:'opacity 0.2s' }}
+                        onMouseEnter={e => e.currentTarget.style.opacity=1}
+                        onMouseLeave={e => e.currentTarget.style.opacity=0}>
+                        <span style={{ background:'rgba(0,0,0,0.6)', color:'#fff', padding:'0.4rem 0.9rem', borderRadius:'4px', fontFamily:'var(--sans)', fontSize:'0.72rem', fontWeight:600 }}>Click to replace</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ height:'120px', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:'0.5rem', background:'#f5f4f1' }}>
+                      <Upload size={22} style={{ color:'#B08D57' }} />
+                      <p style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', color:'#888', margin:0 }}>Click to upload cover image</p>
+                      <p style={{ fontFamily:'var(--sans)', fontSize:'0.65rem', color:'#bbb', margin:0 }}>You can crop and adjust after selecting</p>
+                    </div>
+                  )}
+                  <input type="file" accept="image/*" style={{ display:'none' }} onChange={onCoverFileSelect} disabled={uploadingCover} />
+                </label>
+                {edit.image_url && !uploadingCover && (
+                  <div style={{ padding:'0.5rem 0.75rem', borderTop:'1px solid #F0EDE8', display:'flex', gap:'0.5rem' }}>
+                    <label style={{ display:'inline-flex', alignItems:'center', gap:'0.35rem', padding:'0.3rem 0.7rem', border:'1px solid #E0DDD8', borderRadius:'3px', cursor:'pointer', fontFamily:'var(--sans)', fontSize:'0.68rem', color:'#555' }}>
+                      <Upload size={11}/> Replace
+                      <input type="file" accept="image/*" style={{ display:'none' }} onChange={onCoverFileSelect} />
+                    </label>
+                    <button onClick={e => { e.preventDefault(); setEdit(p => ({ ...p, image_url:'' })) }}
+                      style={{ display:'inline-flex', alignItems:'center', gap:'0.35rem', padding:'0.3rem 0.7rem', border:'1px solid #fca5a5', borderRadius:'3px', cursor:'pointer', background:'#fff', fontFamily:'var(--sans)', fontSize:'0.68rem', color:'#dc2626' }}>
+                      <X size={10}/> Remove
                     </button>
                   </div>
-                ) : (
-                  <div style={{ height:'100px', border:'1px dashed #D4CEC6', borderRadius:'4px', display:'flex', alignItems:'center', justifyContent:'center', background:'#f5f4f1', marginBottom:'0.75rem' }}>
-                    <p style={{ fontFamily:'var(--sans)', fontSize:'0.75rem', color:'#bbb' }}>No cover image</p>
-                  </div>
                 )}
-                <label style={{
-                  display:'inline-flex', alignItems:'center', gap:'0.5rem',
-                  padding:'0.6rem 1rem', background:'#fff', border:'1px solid #B08D57',
-                  borderRadius:'3px', cursor: uploadingCover ? 'not-allowed' : 'pointer',
-                  fontFamily:'var(--sans)', fontSize:'0.75rem', color:'#B08D57', fontWeight:600,
-                  opacity: uploadingCover ? 0.7 : 1,
-                }}>
-                  <Upload size={13} />
-                  {uploadingCover ? 'Uploading\u2026' : edit.image_url ? 'Replace Image' : 'Upload Cover Image'}
-                  <input type="file" accept="image/*" style={{ display:'none' }}
-                    onChange={handleCoverUpload} disabled={uploadingCover} />
-                </label>
-                <p style={{ fontFamily:'var(--sans)', fontSize:'0.67rem', color:'#A09890', marginTop:'0.5rem' }}>JPG, PNG or WebP recommended</p>
               </div>
 
 
@@ -264,6 +282,16 @@ export default function AdminBlog() {
             </div>
           </div>
         </div>
+      )}
+
+      {cropData && (
+        <ImageCropModal
+          src={cropData.src}
+          fileName={cropData.fileName}
+          aspectRatio={16/9}
+          onApply={onCoverCropApply}
+          onCancel={() => setCropData(null)}
+        />
       )}
     </div>
   )

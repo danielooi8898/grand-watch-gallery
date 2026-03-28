@@ -1,5 +1,6 @@
 'use client'
 import Spinner from '@/components/Spinner'
+import ImageCropModal from '@/components/ImageCropModal'
 import { useEffect, useState } from 'react'
 import { Save, CheckCircle, Lock, Upload, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
@@ -33,6 +34,7 @@ export default function AdminSettings() {
   const [saved,     setSaved]   = useState(false)
   const [activeTab, setActive]  = useState('Contact')
   const [uploading, setUploading] = useState(false)
+  const [cropData, setCropData] = useState(null)
 
   useEffect(() => {
     supabase.from('site_settings').select('key,value').in('key', Object.keys(DEF))
@@ -80,12 +82,18 @@ export default function AdminSettings() {
     setTimeout(() => setSaved(false), 2500)
   }
 
-  const handleGalleryUpload = async (e) => {
+  const onGalleryFileSelect = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
+    setCropData({ src: URL.createObjectURL(file), fileName: file.name })
+    e.target.value = ''
+  }
+
+  const onGalleryCropApply = async (blob, outFileName) => {
     setUploading(true)
-    const path = `gallery/${Date.now()}-${file.name.replace(/\s+/g, '-')}`
-    const { data, error: upErr } = await supabase.storage.from('watch-images').upload(path, file, { upsert: true })
+    setCropData(null)
+    const path = `gallery/${Date.now()}-${outFileName}`
+    const { data, error: upErr } = await supabase.storage.from('watch-images').upload(path, blob, { upsert: true, contentType: 'image/jpeg' })
     if (upErr) { alert('Upload failed: ' + upErr.message); setUploading(false); return }
     const { data: urlData } = supabase.storage.from('watch-images').getPublicUrl(data.path)
     set('gallery_image_url', urlData.publicUrl)
@@ -229,42 +237,43 @@ export default function AdminSettings() {
           <p style={{ fontFamily:'var(--sans)', fontSize:'0.75rem', color:'#999', marginBottom:'1.25rem', paddingBottom:'1rem', borderBottom:'1px solid #EDE9E3' }}>
             The image shown in the &ldquo;A Private Gallery Experience&rdquo; section on the Find Us page. Leave blank to show the default GWG placeholder.
           </p>
-          <div>
-            <label style={lbl}>Upload Image</label>
-            <label style={{
-              display:'inline-flex', alignItems:'center', gap:'0.6rem',
-              padding:'0.75rem 1.25rem', background:'#F7F6F3',
-              border:'2px dashed #B08D57', borderRadius:'6px',
-              cursor: uploading ? 'not-allowed' : 'pointer',
-              fontFamily:'var(--sans)', fontSize:'0.8rem', color:'#555',
-              opacity: uploading ? 0.7 : 1, transition:'opacity 0.15s',
-            }}>
-              <Upload size={15} style={{ color:'#B08D57', flexShrink:0 }} />
-              {uploading ? 'Uploading…' : form.gallery_image_url ? 'Replace Image' : 'Choose Image File'}
-              <input type="file" accept="image/*" style={{ display:'none' }}
-                onChange={handleGalleryUpload} disabled={uploading} />
+          <div style={{ border:'1px solid #E0DDD8', borderRadius:'6px', overflow:'hidden' }}>
+            <label style={{ display:'block', cursor: uploading ? 'not-allowed' : 'pointer', opacity: uploading ? 0.7 : 1 }}>
+              {uploading ? (
+                <div style={{ height:'160px', display:'flex', alignItems:'center', justifyContent:'center', background:'#F7F6F3' }}>
+                  <p style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', color:'#B08D57' }}>Uploading…</p>
+                </div>
+              ) : form.gallery_image_url ? (
+                <div style={{ position:'relative', height:'200px', overflow:'hidden' }}>
+                  <img src={form.gallery_image_url} alt="Gallery preview" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+                  <div style={{ position:'absolute', inset:0, background:'rgba(0,0,0,0.35)', display:'flex', alignItems:'center', justifyContent:'center', opacity:0, transition:'opacity 0.2s' }}
+                    onMouseEnter={e => e.currentTarget.style.opacity=1}
+                    onMouseLeave={e => e.currentTarget.style.opacity=0}>
+                    <span style={{ background:'rgba(0,0,0,0.6)', color:'#fff', padding:'0.4rem 0.9rem', borderRadius:'4px', fontFamily:'var(--sans)', fontSize:'0.72rem', fontWeight:600 }}>Click to replace</span>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ height:'160px', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:'0.6rem', background:'#F7F6F3', border:'2px dashed #D4CEC6' }}>
+                  <Upload size={24} style={{ color:'#B08D57' }} />
+                  <p style={{ fontFamily:'var(--sans)', fontSize:'0.82rem', color:'#777', margin:0 }}>Click to upload gallery image</p>
+                  <p style={{ fontFamily:'var(--sans)', fontSize:'0.68rem', color:'#bbb', margin:0 }}>You can crop and adjust after selecting · 4:3 ratio recommended</p>
+                </div>
+              )}
+              <input type="file" accept="image/*" style={{ display:'none' }} onChange={onGalleryFileSelect} disabled={uploading} />
             </label>
-            <p style={{ fontFamily:'var(--sans)', fontSize:'0.68rem', color:'#A09890', marginTop:'0.5rem' }}>
-              JPG, PNG or WebP · Recommended aspect ratio 4:3
-            </p>
+            {form.gallery_image_url && !uploading && (
+              <div style={{ padding:'0.6rem 0.85rem', borderTop:'1px solid #EDE9E3', display:'flex', gap:'0.5rem', background:'#fafaf8' }}>
+                <label style={{ display:'inline-flex', alignItems:'center', gap:'0.35rem', padding:'0.3rem 0.75rem', border:'1px solid #E0DDD8', borderRadius:'4px', cursor:'pointer', fontFamily:'var(--sans)', fontSize:'0.7rem', color:'#555' }}>
+                  <Upload size={11}/> Replace
+                  <input type="file" accept="image/*" style={{ display:'none' }} onChange={onGalleryFileSelect} />
+                </label>
+                <button onClick={e => { e.preventDefault(); set('gallery_image_url', '') }}
+                  style={{ display:'inline-flex', alignItems:'center', gap:'0.35rem', padding:'0.3rem 0.75rem', border:'1px solid #fca5a5', borderRadius:'4px', cursor:'pointer', background:'#fff', fontFamily:'var(--sans)', fontSize:'0.7rem', color:'#dc2626' }}>
+                  <X size={11}/> Remove
+                </button>
+              </div>
+            )}
           </div>
-          {form.gallery_image_url && (
-            <div style={{ marginTop:'1.25rem', position:'relative', borderRadius:'6px', overflow:'hidden', height:'200px', background:'#F7F6F3' }}>
-              <img src={form.gallery_image_url} alt="Gallery preview"
-                style={{ width:'100%', height:'100%', objectFit:'cover' }} />
-              <button
-                onClick={() => set('gallery_image_url', '')}
-                title="Remove image"
-                style={{
-                  position:'absolute', top:'0.5rem', right:'0.5rem',
-                  background:'rgba(0,0,0,0.55)', border:'none', borderRadius:'50%',
-                  width:'26px', height:'26px', display:'flex', alignItems:'center',
-                  justifyContent:'center', cursor:'pointer', color:'#fff',
-                }}>
-                <X size={13} />
-              </button>
-            </div>
-          )}
           <SaveBtn group="gallery" keys={['gallery_image_url']} />
         </div>
       )}
@@ -309,6 +318,16 @@ export default function AdminSettings() {
           Open Supabase Dashboard &rarr;
         </a>
       </div>
+
+      {cropData && (
+        <ImageCropModal
+          src={cropData.src}
+          fileName={cropData.fileName}
+          aspectRatio={4/3}
+          onApply={onGalleryCropApply}
+          onCancel={() => setCropData(null)}
+        />
+      )}
     </div>
   )
 }
