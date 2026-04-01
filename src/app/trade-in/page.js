@@ -1,6 +1,5 @@
 'use client'
 import { useState } from 'react'
-import { supabase } from '@/lib/supabase'
 import { ArrowRight, CheckCircle } from 'lucide-react'
 
 const labelStyle = {
@@ -15,33 +14,43 @@ const labelStyle = {
 }
 
 const steps = [
-  { n: '01', title: 'Submit Details', desc: 'Fill out the form below with your watch details \u2014 brand, model, condition, and any relevant history.' },
+  { n: '01', title: 'Submit Details', desc: 'Fill out the form below with your watch details — brand, model, condition, and any relevant history.' },
   { n: '02', title: 'We Assess',      desc: 'Our experts review your submission and provide a competitive, transparent valuation within 24 hours.' },
   { n: '03', title: 'Get Paid',       desc: 'Accept our offer and receive payment swiftly and securely. No hassle, no hidden fees.' },
 ]
 
 export default function TradeInPage() {
-  const [form, setForm] = useState({ name:'', email:'', phone:'', brand:'', model:'', ref:'', year:'', condition:'', papers:'', box:'', notes:'' })
+  const [form, setForm]       = useState({ name:'', email:'', phone:'', brand:'', model:'', ref:'', year:'', condition:'', papers:'', box:'', notes:'' })
   const [sent, setSent]       = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError]     = useState('')
 
   const set = (e) => setForm(f => ({ ...f, [e.target.name]: e.target.value }))
 
-  const submit = async (e) => {
-    e.preventDefault()
+  const handleSubmit = async () => {
+    setError('')
+    if (!form.name || !form.email || !form.phone || !form.brand || !form.model || !form.condition) {
+      setError('Please fill in all required fields.')
+      return
+    }
     setLoading(true)
     try {
-      const { error } = await supabase.from('trade_in_requests').insert([form])
-      if (!error) {
-        setSent(true)
-        fetch('/api/notify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type: 'trade_in', data: form }),
-        }).catch(() => {})
-      }
-    } catch(err) { console.error(err) }
-    finally { setLoading(false) }
+      await fetch('/api/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'trade_in', data: form }),
+      })
+      fetch('/api/enquiry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'trade_in', name: form.name, email: form.email, data: form }),
+      }).catch(() => {})
+    } catch (err) {
+      console.error('Trade-in submit error:', err)
+    } finally {
+      setLoading(false)
+      setSent(true)
+    }
   }
 
   return (
@@ -56,7 +65,7 @@ export default function TradeInPage() {
             Trade-In Programme
           </h1>
           <p style={{ fontFamily: 'var(--sans)', fontSize: '1rem', color: '#888', lineHeight: 1.8, fontWeight: 300, maxWidth: '480px' }}>
-            We offer competitive, transparent valuations for pre-owned luxury watches. No obligation \u2014 just honest pricing from experts who care.
+            We offer competitive, transparent valuations for pre-owned luxury watches. No obligation — just honest pricing from experts who care.
           </p>
         </div>
       </section>
@@ -92,7 +101,7 @@ export default function TradeInPage() {
           <div style={{ maxWidth: '680px', margin: '0 auto' }}>
             {sent ? (
               <div style={{ textAlign: 'center', padding: '5rem 0' }}>
-                <CheckCircle size={40} style={{ color: '#B08D57', margin: '0 auto 1.5rem' }} />
+                <CheckCircle size={40} style={{ color: '#B08D57', display: 'block', margin: '0 auto 1.5rem' }} />
                 <h2 style={{ fontFamily: 'var(--sans)', fontWeight: 900, fontSize: '2rem', color: '#fff', textTransform: 'uppercase', marginBottom: '1rem' }}>
                   Request Received
                 </h2>
@@ -105,20 +114,20 @@ export default function TradeInPage() {
                 <p style={{ fontFamily: 'var(--sans)', fontSize: '0.72rem', letterSpacing: '0.35em', textTransform: 'uppercase', color: '#B08D57', marginBottom: '2.5rem' }}>
                   Watch Details
                 </p>
-                <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: '1.5rem' }}>
                     <div>
                       <label style={labelStyle}>Your Name *</label>
-                      <input className="input" name="name" value={form.name} onChange={set} required placeholder="Full name" />
+                      <input className="input" name="name" value={form.name} onChange={set} placeholder="Full name" />
                     </div>
                     <div>
                       <label style={labelStyle}>Email *</label>
-                      <input className="input" name="email" type="email" value={form.email} onChange={set} required />
+                      <input className="input" name="email" type="email" value={form.email} onChange={set} />
                     </div>
                     <div>
                       <label style={labelStyle}>Phone / WhatsApp *</label>
-                      <input className="input" name="phone" value={form.phone} onChange={set} required placeholder="+601X-XXX XXXX" />
+                      <input className="input" name="phone" value={form.phone} onChange={set} placeholder="+601X-XXX XXXX" />
                     </div>
                   </div>
 
@@ -127,11 +136,11 @@ export default function TradeInPage() {
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: '1.5rem' }}>
                     <div>
                       <label style={labelStyle}>Brand *</label>
-                      <input className="input" name="brand" value={form.brand} onChange={set} required placeholder="e.g. Rolex" />
+                      <input className="input" name="brand" value={form.brand} onChange={set} placeholder="e.g. Rolex" />
                     </div>
                     <div>
                       <label style={labelStyle}>Model *</label>
-                      <input className="input" name="model" value={form.model} onChange={set} required placeholder="e.g. Submariner" />
+                      <input className="input" name="model" value={form.model} onChange={set} placeholder="e.g. Submariner" />
                     </div>
                     <div>
                       <label style={labelStyle}>Reference Number</label>
@@ -143,7 +152,7 @@ export default function TradeInPage() {
                     </div>
                     <div>
                       <label style={labelStyle}>Condition *</label>
-                      <select className="input" name="condition" value={form.condition} onChange={set} required>
+                      <select className="input" name="condition" value={form.condition} onChange={set}>
                         <option value="">Select condition</option>
                         <option>Mint / Unworn</option>
                         <option>Excellent</option>
@@ -167,15 +176,25 @@ export default function TradeInPage() {
                   <div>
                     <label style={labelStyle}>Additional Notes</label>
                     <textarea className="input resize-none" name="notes" value={form.notes} onChange={set}
-                      placeholder="Any other details \u2014 servicing history, modifications, urgency, etc."
+                      placeholder="Any other details — servicing history, modifications, urgency, etc."
                       style={{ height: '7rem' }} />
                   </div>
 
-                  <button type="submit" disabled={loading}
-                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', padding: '1.1rem 2rem', background: '#B08D57', color: '#fff', border: 'none', fontFamily: 'var(--sans)', fontSize: '0.72rem', letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 700, cursor: 'pointer', width: '100%', marginTop: '0.5rem' }}>
-                    {loading ? 'Submitting...' : <><span>Submit for Valuation</span> <ArrowRight size={13} /></>}
+                  {error && (
+                    <p style={{ fontFamily: 'var(--sans)', fontSize: '0.8rem', color: '#e05a5a', textAlign: 'center' }}>
+                      {error}
+                    </p>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={handleSubmit}
+                    disabled={loading}
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', padding: '1.1rem 2rem', background: loading ? '#888' : '#B08D57', color: '#fff', border: 'none', fontFamily: 'var(--sans)', fontSize: '0.72rem', letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer', width: '100%', marginTop: '0.5rem' }}
+                  >
+                    {loading ? 'Submitting…' : <><span>Submit for Valuation</span><ArrowRight size={13} /></>}
                   </button>
-                </form>
+                </div>
               </>
             )}
           </div>

@@ -39,8 +39,8 @@ export default function CareersPage() {
     setTimeout(() => document.getElementById('apply-form')?.scrollIntoView({ behavior:'smooth' }), 50)
   }
 
-  const submit = async e => {
-    e.preventDefault()
+  const handleSubmit = async () => {
+    if (!form.name || !form.email || !form.role) return
     setLoading(true)
     try {
       await fetch('/api/notify', {
@@ -48,12 +48,13 @@ export default function CareersPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: 'career', data: form }),
       })
-      supabase.from('enquiries').insert([{
-        type: 'career', name: form.name, email: form.email, data: form,
-      }]).then(() => {}).catch(() => {})
-      setSent(true)
-    } catch(err) { console.error(err); setSent(true) }
-    finally { setLoading(false) }
+      fetch('/api/enquiry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'career', name: form.name, email: form.email, data: form }),
+      }).catch(() => {})
+    } catch(err) { console.error(err) }
+    finally { setLoading(false); setSent(true) }
   }
 
   return (
@@ -137,7 +138,7 @@ export default function CareersPage() {
           ) : (
             <>
               <p style={{ fontFamily:'var(--sans)', fontSize:'0.68rem', letterSpacing:'0.35em', textTransform:'uppercase', color:'#B08D57', marginBottom:'2rem' }}>Apply Now</p>
-              <form onSubmit={submit} style={{ display:'flex', flexDirection:'column', gap:'1.25rem' }}>
+              <div style={{ display:'flex', flexDirection:'column', gap:'1.25rem' }}>
                 <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(200px,1fr))', gap:'1rem' }}>
                   <div>
                     <label style={ey}>Name *</label>
@@ -173,11 +174,11 @@ export default function CareersPage() {
                     onFocus={e => e.target.style.borderColor='#B08D57'} onBlur={e => e.target.style.borderColor='#222'}
                   />
                 </div>
-                <button type="submit" disabled={loading}
+                <button type="button" onClick={handleSubmit} disabled={loading}
                   style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:'0.75rem', padding:'1rem 2rem', background:'#B08D57', color:'#fff', border:'none', fontFamily:'var(--sans)', fontSize:'0.72rem', letterSpacing:'0.2em', textTransform:'uppercase', fontWeight:700, cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1, width:'100%', marginTop:'0.5rem' }}>
-                  {loading ? 'Sending\u2026' : <><span>Submit Application</span> <ArrowRight size={13} /></>}
+                  {loading ? 'Sending…' : <><span>Submit Application</span> <ArrowRight size={13} /></>}
                 </button>
-              </form>
+              </div>
             </>
           )}
         </div>

@@ -36,20 +36,22 @@ export default function ContactPage() {
 
   const set = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }))
 
-  const submit = async e => {
-    e.preventDefault(); setLoading(true)
+  const handleSubmit = async () => {
+    if (!form.name || !form.email || !form.subject || !form.message) return
+    setLoading(true)
     try {
       await fetch('/api/notify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: 'contact', data: form }),
       })
-      supabase.from('enquiries').insert([{
-        type: 'contact', name: form.name, email: form.email, data: form,
-      }]).then(() => {}).catch(() => {})
-      setSent(true)
-    } catch(err) { console.error(err); setSent(true) }
-    finally { setLoading(false) }
+      fetch('/api/enquiry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'contact', name: form.name, email: form.email, data: form }),
+      }).catch(() => {})
+    } catch(err) { console.error(err) }
+    finally { setLoading(false); setSent(true) }
   }
 
   const addressLines = (info.address || '').split('\n').filter(Boolean)
@@ -137,7 +139,7 @@ export default function ContactPage() {
               ) : (
                 <>
                   <p style={{ fontFamily:'var(--sans)', fontSize:'0.72rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#B08D57', marginBottom:'2rem' }}>Send a Message</p>
-                  <form onSubmit={submit} style={{ display:'flex', flexDirection:'column', gap:'1.5rem' }}>
+                  <div style={{ display:'flex', flexDirection:'column', gap:'1.5rem' }}>
                     <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(200px,1fr))', gap:'1.5rem' }}>
                       <div><label style={labelStyle}>Name *</label><input className="input" name="name" value={form.name} onChange={set} required placeholder="Your name" /></div>
                       <div><label style={labelStyle}>Email *</label><input className="input" name="email" type="email" value={form.email} onChange={set} required /></div>
@@ -156,11 +158,11 @@ export default function ContactPage() {
                       <label style={labelStyle}>Message *</label>
                       <textarea className="input resize-none" name="message" value={form.message} onChange={set} required placeholder="How can we help you?" style={{ height:'8rem' }} />
                     </div>
-                    <button type="submit" disabled={loading}
+                    <button type="button" onClick={handleSubmit} disabled={loading}
                       style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:'0.75rem', padding:'1rem 2rem', background:'#fff', color:'#0A0A0A', border:'none', fontFamily:'var(--sans)', fontSize:'0.72rem', letterSpacing:'0.2em', textTransform:'uppercase', fontWeight:700, cursor:'pointer', width:'100%' }}>
                       {loading ? 'Sending\u2026' : <><span>Send Message</span><ArrowRight size={13} /></>}
                     </button>
-                  </form>
+                  </div>
                 </>
               )}
             </div>
