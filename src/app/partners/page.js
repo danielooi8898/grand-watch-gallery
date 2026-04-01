@@ -36,16 +36,16 @@ export default function PartnersPage() {
     e.preventDefault()
     setLoading(true)
     try {
-      const { error } = await supabase.from('partner_enquiries').insert([form])
-      if (!error) {
-        setSent(true)
-        fetch('/api/notify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type: 'partner', data: form }),
-        }).catch(() => {})
-      }
-    } catch(err) { console.error(err) }
+      await fetch('/api/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'partner', data: form }),
+      })
+      supabase.from('enquiries').insert([{
+        type: 'partner', name: form.name, email: form.email, data: form,
+      }]).then(() => {}).catch(() => {})
+      setSent(true)
+    } catch(err) { console.error(err); setSent(true) }
     finally { setLoading(false) }
   }
 

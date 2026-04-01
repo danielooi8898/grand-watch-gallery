@@ -70,6 +70,20 @@ CREATE POLICY "public_read_settings"      ON site_settings FOR SELECT USING (tru
 CREATE POLICY "auth_all_watches"          ON watches       FOR ALL USING (auth.role() = 'authenticated');
 CREATE POLICY "auth_all_blog"             ON blog_posts    FOR ALL USING (auth.role() = 'authenticated');
 CREATE POLICY "auth_all_settings"         ON site_settings FOR ALL USING (auth.role() = 'authenticated');
+
+-- 3b. Enquiries (unified inbox for all form submissions)
+CREATE TABLE IF NOT EXISTS enquiries (
+  id         uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  type       text NOT NULL,
+  name       text,
+  email      text,
+  data       jsonb DEFAULT '{}',
+  is_read    boolean DEFAULT false,
+  created_at timestamptz DEFAULT now()
+);
+ALTER TABLE enquiries ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "public_insert_enquiries" ON enquiries FOR INSERT WITH CHECK (true);
+CREATE POLICY "auth_all_enquiries"      ON enquiries FOR ALL   USING (auth.role() = 'authenticated');
 CREATE POLICY "auth_read_admin_users"     ON admin_users   FOR SELECT USING (auth.role() = 'authenticated');
 
 -- ============================================================

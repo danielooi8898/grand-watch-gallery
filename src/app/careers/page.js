@@ -43,16 +43,16 @@ export default function CareersPage() {
     e.preventDefault()
     setLoading(true)
     try {
-      const { error } = await supabase.from('career_applications').insert([form])
-      if (!error) {
-        setSent(true)
-        fetch('/api/notify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type: 'career', data: form }),
-        }).catch(() => {})
-      }
-    } catch(err) { console.error(err) }
+      await fetch('/api/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'career', data: form }),
+      })
+      supabase.from('enquiries').insert([{
+        type: 'career', name: form.name, email: form.email, data: form,
+      }]).then(() => {}).catch(() => {})
+      setSent(true)
+    } catch(err) { console.error(err); setSent(true) }
     finally { setLoading(false) }
   }
 

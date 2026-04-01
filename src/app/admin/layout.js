@@ -4,14 +4,16 @@ import { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
-import { LayoutDashboard, Package, BookOpen, Layers, Settings, LogOut, Globe, Menu, X } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
+import { LayoutDashboard, Package, BookOpen, Layers, Settings, LogOut, Globe, Menu, X, Inbox } from 'lucide-react'
 
 const NAV = [
-  { href: '/admin',            label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/admin/collection', label: 'Collection', icon: Package },
-  { href: '/admin/blog',       label: 'Journal',    icon: BookOpen },
-  { href: '/admin/content',    label: 'Homepage',   icon: Layers },
-  { href: '/admin/settings',   label: 'Settings',   icon: Settings },
+  { href: '/admin',              label: 'Dashboard',  icon: LayoutDashboard },
+  { href: '/admin/collection',   label: 'Collection', icon: Package },
+  { href: '/admin/blog',         label: 'Journal',    icon: BookOpen },
+  { href: '/admin/enquiries',    label: 'Enquiries',  icon: Inbox },
+  { href: '/admin/content',      label: 'Homepage',   icon: Layers },
+  { href: '/admin/settings',     label: 'Settings',   icon: Settings },
 ]
 
 export default function AdminLayout({ children }) {
@@ -21,7 +23,13 @@ export default function AdminLayout({ children }) {
   const isLogin  = pathname === '/admin/login'
 
   const [sideOpen, setSideOpen] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    supabase.from('enquiries').select('id', { count: 'exact', head: true }).eq('is_read', false)
+      .then(({ count }) => setUnreadCount(count || 0))
+  }, [pathname])
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768)

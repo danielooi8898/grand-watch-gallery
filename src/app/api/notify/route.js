@@ -81,6 +81,12 @@ export async function POST(req) {
           row('Subject', data.subject) + row('Message', data.message))
         break
 
+      case 'newsletter':
+        subject = `New Newsletter Subscriber — ${data.email}`
+        html = template('New Newsletter Subscriber', 'Newsletter',
+          row('Email', data.email))
+        break
+
       default:
         return NextResponse.json({ error: 'Unknown type' }, { status: 400 })
     }

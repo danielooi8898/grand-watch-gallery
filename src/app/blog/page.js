@@ -30,6 +30,8 @@ async function getPosts() {
   ]
 }
 
+import NewsletterForm from './NewsletterForm'
+
 export default async function BlogPage() {
   const posts = await getPosts()
   const [hero, ...rest] = posts
@@ -124,10 +126,7 @@ export default async function BlogPage() {
               Get the Journal<br />Delivered
             </h2>
             <p className="body-sm" style={{ marginBottom:'3rem' }}>Market insights, new arrivals, and watch news — straight to your inbox.</p>
-            <form style={{ display:'flex', gap:'0' }}>
-              <input type="email" className="input" placeholder="Your email address" style={{ flex:1, borderRight:'none' }} />
-              <button type="submit" className="btn btn-gold" style={{ borderRadius:0, flexShrink:0 }}>Subscribe</button>
-            </form>
+            <NewsletterForm />
           </div>
         </div>
       </section>
