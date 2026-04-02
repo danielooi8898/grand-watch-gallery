@@ -3,7 +3,7 @@ import Spinner from '@/components/Spinner'
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Upload, X, Save, Trash2 } from 'lucide-react'
+import { ArrowLeft, Upload, X, Save, Trash2, Camera, Loader } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 const COND = ['new','unworn','excellent','good','fair']
@@ -21,9 +21,12 @@ export default function WatchEditPage() {
   const [form, setForm]       = useState(EMPTY)
   const [loading, setLoading] = useState(!isNew)
   const [saving,  setSaving]  = useState(false)
-  const [uploading, setUploading] = useState(false)
-  const [error, setError]     = useState('')
-  const [toast, setToast]     = useState('')
+  const [uploading, setUploading]   = useState(false)
+  const [error, setError]           = useState('')
+  const [toast, setToast]           = useState('')
+  const [stockFetching, setStockFetching] = useState(false)
+  const [stockPreview, setStockPreview]   = useState(null) // { imageUrl }
+  const [stockError, setStockError]       = useState('')
 
   useEffect(() => {
     if (isNew) return
@@ -54,6 +57,57 @@ export default function WatchEditPage() {
   }
 
   const removeImage = (idx) => set('images', form.images.filter((_,i) => i !== idx))
+
+  const handleFindStockPhoto = async () => {
+    if (!form.brand || !form.reference) {
+      setStockError('Please enter Brand and Reference Number first.')
+      return
+    }
+    setStockFetching(true)
+    setStockError('')
+    setStockPreview(null)
+    try {
+      const res = await fetch(
+        `/api/stock-photo?brand=${encodeURIComponent(form.brand)}&reference=${encodeURIComponent(form.reference)}&model=${encodeURIComponent(form.model)}`
+      )
+      const data = await res.json()
+      if (data.imageUrl) {
+        setStockPreview(data)
+      } else {
+        setStockError(data.error || 'No official image found.')
+      }
+    } catch {
+      setStockError('Failed to connect. Please try again.')
+    } finally {
+      setStockFetching(false)
+    }
+  }
+
+  const handleUseStockPhoto = async () => {
+    if (!stockPreview?.imageUrl) return
+    setUploading(true)
+    try {
+      // Try to download and re-upload to Supabase Storage for permanence
+      const res = await fetch(stockPreview.imageUrl)
+      if (!res.ok) throw new Error('fetch failed')
+      const blob = await res.blob()
+      const ext  = blob.type.includes('png') ? 'png' : 'jpg'
+      const name = `stock-${form.brand.replace(/\s+/g,'-').toLowerCase()}-${form.reference.replace(/\s+/g,'-')}-${Date.now()}.${ext}`
+      const { error: upErr } = await supabase.storage.from('watch-images').upload(name, blob, { contentType: blob.type })
+      if (upErr) throw upErr
+      const { data: urlData } = supabase.storage.from('watch-images').getPublicUrl(name)
+      set('images', [...(form.images||[]), urlData.publicUrl])
+    } catch {
+      // Fallback: store brand CDN URL directly
+      set('images', [...(form.images||[]), stockPreview.imageUrl])
+    } finally {
+      setStockPreview(null)
+      setStockError('')
+      setUploading(false)
+      setToast('Stock photo added!')
+      setTimeout(() => setToast(''), 2000)
+    }
+  }
 
   const handleSave = async () => {
     if (!form.brand || !form.model) { setError('Brand and model are required.'); return }
@@ -143,7 +197,66 @@ export default function WatchEditPage() {
             <input type="file" accept="image/*" multiple onChange={handleImageUpload} style={{ display:'none' }} />
           </label>
         </div>
-        <p style={{ fontFamily:'var(--sans)', fontSize:'0.7rem', color:'#bbb' }}>Upload images to Supabase Storage (bucket: watch-images). First image is the main display photo.</p>
+        {/* Stock Photo Finder */}
+        <div style={{ marginTop:'1rem', paddingTop:'1rem', borderTop:'1px solid #F4EFE9' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:'1rem', flexWrap:'wrap' }}>
+            <button
+              type="button"
+              onClick={handleFindStockPhoto}
+              disabled={stockFetching || uploading}
+              style={{ display:'flex', alignItems:'center', gap:'0.5rem', padding:'0.6rem 1.1rem', background:'#0A0A0A', color:'#fff', border:'none', cursor: stockFetching ? 'not-allowed' : 'pointer', fontFamily:'var(--sans)', fontSize:'0.7rem', fontWeight:700, letterSpacing:'0.12em', textTransform:'uppercase', opacity: stockFetching ? 0.7 : 1, borderRadius:'2px' }}
+            >
+              {stockFetching
+                ? <><Loader size={13} style={{ animation:'spin 1s linear infinite' }} /> Searching…</>
+                : <><Camera size={13} /> Use Stock Photo</>
+              }
+            </button>
+            <p style={{ fontFamily:'var(--sans)', fontSize:'0.7rem', color:'#aaa', margin:0 }}>
+              Auto-fetches the official product image from the brand&apos;s website using the Brand + Reference you entered.
+            </p>
+          </div>
+
+          {stockError && (
+            <p style={{ fontFamily:'var(--sans)', fontSize:'0.75rem', color:'#dc2626', marginTop:'0.6rem' }}>{stockError}</p>
+          )}
+
+          {stockPreview && (
+            <div style={{ marginTop:'1rem', display:'flex', alignItems:'flex-start', gap:'1.25rem', background:'#FDFAF7', border:'1px solid #E8E2D8', padding:'1rem', borderRadius:'2px' }}>
+              <img
+                src={stockPreview.imageUrl}
+                alt="Stock photo preview"
+                style={{ width:'120px', height:'120px', objectFit:'contain', background:'#fff', border:'1px solid #E8E2D8', flexShrink:0 }}
+              />
+              <div>
+                <p style={{ fontFamily:'var(--sans)', fontWeight:700, fontSize:'0.8rem', color:'#111', marginBottom:'0.3rem' }}>
+                  Official image found
+                </p>
+                <p style={{ fontFamily:'var(--sans)', fontSize:'0.7rem', color:'#888', marginBottom:'0.75rem', wordBreak:'break-all' }}>
+                  Source: {stockPreview.brand} — {stockPreview.reference}
+                </p>
+                <div style={{ display:'flex', gap:'0.5rem' }}>
+                  <button
+                    type="button"
+                    onClick={handleUseStockPhoto}
+                    disabled={uploading}
+                    style={{ padding:'0.5rem 1rem', background:'#B08D57', color:'#fff', border:'none', cursor:'pointer', fontFamily:'var(--sans)', fontSize:'0.7rem', fontWeight:700, letterSpacing:'0.1em', textTransform:'uppercase', borderRadius:'2px', opacity: uploading ? 0.7 : 1 }}
+                  >
+                    {uploading ? 'Saving…' : 'Use This Photo'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setStockPreview(null); setStockError('') }}
+                    style={{ padding:'0.5rem 0.85rem', background:'transparent', color:'#888', border:'1px solid #E8E2D8', cursor:'pointer', fontFamily:'var(--sans)', fontSize:'0.7rem', borderRadius:'2px' }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <p style={{ fontFamily:'var(--sans)', fontSize:'0.7rem', color:'#bbb', marginTop:'0.75rem' }}>Upload your own images or use the stock photo finder above. First image is the main display photo.</p>
       </div>
 
       {/* Basic info */}
