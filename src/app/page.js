@@ -195,7 +195,7 @@ export default function HomePage() {
         <video
           autoPlay muted loop playsInline
           style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover' }}
-          src="https://videos.pexels.com/video-files/17197593/17197593-uhd_2560_1440_24fps.mp4"
+          src="/hero-video.mp4"
         />
         <div style={{ position:'absolute', bottom:0, left:0, right:0, height:'120px', background:'linear-gradient(to bottom, transparent, #0D0D0D)' }} />
       </section>
