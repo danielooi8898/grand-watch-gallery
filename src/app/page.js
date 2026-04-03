@@ -202,14 +202,16 @@ export default function HomePage() {
         <div style={{ position:'absolute', bottom:0, left:0, right:0, height:'250px', background:'linear-gradient(to bottom, transparent, #0D0D0D)' }} />
       </section>
 
-      {/* 1. HERO */}
-      <section className="relative flex flex-col justify-end overflow-hidden" style={{ minHeight:'140svh', background:'#0D0D0D', marginTop:'-4px' }}>
-        <div className="absolute inset-0 overflow-hidden">
-          <img ref={heroRef} src="/gwg-hero.jpg" alt="Grand Watch Gallery" className="w-full h-full object-cover"
-            style={{ objectPosition:'center 25%', opacity:0.45, willChange:'transform', transform:'translateY(0)' }}
-            onError={e => { e.target.style.display='none' }} />
-          <div className="absolute inset-0" style={{ background:'linear-gradient(to top,#0D0D0D 30%,rgba(13,13,13,0.2) 70%),linear-gradient(to bottom,#0D0D0D 5%,transparent 30%)' }} />
+      {/* 1. HERO + STATS + BRAND STRIP — shared background */}
+      <div style={{ position:'relative', background:'#0D0D0D', marginTop:'-4px' }}>
+        {/* Shared background image */}
+        <div style={{ position:'absolute', inset:0, overflow:'hidden', pointerEvents:'none' }}>
+          <img src="/gwg-hero.jpg" alt="" style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center 25%', opacity:0.35 }} />
+          <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top,#0D0D0D 15%,rgba(13,13,13,0.1) 60%),linear-gradient(to bottom,#0D0D0D 5%,transparent 25%)' }} />
         </div>
+
+      {/* 1. HERO */}
+      <section className="relative flex flex-col justify-end overflow-hidden" style={{ minHeight:'100svh' }}>
         <div className="relative z-10 container pb-16 md:pb-24 pt-32">
           <AnimateIn delay={100}>
             <p style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', letterSpacing:'0.35em', textTransform:'uppercase', color:'#B08D57', marginBottom:'1.5rem' }}>
@@ -249,13 +251,14 @@ export default function HomePage() {
       </section>
 
       {/* 2. BRAND STRIP */}
-      <div style={{ background:'transparent', overflow:'hidden', padding:'0.875rem 0', marginTop:'4rem' }}>
+      <div style={{ position:'relative', overflow:'hidden', padding:'0.875rem 0', marginTop:'4rem' }}>
         <div style={{ display:'flex', gap:'3.5rem', whiteSpace:'nowrap', animation:'marquee 40s linear infinite', width:'max-content' }}>
           {[...brands,...brands].map((b,i) => (
             <span key={i} style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#C8B99A', fontWeight:400 }}>{b}</span>
           ))}
         </div>
       </div>
+      </div>{/* end shared background */}
 
       {/* 3. FEATURED COLLECTION — live from Supabase */}
       {watches.length > 0 && (
