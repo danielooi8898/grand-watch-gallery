@@ -197,12 +197,13 @@ export default function HomePage() {
           style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover', display:'block' }}
           src="/hero-video.mp4"
         />
-        <div style={{ position:'absolute', inset:0, background:'rgba(0,0,0,0.2)' }} />
-        <div style={{ position:'absolute', bottom:0, left:0, right:0, height:'200px', background:'linear-gradient(to bottom, transparent, #0D0D0D)' }} />
+        <div style={{ position:'absolute', inset:0, background:'rgba(0,0,0,0.5)' }} />
+        <div style={{ position:'absolute', top:0, left:0, right:0, height:'120px', background:'linear-gradient(to bottom, #0A0A0A, transparent)' }} />
+        <div style={{ position:'absolute', bottom:0, left:0, right:0, height:'250px', background:'linear-gradient(to bottom, transparent, #0D0D0D)' }} />
       </section>
 
       {/* 1. HERO */}
-      <section className="relative flex flex-col justify-end overflow-hidden" style={{ minHeight:'100svh', background:'#0D0D0D' }}>
+      <section className="relative flex flex-col justify-end overflow-hidden" style={{ minHeight:'100svh', background:'#0D0D0D', marginTop:'-4px' }}>
         <div className="absolute inset-0 overflow-hidden">
           <img ref={heroRef} src="/gwg-hero.jpg" alt="Grand Watch Gallery" className="w-full h-full object-cover"
             style={{ objectPosition:'center 25%', opacity:0.45, willChange:'transform', transform:'translateY(0)' }}
