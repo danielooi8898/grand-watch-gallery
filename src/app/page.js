@@ -249,7 +249,7 @@ export default function HomePage() {
       </section>
 
       {/* 2. BRAND STRIP */}
-      <div style={{ background:'#0D0D0D', overflow:'hidden', padding:'0.875rem 0' }}>
+      <div style={{ background:'transparent', overflow:'hidden', padding:'0.875rem 0', marginTop:'4rem' }}>
         <div style={{ display:'flex', gap:'3.5rem', whiteSpace:'nowrap', animation:'marquee 40s linear infinite', width:'max-content' }}>
           {[...brands,...brands].map((b,i) => (
             <span key={i} style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#C8B99A', fontWeight:400 }}>{b}</span>
