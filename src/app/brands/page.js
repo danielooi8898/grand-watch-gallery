@@ -75,14 +75,10 @@ export default function BrandsPage() {
                 </span>
 
                 {/* Logo */}
-                <div style={{ width: '5rem', height: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  {b.logo ? (
-                    <img src={b.logo} alt={b.name} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', filter: 'brightness(0) invert(1)', opacity: 0.7, transition: 'opacity 0.2s' }}
-                      className="group-hover:opacity-100"
-                      onError={e => { e.target.style.display = 'none' }} />
-                  ) : (
-                    <span style={{ fontFamily: 'var(--sans)', fontWeight: 900, fontSize: '1.2rem', color: '#333', letterSpacing: '-0.02em' }}>{b.name.charAt(0)}</span>
-                  )}
+                <div style={{ width: '5rem', height: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #2A2A2A', background: '#111' }}>
+                  <span style={{ fontFamily: 'var(--serif)', fontSize: '0.7rem', color: '#B08D57', letterSpacing: '0.1em', textTransform: 'uppercase', textAlign: 'center', lineHeight: 1.2, padding: '0 4px' }}>
+                    {b.name.split(' ').map(w => w[0]).join('').slice(0,3)}
+                  </span>
                 </div>
 
                 {/* Brand info */}
