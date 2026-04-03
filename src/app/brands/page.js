@@ -27,8 +27,10 @@ export default function BrandsPage() {
     <div style={{ background: '#0A0A0A', minHeight: '100vh' }}>
 
       {/* ── Header ── */}
-      <section style={{ paddingTop: '10rem', paddingBottom: '5rem', borderBottom: '1px solid #1A1A1A' }}>
-        <div className="container">
+      <section style={{ paddingTop: '10rem', paddingBottom: '5rem', borderBottom: '1px solid #1A1A1A', position: 'relative', overflow: 'hidden' }}>
+        <video autoPlay muted loop playsInline style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.4 }} src="/brands-hero.mp4" />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(10,10,10,0.95) 50%, rgba(10,10,10,0.6))' }} />
+        <div className="container" style={{ position: 'relative', zIndex: 1 }}>
           <p className="eyebrow mb-6">Our Portfolio</p>
           <h1 style={{
             fontFamily: 'var(--sans)',
@@ -59,7 +61,7 @@ export default function BrandsPage() {
             className="group"
           >
             <div className="container" style={{ paddingTop: '2.5rem', paddingBottom: '2.5rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '3rem 5rem 1fr auto', gap: '2rem', alignItems: 'center' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '3rem 1fr auto', gap: '2rem', alignItems: 'center' }}>
 
                 {/* Number */}
                 <span style={{
@@ -73,13 +75,6 @@ export default function BrandsPage() {
                 }}>
                   {String(i + 1).padStart(2, '0')}
                 </span>
-
-                {/* Logo */}
-                <div style={{ width: '5rem', height: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #2A2A2A', background: '#111' }}>
-                  <span style={{ fontFamily: 'var(--serif)', fontSize: '0.7rem', color: '#B08D57', letterSpacing: '0.1em', textTransform: 'uppercase', textAlign: 'center', lineHeight: 1.2, padding: '0 4px' }}>
-                    {b.name.split(' ').map(w => w[0]).join('').slice(0,3)}
-                  </span>
-                </div>
 
                 {/* Brand info */}
                 <div>
