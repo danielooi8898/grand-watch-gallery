@@ -203,7 +203,7 @@ export default function HomePage() {
       </section>
 
       {/* 1. HERO */}
-      <section className="relative flex flex-col justify-end overflow-hidden" style={{ minHeight:'100svh', background:'#0D0D0D', marginTop:'-4px' }}>
+      <section className="relative flex flex-col justify-end overflow-hidden" style={{ minHeight:'140svh', background:'#0D0D0D', marginTop:'-4px' }}>
         <div className="absolute inset-0 overflow-hidden">
           <img ref={heroRef} src="/gwg-hero.jpg" alt="Grand Watch Gallery" className="w-full h-full object-cover"
             style={{ objectPosition:'center 25%', opacity:0.45, willChange:'transform', transform:'translateY(0)' }}
