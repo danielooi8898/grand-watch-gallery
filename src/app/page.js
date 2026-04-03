@@ -343,7 +343,7 @@ export default function HomePage() {
       )}
 
       {/* 6. STATS */}
-      <section className="section" style={{ background:'#0D0D0D', borderTop:'1px solid #1A1A1A', borderBottom:'1px solid #1A1A1A' }}>
+      <section className="section" style={{ background:'#0D0D0D' }}>
         <div className="container">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 md:gap-0 sm:divide-x" style={{ borderColor:'#1A1A1A' }}>
             {stats.map(st => (

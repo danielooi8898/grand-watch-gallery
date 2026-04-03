@@ -1,0 +1,7 @@
+warning: in the working copy of 'src/components/Spinner.js', LF will be replaced by CRLF the next time Git touches it
+[main bb9c0af] fix: replace lucide Loader with self-contained Spinner SVG component
+ 10 files changed, 52 insertions(+), 25 deletions(-)
+ create mode 100644 src/components/Spinner.js
+To https://github.com/danielooi8898/grand-watch-gallery.git
+   c7de2fc..bb9c0af  main -> main
+DONE 
