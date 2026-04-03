@@ -8,6 +8,7 @@ const links = [
   { label: 'Brands',     href: '/brands'     },
   { label: 'Trade-In',   href: '/trade-in'   },
   { label: 'Journal',    href: '/blog'        },
+  { label: 'About',      href: '/about'       },
   { label: 'Contact',    href: '/contact'     },
   { label: 'Find Us',    href: '/find-us'     },
 ]
