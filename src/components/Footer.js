@@ -1,5 +1,7 @@
 'use client'
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import { supabase } from '@/lib/supabase'
 
 const col1 = [
   { label: 'Collection',   href: '/collection' },
@@ -19,12 +21,31 @@ const col2 = [
 const social = [
   { label: 'Instagram', href: 'https://www.instagram.com/gwg_gallery/' },
   { label: 'Facebook',  href: 'https://www.facebook.com/GWGmy'         },
-  { label: 'WhatsApp',  href: 'https://wa.me/60162241804'              },
+  { label: 'WhatsApp',  href: 'https://wa.me/60102345100'              },
 ]
 
 const YEAR = 2025
 
+const DEF = {
+  phone:    '+6016-224 1804',
+  phone2:   '+6016-966 6822',
+  whatsapp: '60102345100',
+}
+
 export default function Footer() {
+  const [contact, setContact] = useState(DEF)
+
+  useEffect(() => {
+    supabase.from('site_settings').select('key,value')
+      .in('key', ['phone', 'phone2', 'whatsapp'])
+      .then(({ data }) => {
+        if (!data) return
+        const loaded = { ...DEF }
+        data.forEach(row => { if (row.value) loaded[row.key] = row.value })
+        setContact(loaded)
+      })
+  }, [])
+
   return (
     <footer style={{ background: '#111', borderTop: '1px solid #222' }}>
       <div className="container" style={{ padding: '5rem 1.5rem 2.5rem' }}>
@@ -97,14 +118,14 @@ export default function Footer() {
         <div style={{ borderTop: '1px solid #222', paddingTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
-              <a href="tel:+60166824848" style={{ color: '#fff', fontSize: '0.78rem', textDecoration: 'none', fontFamily: 'var(--sans)', letterSpacing: '0.03em' }}>
-                +6016-682 4848
+              <a href={`tel:${contact.phone.replace(/\D/g,'')}`} style={{ color: '#fff', fontSize: '0.78rem', textDecoration: 'none', fontFamily: 'var(--sans)', letterSpacing: '0.03em' }}>
+                {contact.phone}
               </a>
-              <a href="tel:+60163113633" style={{ color: '#fff', fontSize: '0.78rem', textDecoration: 'none', fontFamily: 'var(--sans)', letterSpacing: '0.03em' }}>
-                +6016-311 3633
+              <a href={`tel:${contact.phone2.replace(/\D/g,'')}`} style={{ color: '#fff', fontSize: '0.78rem', textDecoration: 'none', fontFamily: 'var(--sans)', letterSpacing: '0.03em' }}>
+                {contact.phone2}
               </a>
-              <a href="https://wa.me/60102345100" target="_blank" rel="noopener noreferrer" style={{ color: '#fff', fontSize: '0.78rem', textDecoration: 'none', fontFamily: 'var(--sans)', letterSpacing: '0.03em' }}>
-                +6010-234 5100 (WhatsApp)
+              <a href={`https://wa.me/${contact.whatsapp}`} target="_blank" rel="noopener noreferrer" style={{ color: '#fff', fontSize: '0.78rem', textDecoration: 'none', fontFamily: 'var(--sans)', letterSpacing: '0.03em' }}>
+                +{contact.whatsapp} (WhatsApp)
               </a>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>

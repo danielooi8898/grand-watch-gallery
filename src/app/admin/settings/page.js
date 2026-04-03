@@ -12,8 +12,9 @@ const inp  = { width:'100%', padding:'0.65rem 0.85rem', fontFamily:'var(--sans)'
 const lbl  = { fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#6B6560', display:'block', marginBottom:'0.4rem', fontWeight:600 }
 
 const DEF = {
-  phone:             '+6016-682 4848',
-  whatsapp:          '60162241804',
+  phone:             '+6016-224 1804',
+  phone2:            '+6016-966 6822',
+  whatsapp:          '60102345100',
   email:             'info@grandwatchgallery.com',
   address:           'Lot G31, Ground Floor\nAtria Shopping Gallery\nJalan SS 22/23, Damansara Jaya\n47400 Petaling Jaya, Selangor',
   hours:             'Mon \u2013 Sat: 10:00am \u2013 7:00pm\nSunday: By appointment only',
@@ -157,13 +158,18 @@ export default function AdminSettings() {
           </p>
           <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))', gap:'1rem' }}>
             <div>
-              <label style={lbl}>Phone Number</label>
-              <input style={inp} value={form.phone} placeholder="+6016-682 4848"
+              <label style={lbl}>Phone Number 1</label>
+              <input style={inp} value={form.phone} placeholder="+6016-224 1804"
                 onChange={e => set('phone', e.target.value)} onFocus={focusStyle} onBlur={blurStyle} />
             </div>
             <div>
+              <label style={lbl}>Phone Number 2</label>
+              <input style={inp} value={form.phone2} placeholder="+6016-966 6822"
+                onChange={e => set('phone2', e.target.value)} onFocus={focusStyle} onBlur={blurStyle} />
+            </div>
+            <div>
               <label style={lbl}>WhatsApp Number (digits only)</label>
-              <input style={inp} value={form.whatsapp} placeholder="60162241804"
+              <input style={inp} value={form.whatsapp} placeholder="60102345100"
                 onChange={e => set('whatsapp', e.target.value)} onFocus={focusStyle} onBlur={blurStyle} />
               <p style={{ fontFamily:'var(--sans)', fontSize:'0.68rem', color:'#A09890', marginTop:'0.3rem' }}>Used to build the wa.me/ link</p>
             </div>
@@ -173,7 +179,7 @@ export default function AdminSettings() {
                 onChange={e => set('email', e.target.value)} onFocus={focusStyle} onBlur={blurStyle} />
             </div>
           </div>
-          <SaveBtn group="contact" keys={['phone','whatsapp','email']} />
+          <SaveBtn group="contact" keys={['phone','phone2','whatsapp','email']} />
         </div>
       )}
 
