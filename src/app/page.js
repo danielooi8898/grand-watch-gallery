@@ -190,6 +190,16 @@ export default function HomePage() {
 
   return (
     <>
+      {/* 0. VIDEO BANNER */}
+      <section style={{ position:'relative', width:'100%', height:'100vh', overflow:'hidden', background:'#0A0A0A' }}>
+        <video
+          autoPlay muted loop playsInline
+          style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover' }}
+          src="https://videos.pexels.com/video-files/6248822/6248822-uhd_2732_1440_25fps.mp4"
+        />
+        <div style={{ position:'absolute', bottom:0, left:0, right:0, height:'120px', background:'linear-gradient(to bottom, transparent, #0D0D0D)' }} />
+      </section>
+
       {/* 1. HERO */}
       <section className="relative flex flex-col justify-end overflow-hidden" style={{ minHeight:'100svh', background:'#0D0D0D' }}>
         <div className="absolute inset-0 overflow-hidden">
