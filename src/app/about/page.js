@@ -7,7 +7,7 @@ export default function AboutPage() {
 
       {/* ── Header ── */}
       <section style={{ paddingTop: '10rem', paddingBottom: '5rem', borderBottom: '1px solid #1A1A1A', position: 'relative', overflow: 'hidden' }}>
-        <video autoPlay muted loop playsInline style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.4 }} src="/about-hero.mov" />
+        <video autoPlay muted loop playsInline style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.4 }} src="/about-hero-trim.mov" />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(10,10,10,0.95) 50%, rgba(10,10,10,0.5))' }} />
         <div className="container" style={{ position: 'relative', zIndex: 1 }}>
           <p className="eyebrow mb-6">Our Story</p>
