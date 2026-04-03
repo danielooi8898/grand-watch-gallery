@@ -296,9 +296,9 @@ export default function HomePage() {
       {spotlight && (
         <section className="section" style={{ background:'#0D0D0D' }}>
           <div className="container">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-px" style={{ background:'#1A1A1A' }}>
+            <div className="grid grid-cols-1 lg:grid-cols-2" style={{ background:'transparent' }}>
               {/* Image panel */}
-              <AnimateIn direction="left" className="flex items-center justify-center" style={{ background:'#0A0A0A', minHeight:'360px', position:'relative', overflow:'hidden' }}>
+              <AnimateIn direction="left" className="flex items-center justify-center" style={{ background:'transparent', minHeight:'360px', position:'relative', overflow:'hidden' }}>
                 {spotlight.images?.[0] ? (
                   <img src={spotlight.images[0]} alt={`${spotlight.brand} ${spotlight.model}`}
                     style={{ width:'75%', height:'75%', objectFit:'contain', position:'relative', zIndex:1 }} />
@@ -309,7 +309,7 @@ export default function HomePage() {
                 )}
               </AnimateIn>
               {/* Info panel */}
-              <AnimateIn direction="right" className="p-10 md:p-14 lg:p-16 flex flex-col justify-center" style={{ background:'#0A0A0A' }}>
+              <AnimateIn direction="right" className="p-10 md:p-14 lg:p-16 flex flex-col justify-center" style={{ background:'transparent' }}>
                 <p style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#B08D57', marginBottom:'1.5rem' }}>Piece of the Month</p>
                 <p style={{ fontFamily:'var(--sans)', fontSize:'0.65rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#fff', marginBottom:'0.75rem' }}>{spotlight.brand}</p>
                 <h2 className="serif font-light" style={{ fontFamily:'var(--serif)', fontSize:'clamp(1.75rem,3vw,2.5rem)', color:'#fff', lineHeight:1.1, marginBottom:'1.5rem' }}>
