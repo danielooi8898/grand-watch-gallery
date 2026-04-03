@@ -14,14 +14,18 @@ function ImageMagnifier({ src, alt }) {
   const containerRef = useRef(null)
   const [lens, setLens] = useState({ show: false, x: 0, y: 0, bgX: 0, bgY: 0 })
   const ZOOM = 3
-  const LENS_SIZE = 150
+  const LENS_SIZE = 160
 
   const handleMouseMove = useCallback((e) => {
     const rect = containerRef.current.getBoundingClientRect()
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
-    const bgX = (x / rect.width) * 100
-    const bgY = (y / rect.height) * 100
+    // Calculate background position as percentage relative to lens center
+    const pctX = (x / rect.width) * 100
+    const pctY = (y / rect.height) * 100
+    // Offset so the zoomed point is centered in the lens
+    const bgX = pctX - (LENS_SIZE / 2 / rect.width) * 100 * ZOOM
+    const bgY = pctY - (LENS_SIZE / 2 / rect.height) * 100 * ZOOM
     setLens({ show: true, x, y, bgX, bgY })
   }, [])
 
@@ -36,7 +40,7 @@ function ImageMagnifier({ src, alt }) {
       onMouseLeave={handleMouseLeave}
       style={{ position: 'relative', background: '#0D0D0D', aspectRatio: '1/1', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #1A1A1A', cursor: 'crosshair', overflow: 'hidden' }}
     >
-      <img src={src} alt={alt} style={{ width: '80%', height: '80%', objectFit: 'contain', display: 'block' }} />
+      <img src={src} alt={alt} style={{ width: '80%', height: '80%', objectFit: 'contain', display: 'block', pointerEvents: 'none' }} />
 
       {lens.show && (
         <div style={{
@@ -49,11 +53,11 @@ function ImageMagnifier({ src, alt }) {
           left: `${lens.x - LENS_SIZE / 2}px`,
           top: `${lens.y - LENS_SIZE / 2}px`,
           backgroundImage: `url(${src})`,
-          backgroundSize: `${ZOOM * 80}% ${ZOOM * 80}%`,
+          backgroundSize: `${ZOOM * 100}% ${ZOOM * 100}%`,
           backgroundPosition: `${lens.bgX}% ${lens.bgY}%`,
           backgroundRepeat: 'no-repeat',
           backgroundColor: '#0D0D0D',
-          boxShadow: '0 0 0 1px rgba(176,141,87,0.3)',
+          boxShadow: '0 0 0 1px rgba(176,141,87,0.3), 0 8px 32px rgba(0,0,0,0.8)',
           zIndex: 10,
         }} />
       )}
