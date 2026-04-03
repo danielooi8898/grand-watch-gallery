@@ -4,8 +4,9 @@ import { supabase } from '@/lib/supabase'
 import { ArrowRight, CheckCircle } from 'lucide-react'
 
 const D_CONTACT = {
-  phone:    '+6016-682 4848',
-  whatsapp: '60162241804',
+  phone:    '+6016-224 1804',
+  phone2:   '+6016-966 6822',
+  whatsapp: '60102345100',
   email:    'info@grandwatchgallery.com',
   address:  'Lot G31, Ground Floor\nAtria Shopping Gallery\nJalan SS 22/23, Damansara Jaya\n47400 Petaling Jaya, Selangor',
   hours:    'Mon \u2013 Sat: 10:00am \u2013 7:00pm\nSunday: By appointment only',
@@ -25,7 +26,7 @@ export default function ContactPage() {
 
   useEffect(() => {
     supabase.from('site_settings').select('key,value')
-      .in('key', ['phone','whatsapp','email','address','hours'])
+      .in('key', ['phone','phone2','whatsapp','email','address','hours'])
       .then(({ data }) => {
         if (!data) return
         const loaded = { ...D_CONTACT }
@@ -92,7 +93,8 @@ export default function ContactPage() {
               <div style={{ paddingBottom:'2.5rem', borderBottom:'1px solid #1a1a1a' }}>
                 <p style={labelStyle}>Phone &amp; WhatsApp</p>
                 <p style={{ fontFamily:'var(--sans)', fontSize:'0.95rem', color:'#fff', lineHeight:2, fontWeight:300 }}>{info.phone}</p>
-                {info.email && <p style={{ fontFamily:'var(--sans)', fontSize:'0.95rem', color:'#fff', lineHeight:2, fontWeight:300 }}>{info.email}</p>}
+                <p style={{ fontFamily:'var(--sans)', fontSize:'0.95rem', color:'#fff', lineHeight:2, fontWeight:300 }}>{info.phone2}</p>
+                <p style={{ fontFamily:'var(--sans)', fontSize:'0.95rem', color:'#fff', lineHeight:2, fontWeight:300 }}>+{info.whatsapp} (WhatsApp)</p>
               </div>
 
               <div style={{ paddingBottom:'2.5rem', borderBottom:'1px solid #1a1a1a' }}>

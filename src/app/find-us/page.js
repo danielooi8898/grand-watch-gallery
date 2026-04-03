@@ -5,8 +5,9 @@ import { supabase } from '@/lib/supabase'
 import { ArrowUpRight, Phone, Navigation, Clock } from 'lucide-react'
 
 const D = {
-  phone:             '+6016-682 4848',
-  whatsapp:          '60162241804',
+  phone:             '+6016-224 1804',
+  phone2:            '+6016-966 6822',
+  whatsapp:          '60102345100',
   address:           'Lot G31, Ground Floor\nAtria Shopping Gallery\nJalan SS 22/23, Damansara Jaya\n47400 Petaling Jaya, Selangor',
   hours:             'Mon \u2013 Sat: 10:00am \u2013 7:00pm\nSunday: By appointment only',
   map_embed:         'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3984.254497!2d101.6139191!3d3.1270963!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cc494ca537b9f1%3A0x887c4a6a2ca357ac!2sAtria%20Shopping%20Gallery!5e0!3m2!1sen!2smy!4v1711700000000!5m2!1sen!2smy',
@@ -18,7 +19,7 @@ export default function FindUsPage() {
 
   useEffect(() => {
     supabase.from('site_settings').select('key,value')
-      .in('key', ['phone','whatsapp','address','hours','map_embed','gallery_image_url'])
+      .in('key', ['phone','phone2','whatsapp','address','hours','map_embed','gallery_image_url'])
       .then(({ data }) => {
         if (!data) return
         const loaded = { ...D }
@@ -93,6 +94,8 @@ export default function FindUsPage() {
               <div style={{ marginTop:'2.5rem', paddingTop:'2rem', borderTop:'1px solid #1A1A1A' }}>
                 <p style={{ fontFamily:'var(--sans)', fontSize:'0.68rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#B08D57', marginBottom:'0.75rem' }}>Phone &amp; WhatsApp</p>
                 <p style={{ fontFamily:'var(--sans)', fontSize:'1rem', color:'#fff', fontWeight:300, lineHeight:2 }}>{info.phone}</p>
+                <p style={{ fontFamily:'var(--sans)', fontSize:'1rem', color:'#fff', fontWeight:300, lineHeight:2 }}>{info.phone2}</p>
+                <p style={{ fontFamily:'var(--sans)', fontSize:'1rem', color:'#fff', fontWeight:300, lineHeight:2 }}>+{info.whatsapp} (WhatsApp)</p>
               </div>
             </div>
           </div>
