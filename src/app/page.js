@@ -194,10 +194,11 @@ export default function HomePage() {
       <section style={{ position:'relative', width:'100%', height:'85vh', overflow:'hidden', background:'#0A0A0A' }}>
         <video
           autoPlay muted loop playsInline
-          style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover' }}
+          style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover', display:'block' }}
           src="/hero-video.mp4"
         />
-        <div style={{ position:'absolute', bottom:0, left:0, right:0, height:'120px', background:'linear-gradient(to bottom, transparent, #0D0D0D)' }} />
+        <div style={{ position:'absolute', inset:0, background:'rgba(0,0,0,0.2)' }} />
+        <div style={{ position:'absolute', bottom:0, left:0, right:0, height:'200px', background:'linear-gradient(to bottom, transparent, #0D0D0D)' }} />
       </section>
 
       {/* 1. HERO */}
@@ -247,7 +248,7 @@ export default function HomePage() {
       </section>
 
       {/* 2. BRAND STRIP */}
-      <div style={{ background:'#0D0D0D', overflow:'hidden', padding:'0.875rem 0', marginTop:'3rem' }}>
+      <div style={{ background:'#0D0D0D', overflow:'hidden', padding:'0.875rem 0' }}>
         <div style={{ display:'flex', gap:'3.5rem', whiteSpace:'nowrap', animation:'marquee 40s linear infinite', width:'max-content' }}>
           {[...brands,...brands].map((b,i) => (
             <span key={i} style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#C8B99A', fontWeight:400 }}>{b}</span>
