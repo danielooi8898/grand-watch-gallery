@@ -208,7 +208,7 @@ export default function HomePage() {
           <img ref={heroRef} src="/gwg-hero.jpg" alt="Grand Watch Gallery" className="w-full h-full object-cover"
             style={{ objectPosition:'center 25%', opacity:0.45, willChange:'transform', transform:'translateY(0)' }}
             onError={e => { e.target.style.display='none' }} />
-          <div className="absolute inset-0" style={{ background:'linear-gradient(to top,#0D0D0D 20%,rgba(13,13,13,0.2) 80%)' }} />
+          <div className="absolute inset-0" style={{ background:'linear-gradient(to top,#0D0D0D 30%,rgba(13,13,13,0.2) 70%),linear-gradient(to bottom,#0D0D0D 5%,transparent 30%)' }} />
         </div>
         <div className="relative z-10 container pb-16 md:pb-24 pt-32">
           <AnimateIn delay={100}>
