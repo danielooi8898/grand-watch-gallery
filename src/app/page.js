@@ -224,7 +224,7 @@ export default function HomePage() {
             </Link>
           </AnimateIn>
           <AnimateIn delay={700}>
-            <div className="grid grid-cols-3 gap-4 pt-10 md:pt-14 border-t" style={{ borderColor:'rgba(255,255,255,0.06)', marginTop:'5rem' }}>
+            <div className="grid grid-cols-3 gap-4 pt-10 md:pt-14" style={{ marginTop:'5rem' }}>
               {stats.map(st => (
                 <div key={st.l}>
                   <div className="serif font-light" style={{ fontSize:'clamp(1.5rem,4vw,2.75rem)', color:'#fff', lineHeight:1 }}>{st.n}{st.s}</div>
@@ -237,7 +237,7 @@ export default function HomePage() {
       </section>
 
       {/* 2. BRAND STRIP */}
-      <div style={{ borderTop:'1px solid #1A1A1A', borderBottom:'1px solid #1A1A1A', background:'#0D0D0D', overflow:'hidden', padding:'0.875rem 0' }}>
+      <div style={{ background:'#0D0D0D', overflow:'hidden', padding:'0.875rem 0' }}>
         <div style={{ display:'flex', gap:'3.5rem', whiteSpace:'nowrap', animation:'marquee 40s linear infinite', width:'max-content' }}>
           {[...brands,...brands].map((b,i) => (
             <span key={i} style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#C8B99A', fontWeight:400 }}>{b}</span>
