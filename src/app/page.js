@@ -191,7 +191,7 @@ export default function HomePage() {
   return (
     <>
       {/* 0. VIDEO BANNER */}
-      <section style={{ position:'relative', width:'100%', height:'100vh', overflow:'hidden', background:'#0A0A0A' }}>
+      <section style={{ position:'relative', width:'100%', height:'60vh', overflow:'hidden', background:'#0A0A0A' }}>
         <video
           autoPlay muted loop playsInline
           style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover' }}
