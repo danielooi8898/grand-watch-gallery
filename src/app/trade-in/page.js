@@ -45,6 +45,11 @@ export default function TradeInPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: 'trade_in', name: form.name, email: form.email, data: form }),
       }).catch(() => {})
+      fetch('/api/lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ source: 'trade_in', name: form.name, email: form.email, phone: form.phone, data: form }),
+      }).catch(() => {})
     } catch (err) {
       console.error('Trade-in submit error:', err)
     } finally {

@@ -2,13 +2,13 @@
 import Spinner from '@/components/Spinner'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Package, BookOpen, Layers, Settings, ArrowRight, TrendingUp, CheckCircle, Clock, Star } from 'lucide-react'
+import { Package, BookOpen, Layers, Settings, ArrowRight, TrendingUp, CheckCircle, Clock, Star, Tag, BarChart2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
 
 export default function AdminDashboard() {
   const { user } = useAuth()
-  const [stats,   setStats]   = useState({ total:0, available:0, sold:0, featured:0, posts:0 })
+  const [stats,   setStats]   = useState({ total:0, available:0, sold:0, featured:0, posts:0, leads:0 })
   const [recent,  setRecent]  = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -20,14 +20,16 @@ export default function AdminDashboard() {
         { count: featured },
         { data: watches },
         { count: posts },
+        { count: leads },
       ] = await Promise.all([
         supabase.from('watches').select('*', { count:'exact', head:true }),
         supabase.from('watches').select('*', { count:'exact', head:true }).eq('is_sold', true),
         supabase.from('watches').select('*', { count:'exact', head:true }).eq('is_featured', true),
         supabase.from('watches').select('id,brand,model,price,is_sold,is_featured,created_at').order('created_at', { ascending:false }).limit(6),
         supabase.from('blog_posts').select('*', { count:'exact', head:true }),
+        supabase.from('leads').select('*', { count:'exact', head:true }).eq('status', 'new'),
       ])
-      setStats({ total:total||0, available:(total||0)-(sold||0), sold:sold||0, featured:featured||0, posts:posts||0 })
+      setStats({ total:total||0, available:(total||0)-(sold||0), sold:sold||0, featured:featured||0, posts:posts||0, leads:leads||0 })
       setRecent(watches||[])
       setLoading(false)
     }
@@ -43,6 +45,7 @@ export default function AdminDashboard() {
     { label:'Available',     value:stats.available, icon:CheckCircle, color:'#16A34A', bg:'rgba(22,163,74,0.1)'  },
     { label:'Sold',          value:stats.sold,      icon:TrendingUp,  color:'#2563EB', bg:'rgba(37,99,235,0.1)'  },
     { label:'Featured',      value:stats.featured,  icon:Star,        color:'#9333EA', bg:'rgba(147,51,234,0.1)' },
+    { label:'New Leads',     value:stats.leads,     icon:Tag,         color:'#B08D57', bg:'rgba(176,141,87,0.1)' },
     { label:'Articles',      value:stats.posts,     icon:BookOpen,    color:'#D97706', bg:'rgba(217,119,6,0.1)'  },
   ]
 
@@ -81,6 +84,8 @@ export default function AdminDashboard() {
         {[
           { href:'/admin/collection', label:'Manage Collection', desc:'Add, edit or remove watches',  icon:Package },
           { href:'/admin/blog',       label:'Manage Journal',    desc:'Publish or edit articles',     icon:BookOpen },
+          { href:'/admin/leads',      label:'View Leads',        desc:'Track & manage all leads',     icon:Tag },
+          { href:'/admin/traffic',    label:'Website Traffic',   desc:'Analytics & visitor stats',    icon:BarChart2 },
           { href:'/admin/content',    label:'Edit Homepage',     desc:'Update hero, services & more', icon:Layers },
           { href:'/admin/settings',   label:'Site Settings',     desc:'Contact info, about page',     icon:Settings },
         ].map(({ href, label, desc, icon: Icon }) => (

@@ -47,6 +47,11 @@ export default function AppointmentPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: 'appointment', name: form.name, email: form.email, data: form }),
       }).catch(() => {})
+      fetch('/api/lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ source: 'appointment', name: form.name, email: form.email, phone: form.phone, data: form }),
+      }).catch(() => {})
     } catch (err) {
       console.error('Appointment submit error:', err)
     } finally {

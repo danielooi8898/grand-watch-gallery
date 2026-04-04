@@ -51,6 +51,11 @@ export default function ContactPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: 'contact', name: form.name, email: form.email, data: form }),
       }).catch(() => {})
+      fetch('/api/lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ source: 'contact', name: form.name, email: form.email, phone: form.phone, data: form }),
+      }).catch(() => {})
     } catch(err) { console.error(err) }
     finally { setLoading(false); setSent(true) }
   }

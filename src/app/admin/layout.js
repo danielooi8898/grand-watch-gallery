@@ -5,13 +5,15 @@ import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
-import { LayoutDashboard, Package, BookOpen, Layers, Settings, LogOut, Globe, Menu, X, Inbox } from 'lucide-react'
+import { LayoutDashboard, Package, BookOpen, Layers, Settings, LogOut, Globe, Menu, X, Inbox, Tag, BarChart2 } from 'lucide-react'
 
 const NAV = [
   { href: '/admin',              label: 'Dashboard',  icon: LayoutDashboard },
   { href: '/admin/collection',   label: 'Collection', icon: Package },
   { href: '/admin/blog',         label: 'Journal',    icon: BookOpen },
   { href: '/admin/enquiries',    label: 'Enquiries',  icon: Inbox },
+  { href: '/admin/leads',        label: 'Leads',      icon: Tag },
+  { href: '/admin/traffic',      label: 'Traffic',    icon: BarChart2 },
   { href: '/admin/content',      label: 'Homepage',   icon: Layers },
   { href: '/admin/settings',     label: 'Settings',   icon: Settings },
 ]
