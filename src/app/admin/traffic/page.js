@@ -19,9 +19,11 @@ function MiniBarChart({ data, color = '#B08D57' }) {
   )
 }
 
-function StatCard({ label, value, sub, icon: Icon, color = '#B08D57', chart }) {
-  return (
-    <div style={{ background:'#fff', border:'1px solid #EDE9E3', borderRadius:'8px', padding:'1.25rem', boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }}>
+function StatCard({ label, value, sub, icon: Icon, color = '#B08D57', chart, href }) {
+  const content = (
+    <div style={{ background:'#fff', border:'1px solid #EDE9E3', borderRadius:'8px', padding:'1.25rem', boxShadow:'0 1px 3px rgba(0,0,0,0.04)', transition:'border-color 0.15s', cursor: href ? 'pointer' : 'default' }}
+      onMouseEnter={e => { if (href) e.currentTarget.style.borderColor='#B08D57' }}
+      onMouseLeave={e => { if (href) e.currentTarget.style.borderColor='#EDE9E3' }}>
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom: chart ? '0.75rem' : 0 }}>
         <div>
           <p style={{ fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#999', marginBottom:'0.4rem' }}>{label}</p>
@@ -33,8 +35,10 @@ function StatCard({ label, value, sub, icon: Icon, color = '#B08D57', chart }) {
         </div>
       </div>
       {chart && <MiniBarChart data={chart} color={color} />}
+      {href && <p style={{ fontFamily:'var(--sans)', fontSize:'0.62rem', color:'#B08D57', marginTop:'0.6rem', letterSpacing:'0.1em', textTransform:'uppercase' }}>View in GA4 →</p>}
     </div>
   )
+  return href ? <a href={href} target="_blank" rel="noopener noreferrer" style={{ textDecoration:'none', display:'block' }}>{content}</a> : content
 }
 
 function TopPagesTable({ pages }) {
@@ -187,24 +191,30 @@ export default function AdminTraffic() {
 
       {/* GA Stat Cards */}
       <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))', gap:'1rem', marginBottom:'1.5rem' }}>
-        <StatCard label="Active Users (Now)" value={gaLoading ? '...' : gaData?.activeUsers ?? '—'} icon={Users} color="#3b82f6" sub="Real-time" />
-        <StatCard label="Page Views (7d)" value={gaLoading ? '...' : gaData?.pageViews ?? '—'} icon={Eye} color="#B08D57" sub="Last 7 days" chart={gaData?.pageViewsChart} />
-        <StatCard label="Sessions (7d)" value={gaLoading ? '...' : gaData?.sessions ?? '—'} icon={Globe} color="#10b981" sub="Last 7 days" chart={gaData?.sessionsChart} />
-        <StatCard label="Avg Session" value={gaLoading ? '...' : gaData?.avgSessionDuration ?? '—'} icon={Clock} color="#8b5cf6" sub="Minutes on site" />
-        <StatCard label="Bounce Rate" value={gaLoading ? '...' : gaData?.bounceRate ?? '—'} icon={TrendingUp} color="#f59e0b" sub="Lower is better" />
-        <StatCard label="New Users (7d)" value={gaLoading ? '...' : gaData?.newUsers ?? '—'} icon={MousePointer} color="#ec4899" sub="First-time visitors" />
+        <StatCard label="Active Users (Now)" value={gaLoading ? '...' : gaData?.activeUsers ?? '—'} icon={Users} color="#3b82f6" sub="Real-time" href={`https://analytics.google.com/analytics/web/#/p422434153/realtime/overview`} />
+        <StatCard label="Page Views (7d)" value={gaLoading ? '...' : gaData?.pageViews ?? '—'} icon={Eye} color="#B08D57" sub="Last 7 days" chart={gaData?.pageViewsChart} href={`https://analytics.google.com/analytics/web/#/p422434153/reports/explorer`} />
+        <StatCard label="Sessions (7d)" value={gaLoading ? '...' : gaData?.sessions ?? '—'} icon={Globe} color="#10b981" sub="Last 7 days" chart={gaData?.sessionsChart} href={`https://analytics.google.com/analytics/web/#/p422434153/reports/explorer`} />
+        <StatCard label="Avg Session" value={gaLoading ? '...' : gaData?.avgSessionDuration ?? '—'} icon={Clock} color="#8b5cf6" sub="Time on site" href={`https://analytics.google.com/analytics/web/#/p422434153/reports/explorer`} />
+        <StatCard label="Bounce Rate" value={gaLoading ? '...' : gaData?.bounceRate ?? '—'} icon={TrendingUp} color="#f59e0b" sub="Lower is better" href={`https://analytics.google.com/analytics/web/#/p422434153/reports/explorer`} />
+        <StatCard label="New Users (7d)" value={gaLoading ? '...' : gaData?.newUsers ?? '—'} icon={MousePointer} color="#ec4899" sub="First-time visitors" href={`https://analytics.google.com/analytics/web/#/p422434153/acquisition/overview`} />
       </div>
 
       {/* Top Pages + Traffic Sources */}
       <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))', gap:'1rem', marginBottom:'1.5rem' }}>
         <div style={card}>
-          <p style={{ fontFamily:'var(--sans)', fontWeight:700, fontSize:'0.88rem', color:'#111', marginBottom:'0.2rem' }}>Top Pages</p>
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'0.2rem' }}>
+            <p style={{ fontFamily:'var(--sans)', fontWeight:700, fontSize:'0.88rem', color:'#111' }}>Top Pages</p>
+            <a href="https://analytics.google.com/analytics/web/#/p422434153/reports/explorer" target="_blank" rel="noopener noreferrer" style={{ fontFamily:'var(--sans)', fontSize:'0.68rem', color:'#B08D57', textDecoration:'none' }}>View in GA4 →</a>
+          </div>
           <p style={{ fontFamily:'var(--sans)', fontSize:'0.72rem', color:'#999', marginBottom:'1rem', paddingBottom:'0.75rem', borderBottom:'1px solid #EDE9E3' }}>Most visited in last 7 days</p>
           {gaLoading ? <p style={{ fontFamily:'var(--sans)', fontSize:'0.82rem', color:'#aaa' }}>Loading...</p> : <TopPagesTable pages={gaData?.topPages} />}
         </div>
 
         <div style={card}>
-          <p style={{ fontFamily:'var(--sans)', fontWeight:700, fontSize:'0.88rem', color:'#111', marginBottom:'0.2rem' }}>Traffic Sources</p>
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'0.2rem' }}>
+            <p style={{ fontFamily:'var(--sans)', fontWeight:700, fontSize:'0.88rem', color:'#111' }}>Traffic Sources</p>
+            <a href="https://analytics.google.com/analytics/web/#/p422434153/acquisition/overview" target="_blank" rel="noopener noreferrer" style={{ fontFamily:'var(--sans)', fontSize:'0.68rem', color:'#B08D57', textDecoration:'none' }}>View in GA4 →</a>
+          </div>
           <p style={{ fontFamily:'var(--sans)', fontSize:'0.72rem', color:'#999', marginBottom:'1rem', paddingBottom:'0.75rem', borderBottom:'1px solid #EDE9E3' }}>Where visitors come from</p>
           {gaLoading ? <p style={{ fontFamily:'var(--sans)', fontSize:'0.82rem', color:'#aaa' }}>Loading...</p> : (
             <div style={{ display:'flex', flexDirection:'column', gap:'0.6rem' }}>
