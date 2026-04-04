@@ -4,13 +4,17 @@ const GA_PROPERTY_ID = '14308288240'
 
 export async function GET() {
   try {
-    // Initialize GA4 client using service account credentials from env
     const credentials = process.env.GA_SERVICE_ACCOUNT_KEY
       ? JSON.parse(process.env.GA_SERVICE_ACCOUNT_KEY)
       : null
 
     if (!credentials) {
-      return Response.json({ error: 'GA credentials not configured', data: getMockData() })
+      return Response.json({ error: 'GA_SERVICE_ACCOUNT_KEY not set', data: getMockData() })
+    }
+
+    // Validate credentials have required fields
+    if (!credentials.client_email || !credentials.private_key) {
+      return Response.json({ error: 'Invalid credentials format', data: getMockData() })
     }
 
     const analyticsDataClient = new BetaAnalyticsDataClient({ credentials })
@@ -109,8 +113,7 @@ export async function GET() {
 
   } catch (err) {
     console.error('GA4 API error:', err)
-    // Return mock data so UI still shows something useful
-    return Response.json({ data: getMockData(), error: err.message })
+    return Response.json({ data: getMockData(), error: err.message, stack: err.stack?.split('\n')[0] })
   }
 }
 

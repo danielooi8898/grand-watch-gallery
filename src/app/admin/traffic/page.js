@@ -134,16 +134,19 @@ export default function AdminTraffic() {
   const { isAdmin } = useAuth()
   const [gaData, setGaData] = useState(null)
   const [gaLoading, setGaLoading] = useState(true)
+  const [gaError, setGaError] = useState(null)
   const [lastRefresh, setLastRefresh] = useState(null)
   const card = { background:'#fff', border:'1px solid #EDE9E3', borderRadius:'8px', padding:'1.5rem', boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }
 
   const fetchGA = async () => {
     setGaLoading(true)
+    setGaError(null)
     try {
       const res = await fetch('/api/analytics')
       const json = await res.json()
+      if (json.error) setGaError(json.error)
       if (json.data) { setGaData(json.data); setLastRefresh(new Date()) }
-    } catch (e) { console.error(e) }
+    } catch (e) { setGaError(e.message) }
     setGaLoading(false)
   }
 
@@ -174,6 +177,13 @@ export default function AdminTraffic() {
           {gaLoading ? 'Loading...' : 'Refresh'}
         </button>
       </div>
+
+      {/* Error message */}
+      {gaError && (
+        <div style={{ background:'#FEF2F2', border:'1px solid #FCA5A5', borderRadius:'6px', padding:'0.75rem 1rem', marginBottom:'1.25rem', fontFamily:'var(--sans)', fontSize:'0.78rem', color:'#DC2626' }}>
+          ⚠️ GA4 Error: {gaError}
+        </div>
+      )}
 
       {/* GA Stat Cards */}
       <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))', gap:'1rem', marginBottom:'1.5rem' }}>
