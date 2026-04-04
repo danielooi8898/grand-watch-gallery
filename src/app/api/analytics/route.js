@@ -1,6 +1,6 @@
 import { BetaAnalyticsDataClient } from '@google-analytics/data'
 
-const GA_PROPERTY_ID = '14308288240'
+const GA_PROPERTY_ID = '422434153'
 
 export async function GET() {
   try {
