@@ -3,7 +3,7 @@ import Spinner from '@/components/Spinner'
 import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
-import { Mail, Phone, Trash2, ChevronDown, ChevronUp, Lock, CheckCircle, Clock, XCircle, List, LayoutGrid, Pencil, X, Save } from 'lucide-react'
+import { Mail, Phone, Trash2, ChevronDown, ChevronUp, Lock, CheckCircle, Clock, XCircle, List, LayoutGrid, Pencil, X, Save, Plus } from 'lucide-react'
 
 const STATUSES = ['new','contacted','converted','closed']
 const STATUS_STYLES = {
@@ -45,13 +45,18 @@ function EditModal({ lead, onSave, onClose }) {
 
   const handleSave = async () => {
     setSaving(true)
-    const updated = {
+    const payload = {
       name: form.name, email: form.email, phone: form.phone,
       status: form.status, source: form.source,
       data: { ...lead.data, message: form.message, subject: form.subject, brand: form.brand, model: form.model },
     }
-    await supabase.from('leads').update(updated).eq('id', lead.id)
-    onSave({ ...lead, ...updated })
+    if (lead.id) {
+      await supabase.from('leads').update(payload).eq('id', lead.id)
+      onSave({ ...lead, ...payload })
+    } else {
+      const { data: newLead } = await supabase.from('leads').insert({ ...payload, created_at: new Date().toISOString() }).select().single()
+      onSave(newLead || { ...payload, id: Date.now().toString(), created_at: new Date().toISOString() })
+    }
     setSaving(false)
   }
 
@@ -62,8 +67,8 @@ function EditModal({ lead, onSave, onClose }) {
         {/* Header */}
         <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'1.25rem 1.5rem', borderBottom:'1px solid #EDE9E3' }}>
           <div>
-            <p style={{ fontFamily:'var(--sans)', fontWeight:700, fontSize:'0.95rem', color:'#111' }}>Edit Lead</p>
-            <p style={{ fontFamily:'var(--sans)', fontSize:'0.72rem', color:'#999', marginTop:'0.1rem' }}>{lead.name || 'Unknown'} · {timeAgo(lead.created_at)}</p>
+            <p style={{ fontFamily:'var(--sans)', fontWeight:700, fontSize:'0.95rem', color:'#111' }}>{lead.id ? 'Edit Lead' : 'Add New Lead'}</p>
+            <p style={{ fontFamily:'var(--sans)', fontSize:'0.72rem', color:'#999', marginTop:'0.1rem' }}>{lead.id ? `${lead.name || 'Unknown'} · ${timeAgo(lead.created_at)}` : 'Manually add a new lead'}</p>
           </div>
           <button onClick={onClose} style={{ background:'none', border:'none', cursor:'pointer', color:'#aaa', padding:'0.25rem' }}><X size={18}/></button>
         </div>
@@ -142,7 +147,7 @@ function EditModal({ lead, onSave, onClose }) {
           <button onClick={onClose} style={{ fontFamily:'var(--sans)', fontSize:'0.72rem', color:'#888', background:'none', border:'1px solid #E0DDD8', padding:'0.55rem 1.1rem', borderRadius:'4px', cursor:'pointer' }}>Cancel</button>
           <button onClick={handleSave} disabled={saving}
             style={{ display:'inline-flex', alignItems:'center', gap:'0.4rem', fontFamily:'var(--sans)', fontSize:'0.72rem', fontWeight:700, color:'#fff', background:'#B08D57', border:'none', padding:'0.55rem 1.25rem', borderRadius:'4px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1 }}>
-            <Save size={13}/> {saving ? 'Saving...' : 'Save Changes'}
+            <Save size={13}/> {saving ? 'Saving...' : lead.id ? 'Save Changes' : 'Add Lead'}
           </button>
         </div>
       </div>
@@ -211,7 +216,7 @@ function BoardCard({ lead, onEdit, onDelete, onDragStart }) {
 }
 
 /* ── Board Column ── */
-function BoardColumn({ status, leads, onEdit, onDelete, onDrop, onDragOver, onDragLeave, isDragOver }) {
+function BoardColumn({ status, leads, onEdit, onDelete, onDrop, onDragOver, onDragLeave, isDragOver, onAdd }) {
   const s = STATUS_STYLES[status]
   const Icon = s.icon
   return (
@@ -235,11 +240,23 @@ function BoardColumn({ status, leads, onEdit, onDelete, onDrop, onDragOver, onDr
               <Icon size={14} style={{ color:s.color }}/>
             </div>
             <p style={{ fontFamily:'var(--sans)', fontSize:'0.72rem', color:'#ccc', lineHeight:1.4 }}>No {s.label.toLowerCase()} leads</p>
-            <p style={{ fontFamily:'var(--sans)', fontSize:'0.65rem', color:'#ddd', marginTop:'0.2rem' }}>Drop cards here</p>
+            <button onClick={() => onAdd(status)}
+              style={{ marginTop:'0.6rem', display:'inline-flex', alignItems:'center', gap:'0.3rem', padding:'0.3rem 0.65rem', background:'transparent', border:`1px solid #E0DDD8`, borderRadius:'4px', fontFamily:'var(--sans)', fontSize:'0.65rem', color:'#888', cursor:'pointer', transition:'all 0.15s' }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor='#B08D57'; e.currentTarget.style.color='#B08D57' }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor='#E0DDD8'; e.currentTarget.style.color='#888' }}>
+              <Plus size={10}/> Add Lead
+            </button>
           </div>
         ) : (
           leads.map(lead => <BoardCard key={lead.id} lead={lead} onEdit={onEdit} onDelete={onDelete} />)
         )}
+        {/* + Add button at bottom of column */}
+        <button onClick={() => onAdd(status)}
+          style={{ width:'100%', display:'flex', alignItems:'center', justifyContent:'center', gap:'0.35rem', padding:'0.5rem', marginTop:'0.4rem', background:'transparent', border:'1px dashed #E0DDD8', borderRadius:'6px', fontFamily:'var(--sans)', fontSize:'0.68rem', color:'#aaa', cursor:'pointer', transition:'all 0.15s' }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor='#B08D57'; e.currentTarget.style.color='#B08D57' }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor='#E0DDD8'; e.currentTarget.style.color='#aaa' }}>
+          <Plus size={11}/> Add lead
+        </button>
       </div>
     </div>
   )
@@ -308,6 +325,10 @@ export default function AdminLeads() {
   const [dragOver, setDragOver] = useState(null)
   const [editLead, setEditLead] = useState(null)
 
+  const BLANK_LEAD = { id: null, name:'', email:'', phone:'', status:'new', source:'contact', data:{} }
+
+  const addLead = (status = 'new') => setEditLead({ ...BLANK_LEAD, status })
+
   const load = useCallback(async () => {
     setLoading(true)
     const { data } = await supabase.from('leads').select('*').order('created_at', { ascending: false })
@@ -329,7 +350,11 @@ export default function AdminLeads() {
   }
 
   const handleSave = (updated) => {
-    setLeads(prev => prev.map(l => l.id === updated.id ? updated : l))
+    if (updated.id) {
+      setLeads(prev => prev.map(l => l.id === updated.id ? updated : l))
+    } else {
+      setLeads(prev => [updated, ...prev])
+    }
     setEditLead(null)
   }
 
@@ -371,13 +396,19 @@ export default function AdminLeads() {
           </h1>
           <p style={{ fontFamily:'var(--sans)', fontSize:'0.75rem', color:'#888', marginTop:'0.2rem' }}>{counts.all} total · {counts.new} new · {counts.converted} converted · Click any card to edit</p>
         </div>
-        <div style={{ display:'flex', background:'#EDE9E3', borderRadius:'6px', padding:'0.25rem', gap:'0.25rem' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:'0.75rem', flexWrap:'wrap' }}>
+          <button onClick={() => addLead()}
+            style={{ display:'inline-flex', alignItems:'center', gap:'0.4rem', padding:'0.5rem 1rem', background:'#B08D57', color:'#fff', border:'none', borderRadius:'4px', fontFamily:'var(--sans)', fontSize:'0.72rem', fontWeight:700, letterSpacing:'0.1em', textTransform:'uppercase', cursor:'pointer' }}>
+            <Plus size={13}/> Add Lead
+          </button>
+          <div style={{ display:'flex', background:'#EDE9E3', borderRadius:'6px', padding:'0.25rem', gap:'0.25rem' }}>
           {[{ key:'list', icon:List, label:'List' }, { key:'board', icon:LayoutGrid, label:'Board' }].map(({ key, icon: Icon, label }) => (
             <button key={key} onClick={() => setView(key)}
               style={{ display:'flex', alignItems:'center', gap:'0.35rem', padding:'0.45rem 0.85rem', border:'none', borderRadius:'4px', cursor:'pointer', fontFamily:'var(--sans)', fontSize:'0.72rem', fontWeight: view===key ? 700 : 400, background: view===key ? '#fff' : 'transparent', color: view===key ? '#111' : '#888', boxShadow: view===key ? '0 1px 2px rgba(0,0,0,0.08)' : 'none', transition:'all 0.15s' }}>
               <Icon size={13}/> {label}
             </button>
           ))}
+          </div>
         </div>
       </div>
 
@@ -411,7 +442,7 @@ export default function AdminLeads() {
           {STATUSES.map(status => (
             <BoardColumn key={status} status={status}
               leads={leads.filter(l => (l.status||'new') === status)}
-              onEdit={setEditLead} onDelete={deleteLead}
+              onEdit={setEditLead} onDelete={deleteLead} onAdd={addLead}
               onDrop={onDrop}
               onDragOver={() => setDragOver(status)}
               onDragLeave={() => setDragOver(null)}
