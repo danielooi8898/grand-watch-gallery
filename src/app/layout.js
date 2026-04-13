@@ -15,7 +15,7 @@ export const metadata = {
   title: 'Grand Watch Gallery | The Right Time For Life',
   description: "Malaysia's premier authenticated pre-owned luxury watch gallery. Rolex, Patek Philippe, Audemars Piguet, Richard Mille and more.",
   icons: {
-    icon: '/favicon.ico',
+    icon: '/favicon.ico?v=2',
   },
 }
 
