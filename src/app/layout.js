@@ -13,7 +13,7 @@ const barlow = Barlow({
 
 export const metadata = {
   title: 'Grand Watch Gallery | The Right Time For Life',
-  description: "Malaysia's premier authenticated pre-owned luxury watch gallery. Rolex, Patek Philippe, Audemars Piguet, Richard Mille and more.",
+  description: "Malaysia's Most Trusted and Well-known luxury watch reseller. Brand New and authenticated pre-owned watches now available at GWG.",
   icons: {
     icon: [
       { url: '/favicon.ico' },
