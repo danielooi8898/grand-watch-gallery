@@ -27,6 +27,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={barlow.variable} data-scroll-behavior="smooth">
       <head>
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" href="/favicon.png" />
+        <link rel="apple-touch-icon" href="/favicon.png" />
         <Script async src="https://www.googletagmanager.com/gtag/js?id=G-KTDXWQRC9C" strategy="afterInteractive" />
         <Script id="google-analytics" strategy="afterInteractive">{`
           window.dataLayer = window.dataLayer || [];
