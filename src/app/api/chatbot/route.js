@@ -53,34 +53,40 @@ YOUR ROLE:
 
 TONE: Friendly, professional, and knowledgeable about luxury watches.`
 
+    const requestBody = {
+      model: 'mixtral-8x7b-32768',
+      max_tokens: 1024,
+      messages: [
+        {
+          role: 'system',
+          content: systemPrompt
+        },
+        {
+          role: 'user',
+          content: message
+        }
+      ]
+    }
+
+    console.log('Sending request to Groq:', JSON.stringify(requestBody, null, 2))
+    console.log('API Key set:', !!process.env.GROQ_API_KEY)
+
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
       },
-      body: JSON.stringify({
-        model: 'mixtral-8x7b-32768',
-        max_tokens: 1024,
-        messages: [
-          {
-            role: 'system',
-            content: systemPrompt
-          },
-          {
-            role: 'user',
-            content: message
-          }
-        ]
-      })
+      body: JSON.stringify(requestBody)
     })
 
     const data = await response.json()
 
     if (!response.ok) {
-      console.error('Groq API error:', response.status, data)
+      console.error('Groq API error:', response.status, JSON.stringify(data, null, 2))
+      const errorMsg = data.error?.message || JSON.stringify(data)
       return NextResponse.json(
-        { error: `API Error: ${data.error?.message || 'Unknown error'}` },
+        { error: `API Error (${response.status}): ${errorMsg}` },
         { status: 500 }
       )
     }
