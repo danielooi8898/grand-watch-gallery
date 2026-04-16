@@ -19,8 +19,8 @@ export async function POST(request) {
     }
 
     // Check if API key is set
-    if (!process.env.CLAUDE_API_KEY) {
-      console.error('CLAUDE_API_KEY not set in environment')
+    if (!process.env.OPENAI_API_KEY) {
+      console.error('OPENAI_API_KEY not set in environment')
       return NextResponse.json({ error: 'API key not configured' }, { status: 500 })
     }
 
@@ -53,42 +53,45 @@ YOUR ROLE:
 
 TONE: Friendly, professional, and knowledgeable about luxury watches.`
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': process.env.CLAUDE_API_KEY,
-        'anthropic-version': '2023-06-01'
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 1024,
-        system: systemPrompt,
+        model: 'gpt-4o-mini',
         messages: [
+          {
+            role: 'system',
+            content: systemPrompt
+          },
           {
             role: 'user',
             content: message
           }
-        ]
+        ],
+        max_tokens: 1024,
+        temperature: 0.7
       })
     })
 
     const data = await response.json()
 
     if (!response.ok) {
-      console.error('Claude API error:', response.status, data)
+      console.error('OpenAI API error:', response.status, data)
       return NextResponse.json(
         { error: `API Error: ${data.error?.message || 'Unknown error'}` },
         { status: 500 }
       )
     }
 
-    if (!data.content || !Array.isArray(data.content) || data.content.length === 0) {
+    if (!data.choices || !Array.isArray(data.choices) || data.choices.length === 0) {
       console.error('Invalid API response:', data)
       return NextResponse.json({ error: 'Invalid response format' }, { status: 500 })
     }
 
-    const reply = data.content[0]?.text || 'Unable to process response'
+    const reply = data.choices[0]?.message?.content || 'Unable to process response'
 
     return NextResponse.json({ reply })
   } catch (error) {
