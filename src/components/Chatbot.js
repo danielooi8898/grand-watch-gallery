@@ -32,6 +32,9 @@ export default function Chatbot() {
     setInput('')
     setLoading(true)
 
+    // Pause for 2 seconds to listen and think
+    await new Promise(resolve => setTimeout(resolve, 2000))
+
     try {
       const res = await fetch('/api/chatbot', {
         method: 'POST',
