@@ -188,12 +188,6 @@ export default function Chatbot() {
                 </div>
               </div>
             ))}
-            {loading && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#B08D57' }}>
-                <Loader size={16} style={{ animation: 'spin 1s linear infinite' }} />
-                <span style={{ fontSize: '13px' }}>Thinking...</span>
-              </div>
-            )}
             <div ref={messagesEndRef} />
           </div>
 
@@ -224,22 +218,21 @@ export default function Chatbot() {
                 color: '#333',
                 backgroundColor: '#fff'
               }}
-              disabled={loading}
             />
             <button
               onClick={handleSend}
-              disabled={loading || !input.trim()}
+              disabled={!input.trim()}
               style={{
                 background: '#B08D57',
                 color: '#fff',
                 border: 'none',
                 borderRadius: '4px',
                 padding: '8px 12px',
-                cursor: loading || !input.trim() ? 'not-allowed' : 'pointer',
+                cursor: !input.trim() ? 'not-allowed' : 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                opacity: loading || !input.trim() ? 0.6 : 1
+                opacity: !input.trim() ? 0.6 : 1
               }}
             >
               <Send size={16} />
