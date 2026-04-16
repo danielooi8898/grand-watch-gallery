@@ -1,13 +1,73 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
-async function getProductInfo() {
+// Company info
+const COMPANY_INFO = {
+  name: 'Grand Watch Gallery (GWG)',
+  location: 'Lot G19, Ground Floor, Atria Shopping Gallery, Jalan SS 22/23, Damansara Jaya, Petaling Jaya',
+  website: 'grandwatchgallery.my',
+  phone: '+603 89966788',
+  email: 'info@grandwatchgallery.my',
+  description: "Malaysia's Most Trusted and Well-known luxury watch reseller"
+}
+
+async function getProducts() {
   try {
     const { data } = await supabase.from('watches').select('*').limit(100)
     return data || []
-  } catch {
+  } catch (error) {
+    console.error('Database error:', error)
     return []
   }
+}
+
+function findMatchingProducts(query, products) {
+  const queryLower = query.toLowerCase()
+  return products.filter(p =>
+    (p.brand && p.brand.toLowerCase().includes(queryLower)) ||
+    (p.model && p.model.toLowerCase().includes(queryLower)) ||
+    (p.reference && p.reference.toLowerCase().includes(queryLower))
+  ).slice(0, 5)
+}
+
+function generateResponse(message, products) {
+  const lowerMessage = message.toLowerCase()
+
+  // Company info responses
+  if (lowerMessage.includes('contact') || lowerMessage.includes('phone') || lowerMessage.includes('email')) {
+    return `📞 **Contact Us:**\n\n📱 Phone: ${COMPANY_INFO.phone}\n📧 Email: ${COMPANY_INFO.email}\n📍 Location: ${COMPANY_INFO.location}`
+  }
+
+  if (lowerMessage.includes('location') || lowerMessage.includes('address') || lowerMessage.includes('where')) {
+    return `📍 **Our Location:**\n\n${COMPANY_INFO.location}`
+  }
+
+  if (lowerMessage.includes('about') || lowerMessage.includes('who are you')) {
+    return `ℹ️ **About Grand Watch Gallery:**\n\n${COMPANY_INFO.description}. We offer Brand New and authenticated pre-owned watches from premium brands.`
+  }
+
+  if (lowerMessage.includes('brand') || lowerMessage.includes('carry')) {
+    const brands = [...new Set(products.map(p => p.brand).filter(Boolean))]
+    return `⌚ **Our Brands:**\n\n${brands.map(b => `✓ ${b}`).join('\n')}`
+  }
+
+  if (lowerMessage.includes('appointment') || lowerMessage.includes('book') || lowerMessage.includes('viewing')) {
+    return `📅 **Book an Appointment:**\n\nVisit our website or call ${COMPANY_INFO.phone} to schedule a private viewing. We offer a personalized, one-on-one experience.`
+  }
+
+  // Product search
+  const matchedProducts = findMatchingProducts(message, products)
+  if (matchedProducts.length > 0) {
+    let response = '⌚ **Found Watches:**\n\n'
+    matchedProducts.forEach(p => {
+      response += `• **${p.brand} ${p.model}**\n  Ref: ${p.reference}\n  Condition: ${p.condition}\n  Price: ${p.price ? `MYR ${p.price}` : 'Contact us'}\n\n`
+    })
+    response += `\n📞 For more details, call ${COMPANY_INFO.phone}`
+    return response
+  }
+
+  // Default response
+  return `Thanks for your message! 😊 We have a wide selection of luxury watches. Try asking about:\n\n• Specific brands (Rolex, Patek Philippe, Omega, etc.)\n• Our location\n• How to book an appointment\n• Contact information\n\n📞 Or call us directly: ${COMPANY_INFO.phone}`
 }
 
 export async function POST(request) {
@@ -18,85 +78,11 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Message is required' }, { status: 400 })
     }
 
-    // Check if API key is set
-    if (!process.env.GROQ_API_KEY) {
-      console.error('GROQ_API_KEY not set in environment')
-      return NextResponse.json({ error: 'API key not configured' }, { status: 500 })
-    }
+    // Get all products
+    const products = await getProducts()
 
-    // Get product catalog for context
-    const products = await getProductInfo()
-    const productSummary = products && products.length > 0
-      ? products.map(p => `- ${p.brand} ${p.model} (Ref: ${p.reference}) - ${p.condition} - MYR ${p.price}`).join('\n')
-      : 'Various luxury watches available'
-
-    const systemPrompt = `You are a friendly and helpful customer service assistant for Grand Watch Gallery (GWG), a luxury watch retailer in Malaysia.
-
-COMPANY INFO:
-- Name: Grand Watch Gallery (GWG)
-- Location: Lot G19, Ground Floor, Atria Shopping Gallery, Jalan SS 22/23, Damansara Jaya, Petaling Jaya
-- Website: grandwatchgallery.my
-- Phone: +603 89966788
-- Email: info@grandwatchgallery.my
-- Description: Malaysia's Most Trusted and Well-known luxury watch reseller. We offer Brand New and authenticated pre-owned watches.
-
-CURRENT PRODUCT CATALOG:
-${productSummary || 'Various luxury watches available including Rolex, Patek Philippe, Audemars Piguet, Tudor, Omega, and more.'}
-
-YOUR ROLE:
-- Help customers find watches based on their preferences (brand, budget, condition, features)
-- Answer questions about specific watches in our inventory
-- Provide information about the company, location, and contact details
-- Give recommendations based on customer needs
-- Be friendly, professional, and helpful
-- If you don't have specific information, suggest they contact us directly
-
-TONE: Friendly, professional, and knowledgeable about luxury watches.`
-
-    const requestBody = {
-      model: 'llama-3.1-70b-versatile',
-      max_tokens: 1024,
-      messages: [
-        {
-          role: 'system',
-          content: systemPrompt
-        },
-        {
-          role: 'user',
-          content: message
-        }
-      ]
-    }
-
-    console.log('Sending request to Groq:', JSON.stringify(requestBody, null, 2))
-    console.log('API Key set:', !!process.env.GROQ_API_KEY)
-
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
-      },
-      body: JSON.stringify(requestBody)
-    })
-
-    const data = await response.json()
-
-    if (!response.ok) {
-      console.error('Groq API error:', response.status, JSON.stringify(data, null, 2))
-      const errorMsg = data.error?.message || JSON.stringify(data)
-      return NextResponse.json(
-        { error: `API Error (${response.status}): ${errorMsg}` },
-        { status: 500 }
-      )
-    }
-
-    if (!data.choices || !Array.isArray(data.choices) || data.choices.length === 0) {
-      console.error('Invalid API response:', data)
-      return NextResponse.json({ error: 'Invalid response format' }, { status: 500 })
-    }
-
-    const reply = data.choices[0]?.message?.content || 'Unable to process response'
+    // Generate response based on database
+    const reply = generateResponse(message, products)
 
     return NextResponse.json({ reply })
   } catch (error) {
