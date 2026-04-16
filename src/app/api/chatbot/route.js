@@ -18,11 +18,17 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Message is required' }, { status: 400 })
     }
 
+    // Check if API key is set
+    if (!process.env.CLAUDE_API_KEY) {
+      console.error('CLAUDE_API_KEY not set in environment')
+      return NextResponse.json({ error: 'API key not configured' }, { status: 500 })
+    }
+
     // Get product catalog for context
     const products = await getProductInfo()
-    const productSummary = products
-      .map(p => `- ${p.brand} ${p.model} (Ref: ${p.reference}) - ${p.condition} - MYR ${p.price}`)
-      .join('\n')
+    const productSummary = products && products.length > 0
+      ? products.map(p => `- ${p.brand} ${p.model} (Ref: ${p.reference}) - ${p.condition} - MYR ${p.price}`).join('\n')
+      : 'Various luxury watches available'
 
     const systemPrompt = `You are a friendly and helpful customer service assistant for Grand Watch Gallery (GWG), a luxury watch retailer in Malaysia.
 
@@ -70,17 +76,25 @@ TONE: Friendly, professional, and knowledgeable about luxury watches.`
     const data = await response.json()
 
     if (!response.ok) {
-      console.error('Claude API error:', data)
-      return NextResponse.json({ error: 'API error' }, { status: 500 })
+      console.error('Claude API error:', response.status, data)
+      return NextResponse.json(
+        { error: `API Error: ${data.error?.message || 'Unknown error'}` },
+        { status: 500 }
+      )
+    }
+
+    if (!data.content || !Array.isArray(data.content) || data.content.length === 0) {
+      console.error('Invalid API response:', data)
+      return NextResponse.json({ error: 'Invalid response format' }, { status: 500 })
     }
 
     const reply = data.content[0]?.text || 'Unable to process response'
 
     return NextResponse.json({ reply })
   } catch (error) {
-    console.error('Chatbot error:', error)
+    console.error('Chatbot error:', error.message || error)
     return NextResponse.json(
-      { error: 'Failed to process message' },
+      { error: `Error: ${error.message || 'Failed to process message'}` },
       { status: 500 }
     )
   }

@@ -189,7 +189,9 @@ export default function Chatbot() {
                 borderRadius: '4px',
                 fontSize: '13px',
                 fontFamily: 'inherit',
-                outline: 'none'
+                outline: 'none',
+                color: '#333',
+                backgroundColor: '#fff'
               }}
               disabled={loading}
             />
