@@ -62,8 +62,11 @@ TONE: Friendly, professional, and knowledgeable about luxury watches.`
       body: JSON.stringify({
         model: 'mixtral-8x7b-32768',
         max_tokens: 1024,
-        system: systemPrompt,
         messages: [
+          {
+            role: 'system',
+            content: systemPrompt
+          },
           {
             role: 'user',
             content: message
