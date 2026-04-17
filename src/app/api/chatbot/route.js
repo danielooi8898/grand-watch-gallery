@@ -102,87 +102,288 @@ function generateResponse(message, products, companyInfo) {
 
   // Greetings
   if (['hi', 'hello', 'hey', 'greetings', 'good morning', 'good afternoon', 'good evening'].some(g => queryLower === g || queryLower.startsWith(g + ' '))) {
-    return `Hello! 👋 Welcome to Grand Watch Gallery. I can help you find luxury watches or answer questions about our store. What are you looking for today?`
+    return `Welcome to Grand Watch Gallery
+
+We are Malaysia's premier luxury watch reseller, specializing in authenticated timepieces from the world's most prestigious brands.
+
+How can we assist you today? Please select from the menu options to explore our services.`
   }
 
   // Hours
   if (queryLower.includes('hours') || queryLower.includes('opening') || queryLower.includes('time') || queryLower.includes('open') || queryLower.includes('closed')) {
-    return `⏰ Opening Hours:\n\n${companyInfo.hours}\n\nFor more info: ${companyInfo.phone}`
+    return `Opening Hours
+
+${companyInfo.hours}
+
+For additional inquiries, please contact us at ${companyInfo.phone}`
   }
 
   // WhatsApp
   if (queryLower.includes('whatsapp') || queryLower.includes('wechat')) {
-    return `💬 WhatsApp:\n\n${companyInfo.whatsapp}`
+    return `WhatsApp Contact
+
+${companyInfo.whatsapp}
+
+This number is available for inquiries and appointment scheduling via WhatsApp.`
   }
 
   // Phone
   if (queryLower.includes('phone') && !queryLower.includes('contact')) {
-    return `📞 Phone Numbers:\n\nPrimary: ${companyInfo.phone}\nSecondary: ${companyInfo.phone2}`
+    return `Phone Numbers
+
+Primary: ${companyInfo.phone}
+Secondary: ${companyInfo.phone2}
+
+Both numbers are available for your inquiries and appointment scheduling.`
   }
 
   // Email
   if (queryLower.includes('email')) {
-    return `📧 Email:\n\n${companyInfo.email}`
+    return `Email Address
+
+${companyInfo.email}
+
+Please allow 24 hours for response to email inquiries. For urgent matters, please call our primary number.`
   }
 
   // Contact
   if (queryLower.includes('contact') || queryLower.includes('reach') || queryLower.includes('call')) {
-    return `📞 Contact Grand Watch Gallery:\n\nPhone: ${companyInfo.phone}\nSecondary: ${companyInfo.phone2}\nWhatsApp: ${companyInfo.whatsapp}\nEmail: ${companyInfo.email}`
+    return `Contact Information
+
+Telephone:
+Primary: ${companyInfo.phone}
+Secondary: ${companyInfo.phone2}
+
+WhatsApp: ${companyInfo.whatsapp}
+
+Email: ${companyInfo.email}
+
+Our team is ready to assist you with any inquiries about our services and collection.`
   }
 
   // Location/Address
   if (queryLower.includes('location') || queryLower.includes('address') || queryLower.includes('where') || queryLower.includes('visit')) {
-    return `📍 Visit Us:\n\n${companyInfo.address}\n\nPhone: ${companyInfo.phone}\n\nHours:\n${companyInfo.hours}`
+    return `Location & Hours
+
+Address:
+${companyInfo.address}
+
+Opening Hours:
+${companyInfo.hours}
+
+Contact: ${companyInfo.phone}
+
+Visit us during business hours for a personalized consultation with our experts.`
   }
 
   // About
   if (queryLower.includes('about') || queryLower.includes('who are you') || queryLower.includes('company')) {
-    return `About Grand Watch Gallery:\n\n${companyInfo.about}\n\nContact: ${companyInfo.email}\nPhone: ${companyInfo.phone}`
+    return `About Grand Watch Gallery
+
+${companyInfo.about}
+
+We are committed to providing transparency, trust, and expertise in the luxury watch market. Our team of professionals ensures every timepiece in our collection meets the highest standards of authenticity and quality.
+
+For more information, contact us:
+Email: ${companyInfo.email}
+Phone: ${companyInfo.phone}`
   }
 
   // Appointment/Booking
   if (queryLower.includes('appointment') || queryLower.includes('book') || queryLower.includes('viewing') || queryLower.includes('schedule')) {
-    return `Book a Private Viewing:\n\nExperience our collection one-on-one with an expert. Book an exclusive consultation at our gallery – by appointment only.\n\nPhone: ${companyInfo.phone}\nWhatsApp: ${companyInfo.whatsapp}\nEmail: ${companyInfo.email}\n\nWe offer a premium experience with no pressure.`
+    return `Private Viewing Appointment
+
+Experience our carefully curated collection of luxury watches in a personalized, one-on-one consultation with our expert team.
+
+Booking Details:
+Duration: 30-60 minutes
+Location: Lot G31, Ground Floor, Atria Shopping Gallery
+Cost: Complimentary, no pressure
+
+To Schedule Your Appointment:
+
+Telephone: ${companyInfo.phone}
+WhatsApp: ${companyInfo.whatsapp}
+Email: ${companyInfo.email}
+
+We recommend booking in advance to ensure availability.`
   }
 
   // Menu options - Services
   if (queryLower === 'authenticated') {
-    return `Every Watch Authenticated:\n\nEach timepiece is inspected by our in-house experts. We verify serial numbers, movements, dials, and cases - so you buy with absolute confidence.\n\nCall ${companyInfo.phone} for more details`
+    return `Every Watch Authenticated
+
+Each timepiece in our collection undergoes rigorous inspection by our in-house team of expert horologists.
+
+What We Verify:
+- Serial numbers and production records
+- Movement authenticity and functionality
+- Dial and case condition
+- All original components
+
+Our thorough authentication process ensures you purchase with complete confidence in the authenticity and quality of your investment.
+
+For more details about our authentication process, contact us:
+Phone: ${companyInfo.phone}
+WhatsApp: ${companyInfo.whatsapp}`
   }
 
   if (queryLower === 'tradein') {
-    return `Trade-In at Fair Value:\n\nUpgrading your collection? We offer competitive, transparent valuations for pre-owned watches. No haggling, no surprises.\n\nContact us: ${companyInfo.phone}\nWhatsApp: ${companyInfo.whatsapp}`
+    return `Trade-In at Fair Value
+
+Looking to upgrade your collection? We offer competitive and transparent valuations for pre-owned luxury watches.
+
+Our Commitment:
+- Fair market valuations
+- Transparent pricing process
+- No haggling required
+- No hidden surprises
+- Expert assessment
+
+We understand the value of your timepiece and provide honest, professional evaluations.
+
+To discuss a trade-in or receive a valuation:
+Phone: ${companyInfo.phone}
+WhatsApp: ${companyInfo.whatsapp}
+Email: ${companyInfo.email}`
   }
 
   if (queryLower === 'viewing') {
-    return `Private Gallery Viewings:\n\nExperience our collection one-on-one with an expert. Book an exclusive consultation at our gallery – by appointment only.\n\nPhone: ${companyInfo.phone}\nWhatsApp: ${companyInfo.whatsapp}\nEmail: ${companyInfo.email}`
+    return `Private Gallery Viewings
+
+Explore our curated collection in a personalized, one-on-one environment with our expert consultants.
+
+What to Expect:
+- Exclusive appointment with a specialist
+- In-depth discussion of timepieces
+- Detailed explanation of each watch's features
+- Comfortable, pressure-free experience
+- Refreshments provided
+
+To schedule your private viewing:
+Phone: ${companyInfo.phone}
+WhatsApp: ${companyInfo.whatsapp}
+Email: ${companyInfo.email}
+
+By appointment only`
   }
 
   // Company info options
   if (queryLower === 'about') {
-    return `About Grand Watch Gallery:\n\n${companyInfo.about}\n\nContact: ${companyInfo.email}`
+    return `About Grand Watch Gallery
+
+${companyInfo.about}
+
+Our Mission
+
+We are dedicated to providing transparency, trust, and expertise to the secondary luxury watch market. Each member of our team brings years of experience and genuine passion for fine timepieces.
+
+What Sets Us Apart
+
+- Authenticated collection of premium brands
+- Expert team of watch specialists
+- Transparent pricing and valuations
+- Personalized consultation services
+- Fair trade-in programs
+
+For inquiries:
+Email: ${companyInfo.email}
+Phone: ${companyInfo.phone}`
   }
 
   if (queryLower === 'location') {
-    return `📍 Location & Hours:\n\n${companyInfo.address}\n\n⏰ Hours:\n${companyInfo.hours}\n\nPhone: ${companyInfo.phone}`
+    return `Location & Hours
+
+Address:
+${companyInfo.address}
+
+Opening Hours:
+${companyInfo.hours}
+
+Directions & Contact:
+Phone: ${companyInfo.phone}
+
+We welcome you to visit our showroom for an in-person consultation with our team.
+
+For directions or additional information, please call us or check your preferred mapping application.`
   }
 
   if (queryLower === 'brands') {
-    const brandsText = companyInfo.brands.map(b => `• ${b}`).join('\n')
-    return `Our Luxury Watch Brands:\n\n${brandsText}\n\nCall ${companyInfo.phone} for availability`
+    const brandsText = companyInfo.brands.map(b => `- ${b}`).join('\n')
+    return `Our Luxury Watch Brands
+
+We curate an exclusive selection of timepieces from the world's most prestigious watch manufacturers:
+
+${brandsText}
+
+Each brand in our collection represents the pinnacle of horological craftsmanship and precision engineering.
+
+To inquire about specific brands or models:
+Phone: ${companyInfo.phone}
+WhatsApp: ${companyInfo.whatsapp}
+Email: ${companyInfo.email}`
   }
 
   if (queryLower === 'services') {
-    return `Our Services:\n\n• Every Watch Authenticated - Verified serial numbers, movements, and condition\n• Trade-In at Fair Value - Transparent valuations\n• Private Gallery Viewings - One-on-one expert consultations\n\nSelect a service to learn more`
+    return `Our Services
+
+We offer three core services to serve the luxury watch community:
+
+1. Every Watch Authenticated
+   Rigorous inspection and verification by expert horologists
+
+2. Trade-In at Fair Value
+   Competitive valuations for pre-owned watches
+
+3. Private Gallery Viewings
+   Personalized one-on-one consultations in our showroom
+
+Select any service from the menu to learn more about how we can assist you.`
   }
 
   // Booking options
   if (queryLower === 'schedule') {
-    return `Schedule a Private Viewing:\n\nBook your exclusive appointment with us:\n\nPhone: ${companyInfo.phone}\nWhatsApp: ${companyInfo.whatsapp}\nEmail: ${companyInfo.email}\n\nDuration: 30-60 minutes\nComplimentary service, no pressure`
+    return `Schedule a Private Viewing
+
+Book your exclusive appointment to experience our collection with our expert team.
+
+Appointment Details:
+Duration: 30-60 minutes
+Location: Grand Watch Gallery
+Cost: Complimentary
+
+To Reserve Your Appointment:
+
+Telephone: ${companyInfo.phone}
+WhatsApp: ${companyInfo.whatsapp}
+Email: ${companyInfo.email}
+
+Please provide your preferred dates and times. We recommend scheduling at least 24 hours in advance to ensure availability.`
   }
 
   if (queryLower === 'faq') {
-    return `Appointment FAQs:\n\nQ: Do I need an appointment?\nA: Yes, for a personalized experience\n\nQ: How long does it take?\nA: 30-60 minutes\n\nQ: Can I see specific watches?\nA: Absolutely! Tell us what you're interested in\n\nQ: Is there a cost?\nA: No, it's completely complimentary\n\nTo book: ${companyInfo.phone} or ${companyInfo.whatsapp}`
+    return `Appointment Frequently Asked Questions
+
+Q: Is an appointment required to visit?
+A: Yes, appointments ensure you receive personalized attention from our specialist team.
+
+Q: How long does an appointment take?
+A: Typically 30-60 minutes, depending on your interests and questions.
+
+Q: Can I view specific watch models?
+A: Absolutely. Please inform us of your interests when booking. Our team will prepare for your consultation.
+
+Q: Is there a cost for appointments?
+A: No, all appointments are complimentary with no obligation to purchase.
+
+Q: What should I bring?
+A: Bring any information about timepieces you currently own or are interested in. This helps us serve you better.
+
+To Book Your Appointment:
+
+Phone: ${companyInfo.phone}
+WhatsApp: ${companyInfo.whatsapp}
+Email: ${companyInfo.email}`
   }
 
   // Brand searches
@@ -201,36 +402,67 @@ function generateResponse(message, products, companyInfo) {
     const matchedProducts = searchBrand ? filterProducts(products, searchBrand) : products.slice(0, 8)
 
     if (matchedProducts.length > 0) {
-      let response = `${searchBrand ? searchBrand + ' ' : ''}Watches:\n\n`
+      let response = `${searchBrand ? searchBrand : 'Available'} Watches\n\n`
       matchedProducts.forEach(p => {
-        const price = p.price ? `MYR ${p.price}` : 'Contact for price'
-        response += `${p.brand} ${p.model}\nRef: ${p.reference} | ${p.condition}\nPrice: ${price}\n\n`
+        const price = p.price ? `MYR ${p.price}` : 'Please contact for pricing'
+        response += `${p.brand} ${p.model}\nReference: ${p.reference}\nCondition: ${p.condition}\nPrice: ${price}\n\n`
       })
-      response += `Call ${companyInfo.phone} for more details`
+      response += `---\n\nFor detailed information, additional inventory, or to schedule a viewing:\n\nPhone: ${companyInfo.phone}\nWhatsApp: ${companyInfo.whatsapp}\nEmail: ${companyInfo.email}`
       return response
     }
-    return `No ${searchBrand} watches currently available. Call ${companyInfo.phone} for inquiries.`
+    return `No ${searchBrand} watches currently available at this time.\n\nPlease contact us to inquire about upcoming inventory or to request specific models:\n\nPhone: ${companyInfo.phone}\nWhatsApp: ${companyInfo.whatsapp}`
   }
 
   if (queryLower === 'price-filter') {
-    return `Filter by Price Range:\n\n• Under 30,000\n• 30,000 - 50,000\n• 50,000 - 100,000\n• 100,000+\n\nLet us know your budget and we'll show you options.\nCall ${companyInfo.phone} or WhatsApp ${companyInfo.whatsapp}`
+    return `Price Ranges
+
+We offer luxury watches across various price points to suit different budgets:
+
+- Under MYR 30,000
+- MYR 30,000 - MYR 50,000
+- MYR 50,000 - MYR 100,000
+- MYR 100,000+
+
+Share your preferred budget range, and our team will curate a selection that matches your requirements.
+
+To discuss pricing and availability:
+
+Phone: ${companyInfo.phone}
+WhatsApp: ${companyInfo.whatsapp}
+Email: ${companyInfo.email}`
   }
 
   // Product search (for free-form queries)
   const matchedProducts = filterProducts(products, message)
 
   if (matchedProducts.length > 0) {
-    let response = 'Found Watches:\n\n'
+    let response = `Available Watches\n\n`
     matchedProducts.forEach(p => {
-      const price = p.price ? `MYR ${p.price}` : 'Contact for price'
-      response += `${p.brand} ${p.model}\nRef: ${p.reference} | ${p.condition}\nPrice: ${price}\n\n`
+      const price = p.price ? `MYR ${p.price}` : 'Please contact for pricing'
+      response += `${p.brand} ${p.model}\nReference: ${p.reference}\nCondition: ${p.condition}\nPrice: ${price}\n\n`
     })
-    response += `Call ${companyInfo.phone} for more details`
+    response += `---\n\nFor more information about any of these timepieces:\n\nPhone: ${companyInfo.phone}\nWhatsApp: ${companyInfo.whatsapp}\nEmail: ${companyInfo.email}\n\nWe recommend scheduling a private viewing to examine our watches in detail.`
     return response
   }
 
   // Default response
-  return `I can help you with:\n\n• Browse watches by brand\n• Contact information\n• Visit us (location & hours)\n• Book a private viewing\n• Learn about our services\n\nSelect an option from the menu to get started!`
+  return `How Can We Assist You?
+
+Grand Watch Gallery provides comprehensive services for luxury watch enthusiasts and collectors:
+
+Services Available:
+- Browse our curated collection of premium watches
+- Learn about our authentication process
+- Inquire about trade-in valuations
+- Schedule a private viewing
+- Get contact information and directions
+- Review our appointment options
+
+Please select from the menu options above to explore how we can serve you.
+
+For immediate assistance:
+Phone: ${companyInfo.phone}
+WhatsApp: ${companyInfo.whatsapp}`
 }
 
 export async function POST(request) {

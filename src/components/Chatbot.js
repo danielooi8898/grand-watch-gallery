@@ -3,10 +3,10 @@ import { useState, useRef, useEffect } from 'react'
 import { MessageCircle, X, Send } from 'lucide-react'
 
 const MAIN_MENU = [
-  { id: 'browse', label: '🔍 Browse Watches' },
-  { id: 'company', label: '📍 Company Info' },
-  { id: 'contact', label: '📞 Contact Us' },
-  { id: 'booking', label: '📅 Book Appointment' }
+  { id: 'browse', label: 'Browse Watches' },
+  { id: 'company', label: 'Company Info' },
+  { id: 'contact', label: 'Contact Us' },
+  { id: 'booking', label: 'Book Appointment' }
 ]
 
 const MENU_STRUCTURE = {
@@ -20,32 +20,32 @@ const MENU_STRUCTURE = {
     { id: 'cartier', label: 'Cartier' },
     { id: 'tudor', label: 'Tudor' },
     { id: 'price-filter', label: 'Filter by Price' },
-    { id: 'back', label: '⬅️ Back to Main Menu' }
+    { id: 'back', label: 'Back to Main Menu' }
   ],
   company: [
     { id: 'about', label: 'About Us' },
     { id: 'location', label: 'Location & Hours' },
     { id: 'services', label: 'Our Services' },
     { id: 'brands', label: 'Brands We Carry' },
-    { id: 'back', label: '⬅️ Back to Main Menu' }
+    { id: 'back', label: 'Back to Main Menu' }
   ],
   services: [
     { id: 'authenticated', label: 'Every Watch Authenticated' },
     { id: 'tradein', label: 'Trade-in at Fair Value' },
     { id: 'viewing', label: 'Private Gallery Viewings' },
-    { id: 'back', label: '⬅️ Back to Company Info' }
+    { id: 'back', label: 'Back to Company Info' }
   ],
   contact: [
-    { id: 'phone', label: '☎️ Phone Numbers' },
-    { id: 'email', label: '📧 Email' },
-    { id: 'whatsapp', label: '💬 WhatsApp' },
-    { id: 'address', label: '📍 Address' },
-    { id: 'back', label: '⬅️ Back to Main Menu' }
+    { id: 'phone', label: 'Phone Numbers' },
+    { id: 'email', label: 'Email' },
+    { id: 'whatsapp', label: 'WhatsApp' },
+    { id: 'address', label: 'Address' },
+    { id: 'back', label: 'Back to Main Menu' }
   ],
   booking: [
     { id: 'schedule', label: 'Schedule a Private Viewing' },
     { id: 'faq', label: 'Appointment FAQs' },
-    { id: 'back', label: '⬅️ Back to Main Menu' }
+    { id: 'back', label: 'Back to Main Menu' }
   ]
 }
 
