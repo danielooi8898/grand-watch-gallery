@@ -5,17 +5,19 @@ async function getCompanyInfo() {
   try {
     const { data, error } = await supabase
       .from('site_settings')
-      .select('phone,phone2,email,whatsapp,address,hours,website,brands,about_body,about_heading')
+      .select('*')
       .single()
 
     if (error) {
-      console.warn('Company info not found, using defaults:', error)
-      return null
+      console.error('Database error fetching company info:', error)
+      return {}
     }
-    return data
+
+    console.log('Company info fetched:', data)
+    return data || {}
   } catch (error) {
-    console.error('Database error fetching company info:', error)
-    return null
+    console.error('Error in getCompanyInfo:', error)
+    return {}
   }
 }
 
@@ -89,6 +91,11 @@ function filterProducts(products, query) {
 function generateResponse(message, products, companyInfo) {
   const queryLower = message.toLowerCase().trim()
 
+  // Helper to get company info - look for multiple possible field names
+  const getInfo = (field) => {
+    return companyInfo[field] || companyInfo[field.toLowerCase()] || 'Contact us for details'
+  }
+
   // Greetings
   if (['hi', 'hello', 'hey', 'greetings', 'good morning', 'good afternoon', 'good evening'].some(g => queryLower === g || queryLower.startsWith(g + ' '))) {
     return `Hello! 👋 Welcome to Grand Watch Gallery. I can help you find luxury watches or answer questions about our store. What are you looking for today?`
@@ -96,38 +103,68 @@ function generateResponse(message, products, companyInfo) {
 
   // Hours
   if (queryLower.includes('hours') || queryLower.includes('opening') || queryLower.includes('time') || queryLower.includes('open') || queryLower.includes('closed')) {
-    return `⏰ Opening Hours:\n\n${companyInfo?.hours || 'N/A'}\n\nCall ${companyInfo?.phone || 'N/A'} for more details`
+    const hours = getInfo('hours')
+    const phone = getInfo('phone')
+    return `⏰ Opening Hours:\n\n${hours}\n\nPhone: ${phone}`
   }
 
   // WhatsApp
   if (queryLower.includes('whatsapp') || queryLower.includes('wechat')) {
-    return `💬 WhatsApp:\n\n${companyInfo?.whatsapp || 'N/A'}`
+    const whatsapp = getInfo('whatsapp')
+    return `💬 WhatsApp:\n\n${whatsapp}`
+  }
+
+  // Phone
+  if (queryLower.includes('phone') && !queryLower.includes('contact')) {
+    const phone = getInfo('phone')
+    return `📞 Phone: ${phone}`
+  }
+
+  // Email
+  if (queryLower.includes('email')) {
+    const email = getInfo('email')
+    return `📧 Email: ${email}`
   }
 
   // Contact
-  if (queryLower.includes('contact') || queryLower.includes('phone') || queryLower.includes('reach') || queryLower.includes('call')) {
-    return `📞 Contact Grand Watch Gallery:\n\nPhone: ${companyInfo?.phone || 'N/A'}\nWhatsApp: ${companyInfo?.whatsapp || 'N/A'}\nEmail: ${companyInfo?.email || 'N/A'}`
+  if (queryLower.includes('contact') || queryLower.includes('reach') || queryLower.includes('call')) {
+    const phone = getInfo('phone')
+    const whatsapp = getInfo('whatsapp')
+    const email = getInfo('email')
+    return `📞 Contact Grand Watch Gallery:\n\nPhone: ${phone}\nWhatsApp: ${whatsapp}\nEmail: ${email}`
   }
 
   // Location/Address
   if (queryLower.includes('location') || queryLower.includes('address') || queryLower.includes('where') || queryLower.includes('visit')) {
-    return `📍 Visit Us:\n\n${companyInfo?.address || 'N/A'}\n\nPhone: ${companyInfo?.phone || 'N/A'}\nHours: ${companyInfo?.hours || 'N/A'}`
+    const address = getInfo('address')
+    const phone = getInfo('phone')
+    const hours = getInfo('hours')
+    return `📍 Visit Us:\n\n${address}\n\nPhone: ${phone}\nHours: ${hours}`
   }
 
   if (queryLower.includes('about') || queryLower.includes('who are you') || queryLower.includes('company')) {
-    return `${companyInfo?.about_heading || 'About Grand Watch Gallery'}\n\n${companyInfo?.about_body || 'Malaysia\'s most trusted luxury watch reseller.'}\n\nPhone: ${companyInfo?.phone || 'N/A'}\nEmail: ${companyInfo?.email || 'N/A'}`
+    const heading = getInfo('about_heading')
+    const body = getInfo('about_body')
+    const phone = getInfo('phone')
+    const email = getInfo('email')
+    return `${heading}\n\n${body}\n\nPhone: ${phone}\nEmail: ${email}`
   }
 
   if (queryLower.includes('appointment') || queryLower.includes('book') || queryLower.includes('viewing') || queryLower.includes('schedule')) {
-    return `Book a Private Viewing:\n\nCall us to schedule your personalized appointment.\n\nPhone: ${companyInfo?.phone || 'N/A'}\nWhatsApp: ${companyInfo?.whatsapp || 'N/A'}\nEmail: ${companyInfo?.email || 'N/A'}\n\nWe offer a premium, one-on-one experience with no pressure.`
+    const phone = getInfo('phone')
+    const whatsapp = getInfo('whatsapp')
+    const email = getInfo('email')
+    return `Book a Private Viewing:\n\nCall us to schedule your personalized appointment.\n\nPhone: ${phone}\nWhatsApp: ${whatsapp}\nEmail: ${email}\n\nWe offer a premium, one-on-one experience with no pressure.`
   }
 
   if (queryLower.includes('brand') || queryLower.includes('carry') || queryLower.includes('sell')) {
-    let brandsText = 'N/A'
-    if (companyInfo?.brands && Array.isArray(companyInfo.brands)) {
-      brandsText = companyInfo.brands.map(b => `• ${b}`).join('\n')
+    const brands = companyInfo?.brands
+    let brandsText = 'Check our collection'
+    if (brands && Array.isArray(brands)) {
+      brandsText = brands.map(b => `• ${b}`).join('\n')
     }
-    return `Our Brands:\n\n${brandsText}\n\nCall ${companyInfo?.phone || 'N/A'} for more details`
+    const phone = getInfo('phone')
+    return `Our Brands:\n\n${brandsText}\n\nCall ${phone} for more details`
   }
 
   // Product search
