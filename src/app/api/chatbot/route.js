@@ -94,11 +94,22 @@ function generateResponse(message, products, companyInfo) {
     return `Hello! 👋 Welcome to Grand Watch Gallery. I can help you find luxury watches or answer questions about our store. What are you looking for today?`
   }
 
-  // Company info questions
-  if (queryLower.includes('contact') || queryLower.includes('phone') || queryLower.includes('reach')) {
+  // Hours
+  if (queryLower.includes('hours') || queryLower.includes('opening') || queryLower.includes('time') || queryLower.includes('open') || queryLower.includes('closed')) {
+    return `⏰ Opening Hours:\n\n${companyInfo?.hours || 'N/A'}\n\nCall ${companyInfo?.phone || 'N/A'} for more details`
+  }
+
+  // WhatsApp
+  if (queryLower.includes('whatsapp') || queryLower.includes('wechat')) {
+    return `💬 WhatsApp:\n\n${companyInfo?.whatsapp || 'N/A'}`
+  }
+
+  // Contact
+  if (queryLower.includes('contact') || queryLower.includes('phone') || queryLower.includes('reach') || queryLower.includes('call')) {
     return `📞 Contact Grand Watch Gallery:\n\nPhone: ${companyInfo?.phone || 'N/A'}\nWhatsApp: ${companyInfo?.whatsapp || 'N/A'}\nEmail: ${companyInfo?.email || 'N/A'}`
   }
 
+  // Location/Address
   if (queryLower.includes('location') || queryLower.includes('address') || queryLower.includes('where') || queryLower.includes('visit')) {
     return `📍 Visit Us:\n\n${companyInfo?.address || 'N/A'}\n\nPhone: ${companyInfo?.phone || 'N/A'}\nHours: ${companyInfo?.hours || 'N/A'}`
   }

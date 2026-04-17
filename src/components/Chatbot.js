@@ -117,45 +117,36 @@ export default function Chatbot() {
     // Pause for 1 second to think
     await new Promise(resolve => setTimeout(resolve, 1000))
 
-    const detectedKeyword = detectKeyword(userInput)
-    let botResponse = null
-    let nextMenu = 'main'
-    let nextOptions = MAIN_MENU
+    try {
+      // Call API to get response from database
+      const response = await fetch('/api/chatbot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userInput })
+      })
 
-    if (detectedKeyword) {
-      // Direct answer from keyword
-      if (ANSWERS[detectedKeyword]) {
-        botResponse = ANSWERS[detectedKeyword]
-        botResponse += `\n\n---\n\nWhat else can I help with?`
+      const data = await response.json()
+      const botResponse = data.reply || "I couldn't understand that. Please try again or select an option."
+
+      const botMessage = {
+        id: Date.now() + 1,
+        text: botResponse,
+        sender: 'bot',
+        options: MAIN_MENU
       }
-      // Navigate to submenu
-      else if (SUBMENU[detectedKeyword]) {
-        botResponse = `Let me show you available options:`
-        nextMenu = detectedKeyword
-        nextOptions = SUBMENU[detectedKeyword]
+      setMessages(prev => [...prev, botMessage])
+      setCurrentMenu('main')
+    } catch (error) {
+      console.error('Error:', error)
+      const errorMessage = {
+        id: Date.now() + 1,
+        text: "Sorry, something went wrong. Please try again.",
+        sender: 'bot',
+        options: MAIN_MENU
       }
-      // Try main menu options
-      else {
-        const mainOption = MAIN_MENU.find(m => m.id === detectedKeyword)
-        if (mainOption) {
-          botResponse = `You're asking about: ${mainOption.label}\n\nWhat would you like to know?`
-          nextMenu = detectedKeyword
-          nextOptions = SUBMENU[detectedKeyword] || []
-        }
-      }
-    } else {
-      botResponse = `I didn't quite understand. Please select from the options below or try typing a keyword like:\n\n• "rolex" or "patek"\n• "price" or "budget"\n• "appointment" or "contact"\n• "location"`
-      nextOptions = MAIN_MENU
+      setMessages(prev => [...prev, errorMessage])
     }
 
-    const botMessage = {
-      id: Date.now() + 1,
-      text: botResponse,
-      sender: 'bot',
-      options: nextOptions
-    }
-    setMessages(prev => [...prev, botMessage])
-    setCurrentMenu(nextMenu)
     setLoading(false)
   }
 
@@ -166,30 +157,36 @@ export default function Chatbot() {
 
     await new Promise(resolve => setTimeout(resolve, 1000))
 
-    let botResponse = null
-    let nextMenu = 'main'
-    let nextOptions = MAIN_MENU
+    try {
+      // Call API to get response from database
+      const response = await fetch('/api/chatbot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: optionId })
+      })
 
-    // If answer exists, show it
-    if (ANSWERS[optionId]) {
-      botResponse = ANSWERS[optionId]
-      botResponse += `\n\n---\n\nWhat else can I help with?`
-    }
-    // If submenu exists, show it
-    else if (SUBMENU[optionId]) {
-      botResponse = `What would you like to know?`
-      nextMenu = optionId
-      nextOptions = SUBMENU[optionId]
+      const data = await response.json()
+      const botResponse = data.reply || "Let me help you with that."
+
+      const botMessage = {
+        id: Date.now() + 1,
+        text: botResponse,
+        sender: 'bot',
+        options: MAIN_MENU
+      }
+      setMessages(prev => [...prev, botMessage])
+      setCurrentMenu('main')
+    } catch (error) {
+      console.error('Error:', error)
+      const errorMessage = {
+        id: Date.now() + 1,
+        text: "Sorry, something went wrong. Please try again.",
+        sender: 'bot',
+        options: MAIN_MENU
+      }
+      setMessages(prev => [...prev, errorMessage])
     }
 
-    const botMessage = {
-      id: Date.now() + 1,
-      text: botResponse,
-      sender: 'bot',
-      options: nextOptions
-    }
-    setMessages(prev => [...prev, botMessage])
-    setCurrentMenu(nextMenu)
     setLoading(false)
   }
 
