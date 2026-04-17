@@ -1,12 +1,22 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
-const COMPANY_INFO = {
-  name: 'Grand Watch Gallery (GWG)',
-  location: 'Lot G19, Ground Floor, Atria Shopping Gallery, Jalan SS 22/23, Damansara Jaya, Petaling Jaya',
-  phone: '+603 89966788',
-  email: 'info@grandwatchgallery.my',
-  website: 'grandwatchgallery.my'
+async function getCompanyInfo() {
+  try {
+    const { data, error } = await supabase
+      .from('site_settings')
+      .select('phone,phone2,email,whatsapp,address,hours,website,brands,about_body,about_heading')
+      .single()
+
+    if (error) {
+      console.warn('Company info not found, using defaults:', error)
+      return null
+    }
+    return data
+  } catch (error) {
+    console.error('Database error fetching company info:', error)
+    return null
+  }
 }
 
 async function getProducts() {
@@ -76,7 +86,7 @@ function filterProducts(products, query) {
   return filtered.slice(0, 8)
 }
 
-function generateResponse(message, products) {
+function generateResponse(message, products, companyInfo) {
   const queryLower = message.toLowerCase().trim()
 
   // Greetings
@@ -86,24 +96,27 @@ function generateResponse(message, products) {
 
   // Company info questions
   if (queryLower.includes('contact') || queryLower.includes('phone') || queryLower.includes('reach')) {
-    return `📞 Contact Grand Watch Gallery:\n\nPhone: ${COMPANY_INFO.phone}\nEmail: ${COMPANY_INFO.email}\nAddress: ${COMPANY_INFO.location}`
+    return `📞 Contact Grand Watch Gallery:\n\nPhone: ${companyInfo?.phone || 'N/A'}\nWhatsApp: ${companyInfo?.whatsapp || 'N/A'}\nEmail: ${companyInfo?.email || 'N/A'}`
   }
 
   if (queryLower.includes('location') || queryLower.includes('address') || queryLower.includes('where') || queryLower.includes('visit')) {
-    return `📍 Visit Us:\n\n${COMPANY_INFO.location}\n\nPhone: ${COMPANY_INFO.phone}\nWebsite: ${COMPANY_INFO.website}`
+    return `📍 Visit Us:\n\n${companyInfo?.address || 'N/A'}\n\nPhone: ${companyInfo?.phone || 'N/A'}\nHours: ${companyInfo?.hours || 'N/A'}`
   }
 
   if (queryLower.includes('about') || queryLower.includes('who are you') || queryLower.includes('company')) {
-    return `About Grand Watch Gallery:\n\nMalaysia's most trusted luxury watch reseller offering Brand New and authenticated pre-owned watches from premium brands.\n\nPhone: ${COMPANY_INFO.phone}\nEmail: ${COMPANY_INFO.email}`
+    return `${companyInfo?.about_heading || 'About Grand Watch Gallery'}\n\n${companyInfo?.about_body || 'Malaysia\'s most trusted luxury watch reseller.'}\n\nPhone: ${companyInfo?.phone || 'N/A'}\nEmail: ${companyInfo?.email || 'N/A'}`
   }
 
   if (queryLower.includes('appointment') || queryLower.includes('book') || queryLower.includes('viewing') || queryLower.includes('schedule')) {
-    return `Book a Private Viewing:\n\nCall us to schedule your personalized appointment.\n\nPhone: ${COMPANY_INFO.phone}\nEmail: ${COMPANY_INFO.email}\n\nWe offer a premium, one-on-one experience with no pressure.`
+    return `Book a Private Viewing:\n\nCall us to schedule your personalized appointment.\n\nPhone: ${companyInfo?.phone || 'N/A'}\nWhatsApp: ${companyInfo?.whatsapp || 'N/A'}\nEmail: ${companyInfo?.email || 'N/A'}\n\nWe offer a premium, one-on-one experience with no pressure.`
   }
 
   if (queryLower.includes('brand') || queryLower.includes('carry') || queryLower.includes('sell')) {
-    const brands = [...new Set(products.map(p => p.brand).filter(Boolean))]
-    return `Our Brands:\n\n${brands.map(b => `• ${b}`).join('\n')}\n\nCall ${COMPANY_INFO.phone} for more details`
+    let brandsText = 'N/A'
+    if (companyInfo?.brands && Array.isArray(companyInfo.brands)) {
+      brandsText = companyInfo.brands.map(b => `• ${b}`).join('\n')
+    }
+    return `Our Brands:\n\n${brandsText}\n\nCall ${companyInfo?.phone || 'N/A'} for more details`
   }
 
   // Product search
@@ -132,7 +145,8 @@ export async function POST(request) {
     }
 
     const products = await getProducts()
-    const reply = generateResponse(message, products)
+    const companyInfo = await getCompanyInfo()
+    const reply = generateResponse(message, products, companyInfo)
 
     return NextResponse.json({ reply })
   } catch (error) {
