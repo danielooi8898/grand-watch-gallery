@@ -336,8 +336,10 @@ export default function Chatbot() {
                     background: msg.sender === 'user' ? '#B08D57' : '#F4EFE9',
                     color: msg.sender === 'user' ? '#fff' : '#333',
                     fontSize: '13px',
-                    lineHeight: '1.5',
-                    wordWrap: 'break-word'
+                    lineHeight: '1.6',
+                    wordWrap: 'break-word',
+                    whiteSpace: 'pre-wrap',
+                    overflowWrap: 'break-word'
                   }}
                 >
                   {msg.text}
