@@ -5,34 +5,47 @@ import { MessageCircle, X, Send } from 'lucide-react'
 const MAIN_MENU = [
   { id: 'browse', label: '🔍 Browse Watches' },
   { id: 'company', label: '📍 Company Info' },
-  { id: 'booking', label: '📅 Book Appointment' },
-  { id: 'contact', label: '📞 Contact Us' }
+  { id: 'contact', label: '📞 Contact Us' },
+  { id: 'booking', label: '📅 Book Appointment' }
 ]
 
-const SUBMENU = {
+const MENU_STRUCTURE = {
   browse: [
     { id: 'all-brands', label: 'All Brands' },
-    { id: 'rolex', label: 'Rolex Watches' },
+    { id: 'rolex', label: 'Rolex' },
     { id: 'patek', label: 'Patek Philippe' },
     { id: 'audemars', label: 'Audemars Piguet' },
     { id: 'omega', label: 'Omega' },
-    { id: 'tudor', label: 'Tudor' },
+    { id: 'hublot', label: 'Hublot' },
     { id: 'cartier', label: 'Cartier' },
-    { id: 'price-filter', label: 'Filter by Price' }
+    { id: 'tudor', label: 'Tudor' },
+    { id: 'price-filter', label: 'Filter by Price' },
+    { id: 'back', label: '⬅️ Back to Main Menu' }
   ],
   company: [
     { id: 'about', label: 'About Us' },
-    { id: 'location', label: 'Visit Us' },
-    { id: 'hours', label: 'Opening Hours' }
+    { id: 'location', label: 'Location & Hours' },
+    { id: 'services', label: 'Our Services' },
+    { id: 'brands', label: 'Brands We Carry' },
+    { id: 'back', label: '⬅️ Back to Main Menu' }
   ],
-  booking: [
-    { id: 'book-now', label: 'Schedule a Viewing' },
-    { id: 'book-faq', label: 'Appointment FAQs' }
+  services: [
+    { id: 'authenticated', label: 'Every Watch Authenticated' },
+    { id: 'tradein', label: 'Trade-in at Fair Value' },
+    { id: 'viewing', label: 'Private Gallery Viewings' },
+    { id: 'back', label: '⬅️ Back to Company Info' }
   ],
   contact: [
-    { id: 'phone', label: 'Call Us' },
-    { id: 'email', label: 'Email Us' },
-    { id: 'whatsapp', label: 'WhatsApp' }
+    { id: 'phone', label: '☎️ Phone Numbers' },
+    { id: 'email', label: '📧 Email' },
+    { id: 'whatsapp', label: '💬 WhatsApp' },
+    { id: 'address', label: '📍 Address' },
+    { id: 'back', label: '⬅️ Back to Main Menu' }
+  ],
+  booking: [
+    { id: 'schedule', label: 'Schedule a Private Viewing' },
+    { id: 'faq', label: 'Appointment FAQs' },
+    { id: 'back', label: '⬅️ Back to Main Menu' }
   ]
 }
 
@@ -94,8 +107,11 @@ export default function Chatbot() {
   ])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
-  const [currentMenu, setCurrentMenu] = useState('main')
+  const [currentMenuLevel, setCurrentMenuLevel] = useState('main')
   const messagesEndRef = useRef(null)
+
+  // Content responses from API
+  const CONTENT_OPTIONS = ['phone', 'email', 'whatsapp', 'address', 'about', 'location', 'schedule', 'faq', 'all-brands', 'rolex', 'patek', 'audemars', 'omega', 'hublot', 'cartier', 'tudor', 'price-filter', 'brands', 'services', 'authenticated', 'tradein', 'viewing']
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -151,43 +167,81 @@ export default function Chatbot() {
   }
 
   const handleOptionClick = async (optionId) => {
-    const userMessage = { id: Date.now(), text: optionId, sender: 'user' }
+    // Handle back button
+    if (optionId === 'back') {
+      const userMessage = { id: Date.now(), text: '⬅️ Back', sender: 'user' }
+      setMessages(prev => [...prev, userMessage])
+
+      let previousMenu = 'main'
+      let botText = "What would you like to know?"
+
+      if (currentMenuLevel === 'services') previousMenu = 'company'
+
+      const botMessage = {
+        id: Date.now() + 1,
+        text: botText,
+        sender: 'bot',
+        options: MENU_STRUCTURE[previousMenu] || MAIN_MENU
+      }
+      setMessages(prev => [...prev, botMessage])
+      setCurrentMenuLevel(previousMenu)
+      return
+    }
+
+    // Find the option label
+    const currentOptions = MENU_STRUCTURE[currentMenuLevel] || MAIN_MENU
+    const selectedOption = currentOptions.find(o => o.id === optionId)
+    const optionLabel = selectedOption?.label || optionId
+
+    const userMessage = { id: Date.now(), text: optionLabel, sender: 'user' }
     setMessages(prev => [...prev, userMessage])
     setLoading(true)
 
     await new Promise(resolve => setTimeout(resolve, 1000))
 
-    try {
-      // Call API to get response from database
-      const response = await fetch('/api/chatbot', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: optionId })
-      })
-
-      const data = await response.json()
-      const botResponse = data.reply || "Let me help you with that."
-
+    // Check if this is a submenu navigation or content request
+    if (MENU_STRUCTURE[optionId]) {
+      // This is a submenu - navigate to it
       const botMessage = {
         id: Date.now() + 1,
-        text: botResponse,
+        text: 'Select an option:',
         sender: 'bot',
-        options: MAIN_MENU
+        options: MENU_STRUCTURE[optionId]
       }
       setMessages(prev => [...prev, botMessage])
-      setCurrentMenu('main')
-    } catch (error) {
-      console.error('Error:', error)
-      const errorMessage = {
-        id: Date.now() + 1,
-        text: "Sorry, something went wrong. Please try again.",
-        sender: 'bot',
-        options: MAIN_MENU
-      }
-      setMessages(prev => [...prev, errorMessage])
-    }
+      setCurrentMenuLevel(optionId)
+      setLoading(false)
+    } else if (CONTENT_OPTIONS.includes(optionId)) {
+      // This is content - call API
+      try {
+        const response = await fetch('/api/chatbot', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: optionId })
+        })
 
-    setLoading(false)
+        const data = await response.json()
+        const botResponse = data.reply || "Let me help you with that."
+
+        const botMessage = {
+          id: Date.now() + 1,
+          text: botResponse,
+          sender: 'bot',
+          options: MENU_STRUCTURE[currentMenuLevel] || MAIN_MENU
+        }
+        setMessages(prev => [...prev, botMessage])
+      } catch (error) {
+        console.error('Error:', error)
+        const errorMessage = {
+          id: Date.now() + 1,
+          text: "Sorry, something went wrong. Please try again.",
+          sender: 'bot',
+          options: MENU_STRUCTURE[currentMenuLevel] || MAIN_MENU
+        }
+        setMessages(prev => [...prev, errorMessage])
+      }
+      setLoading(false)
+    }
   }
 
   return (

@@ -145,27 +145,92 @@ function generateResponse(message, products, companyInfo) {
     return `Book a Private Viewing:\n\nExperience our collection one-on-one with an expert. Book an exclusive consultation at our gallery – by appointment only.\n\nPhone: ${companyInfo.phone}\nWhatsApp: ${companyInfo.whatsapp}\nEmail: ${companyInfo.email}\n\nWe offer a premium experience with no pressure.`
   }
 
-  // Brands
-  if (queryLower.includes('brand') || queryLower.includes('carry') || queryLower.includes('sell') || queryLower.includes('collection')) {
-    const brandsText = companyInfo.brands.map(b => `• ${b}`).join('\n')
-    return `Our Brands:\n\n${brandsText}\n\nCall ${companyInfo.phone} or WhatsApp ${companyInfo.whatsapp} for availability and pricing`
+  // Menu options - Services
+  if (queryLower === 'authenticated') {
+    return `Every Watch Authenticated:\n\nEach timepiece is inspected by our in-house experts. We verify serial numbers, movements, dials, and cases - so you buy with absolute confidence.\n\nCall ${companyInfo.phone} for more details`
   }
 
-  // Product search
+  if (queryLower === 'tradein') {
+    return `Trade-In at Fair Value:\n\nUpgrading your collection? We offer competitive, transparent valuations for pre-owned watches. No haggling, no surprises.\n\nContact us: ${companyInfo.phone}\nWhatsApp: ${companyInfo.whatsapp}`
+  }
+
+  if (queryLower === 'viewing') {
+    return `Private Gallery Viewings:\n\nExperience our collection one-on-one with an expert. Book an exclusive consultation at our gallery – by appointment only.\n\nPhone: ${companyInfo.phone}\nWhatsApp: ${companyInfo.whatsapp}\nEmail: ${companyInfo.email}`
+  }
+
+  // Company info options
+  if (queryLower === 'about') {
+    return `About Grand Watch Gallery:\n\n${companyInfo.about}\n\nContact: ${companyInfo.email}`
+  }
+
+  if (queryLower === 'location') {
+    return `📍 Location & Hours:\n\n${companyInfo.address}\n\n⏰ Hours:\n${companyInfo.hours}\n\nPhone: ${companyInfo.phone}`
+  }
+
+  if (queryLower === 'brands') {
+    const brandsText = companyInfo.brands.map(b => `• ${b}`).join('\n')
+    return `Our Luxury Watch Brands:\n\n${brandsText}\n\nCall ${companyInfo.phone} for availability`
+  }
+
+  if (queryLower === 'services') {
+    return `Our Services:\n\n• Every Watch Authenticated - Verified serial numbers, movements, and condition\n• Trade-In at Fair Value - Transparent valuations\n• Private Gallery Viewings - One-on-one expert consultations\n\nSelect a service to learn more`
+  }
+
+  // Booking options
+  if (queryLower === 'schedule') {
+    return `Schedule a Private Viewing:\n\nBook your exclusive appointment with us:\n\nPhone: ${companyInfo.phone}\nWhatsApp: ${companyInfo.whatsapp}\nEmail: ${companyInfo.email}\n\nDuration: 30-60 minutes\nComplimentary service, no pressure`
+  }
+
+  if (queryLower === 'faq') {
+    return `Appointment FAQs:\n\nQ: Do I need an appointment?\nA: Yes, for a personalized experience\n\nQ: How long does it take?\nA: 30-60 minutes\n\nQ: Can I see specific watches?\nA: Absolutely! Tell us what you're interested in\n\nQ: Is there a cost?\nA: No, it's completely complimentary\n\nTo book: ${companyInfo.phone} or ${companyInfo.whatsapp}`
+  }
+
+  // Brand searches
+  if (queryLower === 'all-brands' || queryLower === 'rolex' || queryLower === 'patek' || queryLower === 'audemars' || queryLower === 'omega' || queryLower === 'hublot' || queryLower === 'cartier' || queryLower === 'tudor') {
+    const brandMap = {
+      'all-brands': null,
+      'rolex': 'Rolex',
+      'patek': 'Patek Philippe',
+      'audemars': 'Audemars Piguet',
+      'omega': 'Omega',
+      'hublot': 'Hublot',
+      'cartier': 'Cartier',
+      'tudor': 'Tudor'
+    }
+    const searchBrand = brandMap[queryLower]
+    const matchedProducts = searchBrand ? filterProducts(products, searchBrand) : products.slice(0, 8)
+
+    if (matchedProducts.length > 0) {
+      let response = `${searchBrand ? searchBrand + ' ' : ''}Watches:\n\n`
+      matchedProducts.forEach(p => {
+        const price = p.price ? `MYR ${p.price}` : 'Contact for price'
+        response += `${p.brand} ${p.model}\nRef: ${p.reference} | ${p.condition}\nPrice: ${price}\n\n`
+      })
+      response += `Call ${companyInfo.phone} for more details`
+      return response
+    }
+    return `No ${searchBrand} watches currently available. Call ${companyInfo.phone} for inquiries.`
+  }
+
+  if (queryLower === 'price-filter') {
+    return `Filter by Price Range:\n\n• Under 30,000\n• 30,000 - 50,000\n• 50,000 - 100,000\n• 100,000+\n\nLet us know your budget and we'll show you options.\nCall ${companyInfo.phone} or WhatsApp ${companyInfo.whatsapp}`
+  }
+
+  // Product search (for free-form queries)
   const matchedProducts = filterProducts(products, message)
 
   if (matchedProducts.length > 0) {
     let response = 'Found Watches:\n\n'
     matchedProducts.forEach(p => {
       const price = p.price ? `MYR ${p.price}` : 'Contact for price'
-      response += `${p.brand} ${p.model}\nReference: ${p.reference}\nCondition: ${p.condition}\nPrice: ${price}\n\n`
+      response += `${p.brand} ${p.model}\nRef: ${p.reference} | ${p.condition}\nPrice: ${price}\n\n`
     })
-    response += `For details, call ${COMPANY_INFO.phone}`
+    response += `Call ${companyInfo.phone} for more details`
     return response
   }
 
   // Default response
-  return `I can help you with:\n\n• Searching by brand (Rolex, Patek Philippe, Omega, etc.)\n• Price range inquiries (e.g., "under 50k")\n• Watch condition details\n• Booking appointments\n• Contact information\n\nWhat would you like to know?`
+  return `I can help you with:\n\n• Browse watches by brand\n• Contact information\n• Visit us (location & hours)\n• Book a private viewing\n• Learn about our services\n\nSelect an option from the menu to get started!`
 }
 
 export async function POST(request) {
