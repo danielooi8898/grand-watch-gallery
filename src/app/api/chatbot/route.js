@@ -1,24 +1,33 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
-async function getCompanyInfo() {
-  try {
-    const { data, error } = await supabase
-      .from('site_settings')
-      .select('*')
-      .single()
-
-    if (error) {
-      console.error('Database error fetching company info:', error)
-      return {}
-    }
-
-    console.log('Company info fetched:', data)
-    return data || {}
-  } catch (error) {
-    console.error('Error in getCompanyInfo:', error)
-    return {}
-  }
+const COMPANY_INFO = {
+  name: 'Grand Watch Gallery',
+  phone: '+6016-966 6822',
+  phone2: '+60102345100',
+  whatsapp: '6016-224 1804',
+  email: 'info@grandwatchgallery.com',
+  address: 'Lot G31, Ground Floor\nAtria Shopping Gallery\nJalan SS 22/23\nDamansara Jaya, Petaling Jaya\n47400 Petaling Jaya, Selangor',
+  hours: 'Mon: 11:00am – 6:00pm\nTues: 11:00am – 6:00pm\nWed: 11:00am – 6:00pm\nThurs: 11:00am – 6:00pm\nFri: 11:00am – 6:00pm\nSat: 11:00am – 6:00pm\nSunday: Closed',
+  brands: [
+    'Rolex',
+    'Patek Philippe',
+    'Audemars Piguet',
+    'Richard Mille',
+    'Vacheron Constantin',
+    'A. Lange & Söhne',
+    'IWC Schaffhausen',
+    'Omega',
+    'Hublot',
+    'Panerai',
+    'Breguet',
+    'Cartier',
+    'Chopard',
+    'Tudor',
+    'MB&F',
+    'Jacob & Co'
+  ],
+  about: 'Grand Watch Gallery was founded in 2020 with a singular mission – to bring transparency, trust, and expertise to secondary luxury watch market in Malaysia.'
 }
 
 async function getProducts() {
@@ -91,11 +100,6 @@ function filterProducts(products, query) {
 function generateResponse(message, products, companyInfo) {
   const queryLower = message.toLowerCase().trim()
 
-  // Helper to get company info - look for multiple possible field names
-  const getInfo = (field) => {
-    return companyInfo[field] || companyInfo[field.toLowerCase()] || 'Contact us for details'
-  }
-
   // Greetings
   if (['hi', 'hello', 'hey', 'greetings', 'good morning', 'good afternoon', 'good evening'].some(g => queryLower === g || queryLower.startsWith(g + ' '))) {
     return `Hello! 👋 Welcome to Grand Watch Gallery. I can help you find luxury watches or answer questions about our store. What are you looking for today?`
@@ -103,68 +107,48 @@ function generateResponse(message, products, companyInfo) {
 
   // Hours
   if (queryLower.includes('hours') || queryLower.includes('opening') || queryLower.includes('time') || queryLower.includes('open') || queryLower.includes('closed')) {
-    const hours = getInfo('hours')
-    const phone = getInfo('phone')
-    return `⏰ Opening Hours:\n\n${hours}\n\nPhone: ${phone}`
+    return `⏰ Opening Hours:\n\n${companyInfo.hours}\n\nFor more info: ${companyInfo.phone}`
   }
 
   // WhatsApp
   if (queryLower.includes('whatsapp') || queryLower.includes('wechat')) {
-    const whatsapp = getInfo('whatsapp')
-    return `💬 WhatsApp:\n\n${whatsapp}`
+    return `💬 WhatsApp:\n\n${companyInfo.whatsapp}`
   }
 
   // Phone
   if (queryLower.includes('phone') && !queryLower.includes('contact')) {
-    const phone = getInfo('phone')
-    return `📞 Phone: ${phone}`
+    return `📞 Phone Numbers:\n\nPrimary: ${companyInfo.phone}\nSecondary: ${companyInfo.phone2}`
   }
 
   // Email
   if (queryLower.includes('email')) {
-    const email = getInfo('email')
-    return `📧 Email: ${email}`
+    return `📧 Email:\n\n${companyInfo.email}`
   }
 
   // Contact
   if (queryLower.includes('contact') || queryLower.includes('reach') || queryLower.includes('call')) {
-    const phone = getInfo('phone')
-    const whatsapp = getInfo('whatsapp')
-    const email = getInfo('email')
-    return `📞 Contact Grand Watch Gallery:\n\nPhone: ${phone}\nWhatsApp: ${whatsapp}\nEmail: ${email}`
+    return `📞 Contact Grand Watch Gallery:\n\nPhone: ${companyInfo.phone}\nSecondary: ${companyInfo.phone2}\nWhatsApp: ${companyInfo.whatsapp}\nEmail: ${companyInfo.email}`
   }
 
   // Location/Address
   if (queryLower.includes('location') || queryLower.includes('address') || queryLower.includes('where') || queryLower.includes('visit')) {
-    const address = getInfo('address')
-    const phone = getInfo('phone')
-    const hours = getInfo('hours')
-    return `📍 Visit Us:\n\n${address}\n\nPhone: ${phone}\nHours: ${hours}`
+    return `📍 Visit Us:\n\n${companyInfo.address}\n\nPhone: ${companyInfo.phone}\n\nHours:\n${companyInfo.hours}`
   }
 
+  // About
   if (queryLower.includes('about') || queryLower.includes('who are you') || queryLower.includes('company')) {
-    const heading = getInfo('about_heading')
-    const body = getInfo('about_body')
-    const phone = getInfo('phone')
-    const email = getInfo('email')
-    return `${heading}\n\n${body}\n\nPhone: ${phone}\nEmail: ${email}`
+    return `About Grand Watch Gallery:\n\n${companyInfo.about}\n\nContact: ${companyInfo.email}\nPhone: ${companyInfo.phone}`
   }
 
+  // Appointment/Booking
   if (queryLower.includes('appointment') || queryLower.includes('book') || queryLower.includes('viewing') || queryLower.includes('schedule')) {
-    const phone = getInfo('phone')
-    const whatsapp = getInfo('whatsapp')
-    const email = getInfo('email')
-    return `Book a Private Viewing:\n\nCall us to schedule your personalized appointment.\n\nPhone: ${phone}\nWhatsApp: ${whatsapp}\nEmail: ${email}\n\nWe offer a premium, one-on-one experience with no pressure.`
+    return `Book a Private Viewing:\n\nExperience our collection one-on-one with an expert. Book an exclusive consultation at our gallery – by appointment only.\n\nPhone: ${companyInfo.phone}\nWhatsApp: ${companyInfo.whatsapp}\nEmail: ${companyInfo.email}\n\nWe offer a premium experience with no pressure.`
   }
 
-  if (queryLower.includes('brand') || queryLower.includes('carry') || queryLower.includes('sell')) {
-    const brands = companyInfo?.brands
-    let brandsText = 'Check our collection'
-    if (brands && Array.isArray(brands)) {
-      brandsText = brands.map(b => `• ${b}`).join('\n')
-    }
-    const phone = getInfo('phone')
-    return `Our Brands:\n\n${brandsText}\n\nCall ${phone} for more details`
+  // Brands
+  if (queryLower.includes('brand') || queryLower.includes('carry') || queryLower.includes('sell') || queryLower.includes('collection')) {
+    const brandsText = companyInfo.brands.map(b => `• ${b}`).join('\n')
+    return `Our Brands:\n\n${brandsText}\n\nCall ${companyInfo.phone} or WhatsApp ${companyInfo.whatsapp} for availability and pricing`
   }
 
   // Product search
@@ -193,8 +177,7 @@ export async function POST(request) {
     }
 
     const products = await getProducts()
-    const companyInfo = await getCompanyInfo()
-    const reply = generateResponse(message, products, companyInfo)
+    const reply = generateResponse(message, products, COMPANY_INFO)
 
     return NextResponse.json({ reply })
   } catch (error) {
