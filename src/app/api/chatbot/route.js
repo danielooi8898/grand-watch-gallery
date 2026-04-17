@@ -1,14 +1,121 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
+const COMPANY_INFO = {
+  name: 'Grand Watch Gallery (GWG)',
+  location: 'Lot G19, Ground Floor, Atria Shopping Gallery, Jalan SS 22/23, Damansara Jaya, Petaling Jaya',
+  phone: '+603 89966788',
+  email: 'info@grandwatchgallery.my',
+  website: 'grandwatchgallery.my'
+}
+
 async function getProducts() {
   try {
-    const { data } = await supabase.from('watches').select('*').limit(100)
+    const { data } = await supabase.from('watches').select('*').limit(200)
     return data || []
   } catch (error) {
     console.error('Database error:', error)
     return []
   }
+}
+
+function parsePrice(priceStr) {
+  if (!priceStr) return null
+  const num = parseInt(priceStr.toString().replace(/[^0-9]/g, ''))
+  return isNaN(num) ? null : num
+}
+
+function filterProducts(products, query) {
+  const queryLower = query.toLowerCase()
+
+  // Extract keywords
+  const brandKeywords = ['rolex', 'patek', 'philippe', 'audemars', 'piguet', 'omega', 'tudor', 'cartier', 'richard', 'mille']
+  const conditionKeywords = ['new', 'excellent', 'good', 'pre-owned', 'unworn']
+  const priceKeywords = ['under', 'below', 'cheap', 'budget', 'expensive', 'luxury', '50k', '100k', 'affordable']
+
+  let filtered = products
+
+  // Filter by brand
+  const brandMatch = brandKeywords.find(b => queryLower.includes(b))
+  if (brandMatch) {
+    filtered = filtered.filter(p => p.brand && p.brand.toLowerCase().includes(brandMatch))
+  }
+
+  // Filter by model/reference
+  if (queryLower.includes('model') || queryLower.includes('reference')) {
+    const modelMatch = products.find(p => p.model && p.model.toLowerCase().includes(queryLower.replace('model', '').replace('reference', '').trim()))
+    if (modelMatch) {
+      filtered = filtered.filter(p => p.model && p.model.toLowerCase().includes(modelMatch.model.toLowerCase()))
+    }
+  }
+
+  // Filter by condition
+  const conditionMatch = conditionKeywords.find(c => queryLower.includes(c))
+  if (conditionMatch) {
+    filtered = filtered.filter(p => p.condition && p.condition.toLowerCase().includes(conditionMatch))
+  }
+
+  // Filter by price range
+  if (queryLower.includes('under') || queryLower.includes('budget') || queryLower.includes('cheap')) {
+    const num = parseInt(queryLower.match(/\d+/)?.[0] || '50')
+    filtered = filtered.filter(p => {
+      const price = parsePrice(p.price)
+      return price && price <= num * 1000
+    })
+  }
+
+  // If no specific filters, return top matches by brand/model
+  if (filtered.length === 0) {
+    filtered = products.filter(p =>
+      (p.brand && p.brand.toLowerCase().includes(queryLower)) ||
+      (p.model && p.model.toLowerCase().includes(queryLower)) ||
+      (p.reference && p.reference.toLowerCase().includes(queryLower))
+    )
+  }
+
+  return filtered.slice(0, 8)
+}
+
+function generateResponse(message, products) {
+  const queryLower = message.toLowerCase()
+
+  // Company info questions
+  if (queryLower.includes('contact') || queryLower.includes('phone') || queryLower.includes('reach')) {
+    return `📞 **Contact Grand Watch Gallery:**\n\n📱 **Phone:** ${COMPANY_INFO.phone}\n📧 **Email:** ${COMPANY_INFO.email}\n📍 **Address:** ${COMPANY_INFO.location}`
+  }
+
+  if (queryLower.includes('location') || queryLower.includes('address') || queryLower.includes('where') || queryLower.includes('visit')) {
+    return `📍 **Visit Us:**\n\n${COMPANY_INFO.location}\n\n📞 ${COMPANY_INFO.phone}\n🌐 ${COMPANY_INFO.website}`
+  }
+
+  if (queryLower.includes('about') || queryLower.includes('who are you') || queryLower.includes('company')) {
+    return `ℹ️ **About Grand Watch Gallery:**\n\nMalaysia's most trusted luxury watch reseller offering Brand New and authenticated pre-owned watches from premium brands.\n\n📞 ${COMPANY_INFO.phone}\n📧 ${COMPANY_INFO.email}`
+  }
+
+  if (queryLower.includes('appointment') || queryLower.includes('book') || queryLower.includes('viewing') || queryLower.includes('schedule')) {
+    return `📅 **Book a Private Viewing:**\n\nCall us to schedule your personalized appointment.\n\n📞 ${COMPANY_INFO.phone}\n📧 ${COMPANY_INFO.email}\n\nWe offer a premium, one-on-one experience with no pressure.`
+  }
+
+  if (queryLower.includes('brand') || queryLower.includes('carry') || queryLower.includes('sell')) {
+    const brands = [...new Set(products.map(p => p.brand).filter(Boolean))]
+    return `⌚ **Our Brands:**\n\n${brands.map(b => `✓ ${b}`).join('\n')}\n\n📞 Call ${COMPANY_INFO.phone} for more details`
+  }
+
+  // Product search
+  const matchedProducts = filterProducts(products, message)
+
+  if (matchedProducts.length > 0) {
+    let response = '⌚ **Found Watches:**\n\n'
+    matchedProducts.forEach(p => {
+      const price = p.price ? `MYR ${p.price}` : 'Contact for price'
+      response += `• **${p.brand} ${p.model}**\n  Reference: ${p.reference}\n  Condition: ${p.condition}\n  ${price}\n\n`
+    })
+    response += `📞 For details, call ${COMPANY_INFO.phone}`
+    return response
+  }
+
+  // Default response
+  return `Thanks for reaching out! 😊\n\nI can help you with:\n• Searching by brand (Rolex, Patek Philippe, Omega, etc.)\n• Price range inquiries\n• Watch condition details\n• Booking appointments\n• Contact information\n\n📞 **Call us:** ${COMPANY_INFO.phone}\n📧 **Email:** ${COMPANY_INFO.email}`
 }
 
 export async function POST(request) {
@@ -19,69 +126,14 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Message is required' }, { status: 400 })
     }
 
-    if (!process.env.OPENAI_API_KEY) {
-      console.error('OPENAI_API_KEY not set')
-      return NextResponse.json({ error: 'API key not configured' }, { status: 500 })
-    }
-
-    // Get products for context
     const products = await getProducts()
-    const productList = products.length > 0
-      ? products.map(p => `${p.brand} ${p.model} (${p.reference}) - ${p.condition} - MYR ${p.price || 'Contact'}`).join('\n')
-      : 'Rolex, Patek Philippe, Audemars Piguet, Tudor, Omega, Cartier, and Richard Mille'
-
-    const systemPrompt = `You are a friendly and knowledgeable customer service assistant for Grand Watch Gallery (GWG), Malaysia's most trusted luxury watch reseller.
-
-COMPANY INFO:
-- Location: Lot G19, Ground Floor, Atria Shopping Gallery, Jalan SS 22/23, Damansara Jaya, Petaling Jaya
-- Phone: +603 89966788
-- Email: info@grandwatchgallery.my
-- Website: grandwatchgallery.my
-
-OUR INVENTORY:
-${productList}
-
-You provide helpful, personalized recommendations based on customer preferences. You're knowledgeable about luxury watches, their features, conditions, and value. Be conversational, friendly, and professional. Always provide the company's contact details when appropriate.`
-
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        max_tokens: 1024,
-        messages: [
-          {
-            role: 'system',
-            content: systemPrompt
-          },
-          {
-            role: 'user',
-            content: message
-          }
-        ]
-      })
-    })
-
-    const data = await response.json()
-
-    if (!response.ok) {
-      console.error('OpenAI API error:', response.status, data)
-      return NextResponse.json(
-        { error: `API Error: ${data.error?.message || 'Unknown error'}` },
-        { status: 500 }
-      )
-    }
-
-    const reply = data.choices?.[0]?.message?.content || 'Unable to process response'
+    const reply = generateResponse(message, products)
 
     return NextResponse.json({ reply })
   } catch (error) {
-    console.error('Chatbot error:', error.message || error)
+    console.error('Chatbot error:', error)
     return NextResponse.json(
-      { error: `Error: ${error.message || 'Failed to process message'}` },
+      { error: 'Failed to process message' },
       { status: 500 }
     )
   }
