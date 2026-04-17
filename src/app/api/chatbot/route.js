@@ -77,45 +77,50 @@ function filterProducts(products, query) {
 }
 
 function generateResponse(message, products) {
-  const queryLower = message.toLowerCase()
+  const queryLower = message.toLowerCase().trim()
+
+  // Greetings
+  if (['hi', 'hello', 'hey', 'greetings', 'good morning', 'good afternoon', 'good evening'].some(g => queryLower === g || queryLower.startsWith(g + ' '))) {
+    return `Hello! 👋 Welcome to Grand Watch Gallery. I can help you find luxury watches or answer questions about our store. What are you looking for today?`
+  }
 
   // Company info questions
   if (queryLower.includes('contact') || queryLower.includes('phone') || queryLower.includes('reach')) {
-    return `📞 **Contact Grand Watch Gallery:**\n\n📱 **Phone:** ${COMPANY_INFO.phone}\n📧 **Email:** ${COMPANY_INFO.email}\n📍 **Address:** ${COMPANY_INFO.location}`
+    return `📞 Contact Grand Watch Gallery:\n\nPhone: ${COMPANY_INFO.phone}\nEmail: ${COMPANY_INFO.email}\nAddress: ${COMPANY_INFO.location}`
   }
 
   if (queryLower.includes('location') || queryLower.includes('address') || queryLower.includes('where') || queryLower.includes('visit')) {
-    return `📍 **Visit Us:**\n\n${COMPANY_INFO.location}\n\n📞 ${COMPANY_INFO.phone}\n🌐 ${COMPANY_INFO.website}`
+    return `📍 Visit Us:\n\n${COMPANY_INFO.location}\n\nPhone: ${COMPANY_INFO.phone}\nWebsite: ${COMPANY_INFO.website}`
   }
 
   if (queryLower.includes('about') || queryLower.includes('who are you') || queryLower.includes('company')) {
-    return `ℹ️ **About Grand Watch Gallery:**\n\nMalaysia's most trusted luxury watch reseller offering Brand New and authenticated pre-owned watches from premium brands.\n\n📞 ${COMPANY_INFO.phone}\n📧 ${COMPANY_INFO.email}`
+    return `About Grand Watch Gallery:\n\nMalaysia's most trusted luxury watch reseller offering Brand New and authenticated pre-owned watches from premium brands.\n\nPhone: ${COMPANY_INFO.phone}\nEmail: ${COMPANY_INFO.email}`
   }
 
   if (queryLower.includes('appointment') || queryLower.includes('book') || queryLower.includes('viewing') || queryLower.includes('schedule')) {
-    return `📅 **Book a Private Viewing:**\n\nCall us to schedule your personalized appointment.\n\n📞 ${COMPANY_INFO.phone}\n📧 ${COMPANY_INFO.email}\n\nWe offer a premium, one-on-one experience with no pressure.`
+    return `Book a Private Viewing:\n\nCall us to schedule your personalized appointment.\n\nPhone: ${COMPANY_INFO.phone}\nEmail: ${COMPANY_INFO.email}\n\nWe offer a premium, one-on-one experience with no pressure.`
   }
 
   if (queryLower.includes('brand') || queryLower.includes('carry') || queryLower.includes('sell')) {
     const brands = [...new Set(products.map(p => p.brand).filter(Boolean))]
-    return `⌚ **Our Brands:**\n\n${brands.map(b => `✓ ${b}`).join('\n')}\n\n📞 Call ${COMPANY_INFO.phone} for more details`
+    return `Our Brands:\n\n${brands.map(b => `• ${b}`).join('\n')}\n\nCall ${COMPANY_INFO.phone} for more details`
   }
 
   // Product search
   const matchedProducts = filterProducts(products, message)
 
   if (matchedProducts.length > 0) {
-    let response = '⌚ **Found Watches:**\n\n'
+    let response = 'Found Watches:\n\n'
     matchedProducts.forEach(p => {
       const price = p.price ? `MYR ${p.price}` : 'Contact for price'
-      response += `• **${p.brand} ${p.model}**\n  Reference: ${p.reference}\n  Condition: ${p.condition}\n  ${price}\n\n`
+      response += `${p.brand} ${p.model}\nReference: ${p.reference}\nCondition: ${p.condition}\nPrice: ${price}\n\n`
     })
-    response += `📞 For details, call ${COMPANY_INFO.phone}`
+    response += `For details, call ${COMPANY_INFO.phone}`
     return response
   }
 
   // Default response
-  return `Thanks for reaching out! 😊\n\nI can help you with:\n• Searching by brand (Rolex, Patek Philippe, Omega, etc.)\n• Price range inquiries\n• Watch condition details\n• Booking appointments\n• Contact information\n\n📞 **Call us:** ${COMPANY_INFO.phone}\n📧 **Email:** ${COMPANY_INFO.email}`
+  return `I can help you with:\n\n• Searching by brand (Rolex, Patek Philippe, Omega, etc.)\n• Price range inquiries (e.g., "under 50k")\n• Watch condition details\n• Booking appointments\n• Contact information\n\nWhat would you like to know?`
 }
 
 export async function POST(request) {
