@@ -10,6 +10,7 @@ import { LayoutDashboard, Package, BookOpen, Layers, Settings, LogOut, Globe, Me
 const NAV = [
   { href: '/admin',              label: 'Dashboard',  icon: LayoutDashboard },
   { href: '/admin/collection',   label: 'Collection', icon: Package },
+  { href: '/admin/erp',          label: 'ERP & CRM',  icon: Package },
   { href: '/admin/blog',         label: 'Journal',    icon: BookOpen },
   { href: '/admin/enquiries',    label: 'Enquiries',  icon: Inbox },
   { href: '/admin/leads',        label: 'Leads',      icon: Tag },
