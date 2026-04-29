@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import { Plus, Edit2, Trash2, X, Save, ChevronRight } from 'lucide-react'
+import { INVENTORY_DATA } from '@/data/inventoryData'
 
 const ERPSystem = () => {
   const [activeTab, setActiveTab] = useState('erp')
@@ -78,11 +79,7 @@ const ERPSystem = () => {
   }
 
   // ============ INVENTORY DATA ============
-  const [inventoryItems, setInventoryItems] = useState([
-    { id: 'R-1003', refId: 'R-1003', brand: 'ROLEX', model: '116185BBR', serialNo: '437A38A5', condition: 'NEW', year: '11/2020', owner: '', costPrice: 0, salePrice: 200000, commission: 0, actorFee: 0, ownerContact: '', status: 'Active', type: 'Personal' },
-    { id: 'R-1134', refId: 'R-1134', brand: 'ROLEX', model: '216570', serialNo: 'N3483309', condition: 'USED', year: '12/2017', owner: '', costPrice: 0, salePrice: 52000, commission: 0, actorFee: 0, ownerContact: '', status: 'Active', type: 'Personal' },
-    { id: 'R-1579', refId: 'R-1579', brand: 'ROLEX', model: '116519LN', serialNo: 'SU565089', condition: 'USED', year: '05/2020', owner: 'BOSS', costPrice: 0, salePrice: 268000, commission: 0, actorFee: 0, ownerContact: 'MADAM NG', status: 'Active', type: 'Personal' },
-  ])
+  const [inventoryItems, setInventoryItems] = useState(INVENTORY_DATA)
 
   const [customers, setCustomers] = useState([
     { id: 1, name: 'Ahmad Khan', email: 'ahmad.khan@email.com', phone: '+6012-3456789', type: 'Retail', city: 'Kuala Lumpur', commission: 0, totalSpent: 150000, status: 'Active' },
