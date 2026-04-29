@@ -1,110 +1,487 @@
 'use client'
 
 import React, { useState } from 'react'
-import { ChevronDown, Plus, Edit2, Trash2, Eye, Filter, Download } from 'lucide-react'
+import { Plus, Edit2, Trash2, X, Save, ChevronRight } from 'lucide-react'
 
 const ERPSystem = () => {
   const [activeTab, setActiveTab] = useState('erp')
   const [activeSubTab, setActiveSubTab] = useState('inventory')
-  const [showAddModal, setShowAddModal] = useState(false)
-  const [filters, setFilters] = useState({})
+  const [editingItem, setEditingItem] = useState(null)
+  const [editingId, setEditingId] = useState(null)
+  const [showImportModal, setShowImportModal] = useState(false)
+
+  // CSV Import Handler
+  const handleCSVImport = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      try {
+        const csv = event.target?.result
+        const lines = csv.toString().split('\n')
+        const newItems = []
+
+        lines.forEach((line, idx) => {
+          if (idx < 3 || !line.trim()) return // Skip headers and empty lines
+
+          const cols = line.split(',').map(c => c.trim())
+          if (cols.length < 4) return
+
+          // Parse based on CSV structure
+          const refId = cols[1] || `R-${Date.now()}-${idx}`
+          const brand = cols[3] || 'UNKNOWN'
+          const model = cols[4] || ''
+          const serialNo = cols[5] || ''
+          const condition = cols[6]?.toUpperCase() || 'NEW'
+          const year = cols[7] || ''
+          const costPrice = parseFloat(cols[8]?.replace(/[^0-9.]/g, '') || 0) || 0
+          const commission = parseFloat(cols[9]?.replace(/[^0-9.]/g, '') || 0) || 0
+          const actorFee = parseFloat(cols[10]?.replace(/[^0-9.]/g, '') || 0) || 0
+          const salePrice = parseFloat(cols[11]?.replace(/[^0-9.]/g, '') || 0) || 0
+          const owner = cols[2] || ''
+          const ownerContact = cols[12] || ''
+
+          if (refId && brand && serialNo) {
+            newItems.push({
+              id: refId,
+              refId,
+              brand,
+              model,
+              serialNo,
+              condition,
+              year,
+              owner,
+              costPrice,
+              salePrice,
+              commission,
+              actorFee,
+              ownerContact,
+              status: 'Active',
+              type: (owner?.toUpperCase().includes('CONSIGN') || !owner) ? 'Consignment' : 'Personal'
+            })
+          }
+        })
+
+        if (newItems.length > 0) {
+          const combined = [...inventoryItems, ...newItems]
+          const unique = combined.filter((item, idx, arr) => arr.findIndex(i => i.refId === item.refId) === idx)
+          setInventoryItems(unique)
+          alert(`Successfully imported ${newItems.length} items. Total: ${unique.length}`)
+          setShowImportModal(false)
+        }
+      } catch (error) {
+        alert('Error importing CSV: ' + error.message)
+      }
+    }
+    reader.readAsText(file)
+  }
 
   // ============ INVENTORY DATA ============
   const [inventoryItems, setInventoryItems] = useState([
-    { id: 1, brand: 'Rolex', model: 'Submariner', sku: 'ROL-SUB-001', stock: 2, type: 'Personal', costPrice: 45000, salePrice: 65000, status: 'Active', lastUpdated: '2024-04-25' },
-    { id: 2, brand: 'Patek Philippe', model: 'Nautilus', sku: 'PAT-NUT-001', stock: 1, type: 'Consignment', costPrice: 0, salePrice: 85000, status: 'Active', lastUpdated: '2024-04-20' },
-    { id: 3, brand: 'Audemars Piguet', model: 'Royal Oak', sku: 'AUD-ROY-001', stock: 0, type: 'Personal', costPrice: 50000, salePrice: 72000, status: 'Low Stock', lastUpdated: '2024-04-22' },
-    { id: 4, brand: 'Omega', model: 'Speedmaster', sku: 'OME-SPE-001', stock: 3, type: 'Personal', costPrice: 30000, salePrice: 42000, status: 'Active', lastUpdated: '2024-04-24' },
-    { id: 5, brand: 'Tudor', model: 'Black Bay', sku: 'TUD-BAY-001', stock: 4, type: 'Consignment', costPrice: 0, salePrice: 28000, status: 'Active', lastUpdated: '2024-04-25' },
+    { id: 'R-1003', refId: 'R-1003', brand: 'ROLEX', model: '116185BBR', serialNo: '437A38A5', condition: 'NEW', year: '11/2020', owner: '', costPrice: 0, salePrice: 200000, commission: 0, actorFee: 0, ownerContact: '', status: 'Active', type: 'Personal' },
+    { id: 'R-1134', refId: 'R-1134', brand: 'ROLEX', model: '216570', serialNo: 'N3483309', condition: 'USED', year: '12/2017', owner: '', costPrice: 0, salePrice: 52000, commission: 0, actorFee: 0, ownerContact: '', status: 'Active', type: 'Personal' },
+    { id: 'R-1579', refId: 'R-1579', brand: 'ROLEX', model: '116519LN', serialNo: 'SU565089', condition: 'USED', year: '05/2020', owner: 'BOSS', costPrice: 0, salePrice: 268000, commission: 0, actorFee: 0, ownerContact: 'MADAM NG', status: 'Active', type: 'Personal' },
   ])
 
-  // ============ STOCK MOVEMENTS DATA ============
-  const [stockMovements, setStockMovements] = useState([
-    { id: 1, date: '2024-04-25', type: 'IN', sku: 'ROL-SUB-001', brand: 'Rolex', model: 'Submariner', qty: 1, reason: 'Purchase from supplier', inventoryType: 'Personal', supplier: 'Dubai Luxury', reference: 'PO-2024-001', notes: 'Condition: New' },
-    { id: 2, date: '2024-04-24', type: 'OUT', sku: 'OME-SPE-001', brand: 'Omega', model: 'Speedmaster', qty: 1, reason: 'Sold to customer', inventoryType: 'Personal', customer: 'Ahmad Khan', reference: 'INV-2024-045', notes: 'Customer: Ahmad Khan' },
-    { id: 3, date: '2024-04-22', type: 'OUT', sku: 'AUD-ROY-001', brand: 'Audemars Piguet', model: 'Royal Oak', qty: 1, reason: 'Sold to customer', inventoryType: 'Personal', customer: 'Michael Chen', reference: 'INV-2024-044', notes: 'Wholesale order' },
-    { id: 4, date: '2024-04-20', type: 'IN', sku: 'PAT-NUT-001', brand: 'Patek Philippe', model: 'Nautilus', qty: 1, reason: 'Consignment received', inventoryType: 'Consignment', supplier: 'Swiss Timepieces', reference: 'CONS-2024-001', notes: 'Consignment terms: 30 days' },
-    { id: 5, date: '2024-04-18', type: 'IN', sku: 'TUD-BAY-001', brand: 'Tudor', model: 'Black Bay', qty: 4, reason: 'Consignment received', inventoryType: 'Consignment', supplier: 'Hong Kong Traders', reference: 'CONS-2024-002', notes: '' },
-  ])
-
-  // ============ CUSTOMER DATA (CRM) ============
   const [customers, setCustomers] = useState([
-    { id: 1, name: 'Ahmad Khan', email: 'ahmad.khan@email.com', phone: '+6012-3456789', type: 'Retail', city: 'Kuala Lumpur', commission: 0, totalPurchases: 3, totalSpent: 150000, lastPurchase: '2024-04-24', status: 'Active' },
-    { id: 2, name: 'Sarah Lee', email: 'sarah.lee@email.com', phone: '+6013-9876543', type: 'Retail', city: 'Selangor', commission: 0, totalPurchases: 2, totalSpent: 85000, lastPurchase: '2024-04-15', status: 'Active' },
-    { id: 3, name: 'Michael Chen', email: 'michael.chen@email.com', phone: '+6011-5555555', type: 'Wholesale', city: 'Penang', commission: 5, totalPurchases: 12, totalSpent: 450000, lastPurchase: '2024-04-22', status: 'Active' },
-    { id: 4, name: 'Fatima Aziz', email: 'fatima.aziz@email.com', phone: '+6016-7777777', type: 'Retail', city: 'Johor', commission: 0, totalPurchases: 1, totalSpent: 62000, lastPurchase: '2024-03-10', status: 'Inactive' },
+    { id: 1, name: 'Ahmad Khan', email: 'ahmad.khan@email.com', phone: '+6012-3456789', type: 'Retail', city: 'Kuala Lumpur', commission: 0, totalSpent: 150000, status: 'Active' },
+    { id: 2, name: 'Sarah Lee', email: 'sarah.lee@email.com', phone: '+6013-9876543', type: 'Retail', city: 'Selangor', commission: 0, totalSpent: 85000, status: 'Active' },
   ])
 
-  // ============ ORDERS DATA ============
-  const [orders, setOrders] = useState([
-    { id: 'ORD-2024-001', date: '2024-04-25', customer: 'Ahmad Khan', items: 1, amount: 42000, commission: 0, commissionAmount: 0, status: 'Completed', paymentStatus: 'Paid' },
-    { id: 'ORD-2024-002', date: '2024-04-22', customer: 'Michael Chen', items: 2, amount: 120000, commission: 5, commissionAmount: 6000, status: 'Completed', paymentStatus: 'Paid' },
-    { id: 'ORD-2024-003', date: '2024-04-10', customer: 'Sarah Lee', items: 1, amount: 65000, commission: 0, commissionAmount: 0, status: 'Completed', paymentStatus: 'Paid' },
-  ])
-
-  // ============ SUPPLIERS DATA ============
   const [suppliers, setSuppliers] = useState([
-    { id: 1, name: 'Dubai Luxury Watches', country: 'UAE', contact: '+971-4-123-4567', email: 'info@dubailuxury.ae', status: 'Active', products: 15, totalOrders: 8 },
-    { id: 2, name: 'Swiss Timepieces Ltd', country: 'Switzerland', contact: '+41-44-555-5555', email: 'sales@swisswatches.ch', status: 'Active', products: 22, totalOrders: 12 },
-    { id: 3, name: 'Hong Kong Traders', country: 'Hong Kong', contact: '+852-2888-8888', email: 'contact@hktraders.hk', status: 'Active', products: 8, totalOrders: 5 },
+    { id: 1, name: 'Dubai Luxury Watches', country: 'UAE', contact: '+971-4-123-4567', email: 'info@dubailuxury.ae', status: 'Active' },
+    { id: 2, name: 'Swiss Timepieces Ltd', country: 'Switzerland', contact: '+41-44-555-5555', email: 'sales@swisswatches.ch', status: 'Active' },
   ])
 
-  // ============ SALES PIPELINE DATA ============
-  const [salesPipeline, setSalesPipeline] = useState([
-    { id: 1, stage: 'Lead', customer: 'James Wilson', value: 150000, brand: 'Rolex', daysInStage: 5, probability: '20%' },
-    { id: 2, stage: 'Prospect', customer: 'Lisa Wong', value: 85000, brand: 'Omega', daysInStage: 8, probability: '50%' },
-    { id: 3, stage: 'Quote', customer: 'David Smith', value: 250000, brand: 'Patek Philippe', daysInStage: 3, probability: '75%' },
-    { id: 4, stage: 'Negotiation', customer: 'Emma Johnson', value: 180000, brand: 'Audemars Piguet', daysInStage: 12, probability: '90%' },
+  const [orders, setOrders] = useState([
+    { id: 'ORD-2024-001', date: '2024-04-25', customer: 'Ahmad Khan', items: 1, amount: 42000, commission: 0, commissionAmount: 0, actorFee: 0, status: 'Completed', paymentStatus: 'Paid' },
+    { id: 'ORD-2024-002', date: '2024-04-22', customer: 'Michael Chen', items: 2, amount: 120000, commission: 5, commissionAmount: 6000, actorFee: 0, status: 'Completed', paymentStatus: 'Paid' },
   ])
+
+  const [stockMovements, setStockMovements] = useState([
+    { id: 1, date: '2024-04-25', type: 'IN', brand: 'Rolex', model: 'Submariner', qty: 1, reason: 'Purchase from supplier', inventoryType: 'Personal', reference: 'PO-2024-001' },
+    { id: 2, date: '2024-04-24', type: 'OUT', brand: 'Omega', model: 'Speedmaster', qty: 1, reason: 'Sold to customer', inventoryType: 'Personal', reference: 'INV-2024-045' },
+  ])
+
+  // ============ EDIT HANDLERS ============
+  const handleEditInventory = (item) => {
+    setEditingId(item.id)
+    setEditingItem({ ...item })
+  }
+
+  const handleSaveInventory = () => {
+    setInventoryItems(inventoryItems.map(item => item.id === editingId ? editingItem : item))
+    setEditingId(null)
+    setEditingItem(null)
+  }
+
+  const handleDeleteInventory = (id) => {
+    setInventoryItems(inventoryItems.filter(item => item.id !== id))
+  }
+
+  const handleEditCustomer = (customer) => {
+    setEditingId(customer.id)
+    setEditingItem({ ...customer })
+  }
+
+  const handleSaveCustomer = () => {
+    setCustomers(customers.map(c => c.id === editingId ? editingItem : c))
+    setEditingId(null)
+    setEditingItem(null)
+  }
+
+  const handleDeleteCustomer = (id) => {
+    setCustomers(customers.filter(c => c.id !== id))
+  }
+
+  // ============ MODALS ============
+  const EditInventoryModal = () => !editingItem || editingItem.type !== 'inventory' ? null : (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg max-w-2xl w-full max-h-96 overflow-y-auto">
+        <div className="sticky top-0 bg-gray-50 px-6 py-4 border-b flex justify-between items-center">
+          <h3 className="text-lg font-semibold text-gray-900">Edit Inventory Item</h3>
+          <button onClick={() => setEditingId(null)} className="text-gray-500 hover:text-gray-700">
+            <X size={20} />
+          </button>
+        </div>
+        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Ref ID</label>
+            <input type="text" value={editingItem.refId} onChange={e => setEditingItem({...editingItem, refId: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Brand</label>
+            <input type="text" value={editingItem.brand} onChange={e => setEditingItem({...editingItem, brand: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Model</label>
+            <input type="text" value={editingItem.model} onChange={e => setEditingItem({...editingItem, model: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Serial No</label>
+            <input type="text" value={editingItem.serialNo} onChange={e => setEditingItem({...editingItem, serialNo: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Cost Price</label>
+            <input type="number" value={editingItem.costPrice} onChange={e => setEditingItem({...editingItem, costPrice: parseFloat(e.target.value)})} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Sale Price</label>
+            <input type="number" value={editingItem.salePrice} onChange={e => setEditingItem({...editingItem, salePrice: parseFloat(e.target.value)})} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Commission</label>
+            <input type="number" value={editingItem.commission} onChange={e => setEditingItem({...editingItem, commission: parseFloat(e.target.value)})} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Actor Fee</label>
+            <input type="number" value={editingItem.actorFee} onChange={e => setEditingItem({...editingItem, actorFee: parseFloat(e.target.value)})} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+            <select value={editingItem.type} onChange={e => setEditingItem({...editingItem, type: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <option>Personal</option>
+              <option>Consignment</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Condition</label>
+            <select value={editingItem.condition} onChange={e => setEditingItem({...editingItem, condition: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <option>NEW</option>
+              <option>USED</option>
+            </select>
+          </div>
+        </div>
+        <div className="sticky bottom-0 bg-gray-50 px-6 py-4 border-t flex gap-3 justify-end">
+          <button onClick={() => setEditingId(null)} className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
+          <button onClick={handleSaveInventory} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2">
+            <Save size={16} /> Save Changes
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+
+  const EditCustomerModal = () => !editingItem || editingItem.type !== 'customer' ? null : (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg max-w-2xl w-full max-h-96 overflow-y-auto">
+        <div className="sticky top-0 bg-gray-50 px-6 py-4 border-b flex justify-between items-center">
+          <h3 className="text-lg font-semibold text-gray-900">Edit Customer</h3>
+          <button onClick={() => setEditingId(null)} className="text-gray-500 hover:text-gray-700">
+            <X size={20} />
+          </button>
+        </div>
+        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+            <input type="text" value={editingItem.name} onChange={e => setEditingItem({...editingItem, name: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input type="email" value={editingItem.email} onChange={e => setEditingItem({...editingItem, email: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+            <input type="tel" value={editingItem.phone} onChange={e => setEditingItem({...editingItem, phone: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+            <input type="text" value={editingItem.city} onChange={e => setEditingItem({...editingItem, city: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+            <select value={editingItem.type} onChange={e => setEditingItem({...editingItem, type: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <option>Retail</option>
+              <option>Wholesale</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Commission %</label>
+            <input type="number" value={editingItem.commission} onChange={e => setEditingItem({...editingItem, commission: parseFloat(e.target.value)})} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+          </div>
+        </div>
+        <div className="sticky bottom-0 bg-gray-50 px-6 py-4 border-t flex gap-3 justify-end">
+          <button onClick={() => setEditingId(null)} className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
+          <button onClick={handleSaveCustomer} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2">
+            <Save size={16} /> Save Changes
+          </button>
+        </div>
+      </div>
+    </div>
+  )
 
   // ============ RENDER FUNCTIONS ============
-
   const renderInventoryTab = () => (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Inventory Management</h3>
-        <button onClick={() => setShowAddModal(true)} className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-          <Plus size={16} /> Add Item
-        </button>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h3 className="text-2xl font-semibold text-gray-900">Inventory Management</h3>
+          <p className="text-sm text-gray-600 mt-1">{inventoryItems.length} items</p>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <button onClick={() => setShowImportModal(true)} className="flex items-center justify-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium">
+            📥 Import CSV
+          </button>
+          <button className="flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+            <Plus size={18} /> Add Item
+          </button>
+        </div>
       </div>
 
-      <div className="overflow-x-auto bg-white rounded border">
+      <div className="overflow-x-auto bg-white rounded-lg border border-gray-200 shadow-sm">
         <table className="w-full text-sm">
           <thead className="border-b bg-gray-50">
             <tr>
-              <th className="text-left px-4 py-3 font-semibold">Brand/Model</th>
-              <th className="text-left px-4 py-3 font-semibold">SKU</th>
-              <th className="text-center px-4 py-3 font-semibold">Stock</th>
-              <th className="text-left px-4 py-3 font-semibold">Type</th>
-              <th className="text-right px-4 py-3 font-semibold">Cost Price</th>
-              <th className="text-right px-4 py-3 font-semibold">Sale Price</th>
-              <th className="text-left px-4 py-3 font-semibold">Status</th>
-              <th className="text-center px-4 py-3 font-semibold">Actions</th>
+              <th className="text-left px-4 py-3 font-semibold text-gray-900">Ref ID</th>
+              <th className="text-left px-4 py-3 font-semibold text-gray-900">Brand/Model</th>
+              <th className="text-left px-4 py-3 font-semibold text-gray-900">Serial No</th>
+              <th className="text-center px-4 py-3 font-semibold text-gray-900">Condition</th>
+              <th className="text-right px-4 py-3 font-semibold text-gray-900">Cost Price</th>
+              <th className="text-right px-4 py-3 font-semibold text-gray-900">Sale Price</th>
+              <th className="text-left px-4 py-3 font-semibold text-gray-900">Type</th>
+              <th className="text-center px-4 py-3 font-semibold text-gray-900">Actions</th>
             </tr>
           </thead>
           <tbody>
             {inventoryItems.map(item => (
-              <tr key={item.id} className="border-b hover:bg-gray-50">
+              <tr key={item.id} className="border-b hover:bg-gray-50 transition-colors">
+                <td className="px-4 py-3 font-semibold text-blue-600">{item.refId}</td>
                 <td className="px-4 py-3"><strong>{item.brand}</strong> {item.model}</td>
-                <td className="px-4 py-3 text-gray-600">{item.sku}</td>
-                <td className="px-4 py-3 text-center font-semibold" style={{ color: item.stock === 0 ? '#dc2626' : '#333' }}>
-                  {item.stock}
-                </td>
-                <td className="px-4 py-3">
-                  <span className={`px-3 py-1 rounded text-xs font-semibold ${item.type === 'Consignment' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>
-                    {item.type}
+                <td className="px-4 py-3 text-gray-600">{item.serialNo}</td>
+                <td className="px-4 py-3 text-center">
+                  <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${item.condition === 'NEW' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}`}>
+                    {item.condition}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-right">{item.costPrice > 0 ? `MYR ${item.costPrice.toLocaleString()}` : '—'}</td>
-                <td className="px-4 py-3 text-right font-semibold">MYR {item.salePrice.toLocaleString()}</td>
+                <td className="px-4 py-3 text-right font-semibold text-gray-900">{item.salePrice > 0 ? `MYR ${item.salePrice.toLocaleString()}` : '—'}</td>
                 <td className="px-4 py-3">
-                  <span className={`px-3 py-1 rounded text-xs font-semibold ${item.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                    {item.status}
+                  <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${item.type === 'Consignment' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'}`}>
+                    {item.type}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-center flex gap-2 justify-center">
-                  <button className="text-blue-600 hover:text-blue-800"><Edit2 size={16} /></button>
-                  <button className="text-red-600 hover:text-red-800"><Trash2 size={16} /></button>
+                  <button onClick={() => handleEditInventory(item)} className="text-blue-600 hover:text-blue-800 transition-colors"><Edit2 size={16} /></button>
+                  <button onClick={() => handleDeleteInventory(item.id)} className="text-red-600 hover:text-red-800 transition-colors"><Trash2 size={16} /></button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+
+  const renderCustomersTab = () => (
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h3 className="text-2xl font-semibold text-gray-900">Customer Database</h3>
+          <p className="text-sm text-gray-600 mt-1">{customers.length} customers</p>
+        </div>
+        <button className="w-full sm:w-auto flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+          <Plus size={18} /> Add Customer
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+          <p className="text-gray-600 text-sm font-medium">Total Customers</p>
+          <p className="text-3xl font-bold text-gray-900 mt-2">{customers.length}</p>
+        </div>
+        <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+          <p className="text-gray-600 text-sm font-medium">Total Revenue</p>
+          <p className="text-3xl font-bold text-gray-900 mt-2">MYR {customers.reduce((sum, c) => sum + c.totalSpent, 0).toLocaleString()}</p>
+        </div>
+        <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+          <p className="text-gray-600 text-sm font-medium">Avg Spent</p>
+          <p className="text-3xl font-bold text-gray-900 mt-2">MYR {Math.round(customers.reduce((sum, c) => sum + c.totalSpent, 0) / customers.length).toLocaleString()}</p>
+        </div>
+        <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+          <p className="text-gray-600 text-sm font-medium">Active</p>
+          <p className="text-3xl font-bold text-green-600 mt-2">{customers.filter(c => c.status === 'Active').length}</p>
+        </div>
+      </div>
+
+      <div className="overflow-x-auto bg-white rounded-lg border border-gray-200 shadow-sm">
+        <table className="w-full text-sm">
+          <thead className="border-b bg-gray-50">
+            <tr>
+              <th className="text-left px-4 py-3 font-semibold text-gray-900">Name</th>
+              <th className="text-left px-4 py-3 font-semibold text-gray-900">Email</th>
+              <th className="text-left px-4 py-3 font-semibold text-gray-900">Type</th>
+              <th className="text-right px-4 py-3 font-semibold text-gray-900">Total Spent</th>
+              <th className="text-left px-4 py-3 font-semibold text-gray-900">Status</th>
+              <th className="text-center px-4 py-3 font-semibold text-gray-900">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {customers.map(customer => (
+              <tr key={customer.id} className="border-b hover:bg-gray-50 transition-colors">
+                <td className="px-4 py-3 font-semibold text-gray-900">{customer.name}</td>
+                <td className="px-4 py-3 text-gray-600">{customer.email}</td>
+                <td className="px-4 py-3">
+                  <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${customer.type === 'Wholesale' ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800'}`}>
+                    {customer.type}
+                  </span>
+                </td>
+                <td className="px-4 py-3 text-right font-semibold text-gray-900">MYR {customer.totalSpent.toLocaleString()}</td>
+                <td className="px-4 py-3">
+                  <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${customer.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                    {customer.status}
+                  </span>
+                </td>
+                <td className="px-4 py-3 text-center flex gap-2 justify-center">
+                  <button onClick={() => { setEditingItem({...customer, type: 'customer'}); setEditingId(customer.id); }} className="text-blue-600 hover:text-blue-800 transition-colors"><Edit2 size={16} /></button>
+                  <button onClick={() => handleDeleteCustomer(customer.id)} className="text-red-600 hover:text-red-800 transition-colors"><Trash2 size={16} /></button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+
+  const renderSuppliersTab = () => (
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h3 className="text-2xl font-semibold text-gray-900">Suppliers</h3>
+          <p className="text-sm text-gray-600 mt-1">{suppliers.length} suppliers</p>
+        </div>
+        <button className="w-full sm:w-auto flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+          <Plus size={18} /> Add Supplier
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {suppliers.map(supplier => (
+          <div key={supplier.id} className="bg-white border border-gray-200 rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <h4 className="font-semibold text-gray-900">{supplier.name}</h4>
+                <p className="text-sm text-gray-600">{supplier.country}</p>
+              </div>
+              <span className={`px-2 py-1 text-xs font-semibold rounded ${supplier.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                {supplier.status}
+              </span>
+            </div>
+            <div className="space-y-2 text-sm border-t pt-4">
+              <p><span className="text-gray-600">Phone:</span> <span className="font-medium text-gray-900">{supplier.contact}</span></p>
+              <p><span className="text-gray-600">Email:</span> <span className="font-medium text-gray-900">{supplier.email}</span></p>
+            </div>
+            <div className="flex gap-2 mt-4 pt-4 border-t">
+              <button className="flex-1 text-blue-600 hover:text-blue-800 text-sm font-semibold transition-colors">Edit</button>
+              <button className="flex-1 text-red-600 hover:text-red-800 text-sm font-semibold transition-colors">Delete</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+
+  const renderOrdersTab = () => (
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h3 className="text-2xl font-semibold text-gray-900">Orders</h3>
+          <p className="text-sm text-gray-600 mt-1">{orders.length} orders</p>
+        </div>
+        <button className="w-full sm:w-auto flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+          <Plus size={18} /> New Order
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+          <p className="text-gray-600 text-sm font-medium">Total Orders</p>
+          <p className="text-3xl font-bold text-gray-900 mt-2">{orders.length}</p>
+        </div>
+        <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+          <p className="text-gray-600 text-sm font-medium">Total Revenue</p>
+          <p className="text-3xl font-bold text-gray-900 mt-2">MYR {orders.reduce((sum, o) => sum + o.amount, 0).toLocaleString()}</p>
+        </div>
+        <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+          <p className="text-gray-600 text-sm font-medium">Total Commission</p>
+          <p className="text-3xl font-bold text-green-600 mt-2">MYR {orders.reduce((sum, o) => sum + (o.commissionAmount || 0), 0).toLocaleString()}</p>
+        </div>
+        <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+          <p className="text-gray-600 text-sm font-medium">Avg Order Value</p>
+          <p className="text-3xl font-bold text-gray-900 mt-2">MYR {Math.round(orders.reduce((sum, o) => sum + o.amount, 0) / orders.length).toLocaleString()}</p>
+        </div>
+      </div>
+
+      <div className="overflow-x-auto bg-white rounded-lg border border-gray-200 shadow-sm">
+        <table className="w-full text-sm">
+          <thead className="border-b bg-gray-50">
+            <tr>
+              <th className="text-left px-4 py-3 font-semibold text-gray-900">Order ID</th>
+              <th className="text-left px-4 py-3 font-semibold text-gray-900">Date</th>
+              <th className="text-left px-4 py-3 font-semibold text-gray-900">Customer</th>
+              <th className="text-right px-4 py-3 font-semibold text-gray-900">Amount</th>
+              <th className="text-right px-4 py-3 font-semibold text-gray-900">Commission</th>
+              <th className="text-left px-4 py-3 font-semibold text-gray-900">Status</th>
+              <th className="text-center px-4 py-3 font-semibold text-gray-900">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {orders.map(order => (
+              <tr key={order.id} className="border-b hover:bg-gray-50 transition-colors">
+                <td className="px-4 py-3 font-semibold text-blue-600">{order.id}</td>
+                <td className="px-4 py-3 text-gray-600">{order.date}</td>
+                <td className="px-4 py-3 text-gray-900">{order.customer}</td>
+                <td className="px-4 py-3 text-right font-semibold text-gray-900">MYR {order.amount.toLocaleString()}</td>
+                <td className="px-4 py-3 text-right font-semibold text-green-600">{order.commissionAmount > 0 ? `MYR ${order.commissionAmount.toLocaleString()}` : '—'}</td>
+                <td className="px-4 py-3">
+                  <span className={`inline-block px-2 py-1 rounded text-xs font-semibold bg-green-100 text-green-800`}>
+                    {order.status}
+                  </span>
+                </td>
+                <td className="px-4 py-3 text-center flex gap-2 justify-center">
+                  <button className="text-blue-600 hover:text-blue-800 transition-colors"><Edit2 size={16} /></button>
+                  <button className="text-red-600 hover:text-red-800 transition-colors"><Trash2 size={16} /></button>
                 </td>
               </tr>
             ))}
@@ -116,344 +493,50 @@ const ERPSystem = () => {
 
   const renderStockMovementsTab = () => (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Stock Movements</h3>
-        <button onClick={() => setShowAddModal(true)} className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-          <Plus size={16} /> Record Movement
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h3 className="text-2xl font-semibold text-gray-900">Stock Movements</h3>
+          <p className="text-sm text-gray-600 mt-1">{stockMovements.length} movements</p>
+        </div>
+        <button className="w-full sm:w-auto flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+          <Plus size={18} /> Record Movement
         </button>
       </div>
 
-      <div className="grid grid-cols-4 gap-4 mb-6">
-        <div className="bg-white p-4 rounded border">
-          <p className="text-gray-600 text-sm">Total In (This Month)</p>
-          <p className="text-2xl font-bold">6 units</p>
-        </div>
-        <div className="bg-white p-4 rounded border">
-          <p className="text-gray-600 text-sm">Total Out (This Month)</p>
-          <p className="text-2xl font-bold">3 units</p>
-        </div>
-        <div className="bg-white p-4 rounded border">
-          <p className="text-gray-600 text-sm">Personal Inventory</p>
-          <p className="text-2xl font-bold">10 units</p>
-        </div>
-        <div className="bg-white p-4 rounded border">
-          <p className="text-gray-600 text-sm">Consignment</p>
-          <p className="text-2xl font-bold">6 units</p>
-        </div>
-      </div>
-
-      <div className="overflow-x-auto bg-white rounded border">
+      <div className="overflow-x-auto bg-white rounded-lg border border-gray-200 shadow-sm">
         <table className="w-full text-sm">
           <thead className="border-b bg-gray-50">
             <tr>
-              <th className="text-left px-4 py-3 font-semibold">Date</th>
-              <th className="text-center px-4 py-3 font-semibold">Type</th>
-              <th className="text-left px-4 py-3 font-semibold">Brand/Model</th>
-              <th className="text-center px-4 py-3 font-semibold">Qty</th>
-              <th className="text-left px-4 py-3 font-semibold">Inventory Type</th>
-              <th className="text-left px-4 py-3 font-semibold">Reason</th>
-              <th className="text-left px-4 py-3 font-semibold">Reference</th>
-              <th className="text-left px-4 py-3 font-semibold">Notes</th>
+              <th className="text-left px-4 py-3 font-semibold text-gray-900">Date</th>
+              <th className="text-center px-4 py-3 font-semibold text-gray-900">Type</th>
+              <th className="text-left px-4 py-3 font-semibold text-gray-900">Brand/Model</th>
+              <th className="text-center px-4 py-3 font-semibold text-gray-900">Qty</th>
+              <th className="text-left px-4 py-3 font-semibold text-gray-900">Reason</th>
+              <th className="text-left px-4 py-3 font-semibold text-gray-900">Type</th>
+              <th className="text-center px-4 py-3 font-semibold text-gray-900">Actions</th>
             </tr>
           </thead>
           <tbody>
             {stockMovements.map(movement => (
-              <tr key={movement.id} className="border-b hover:bg-gray-50">
+              <tr key={movement.id} className="border-b hover:bg-gray-50 transition-colors">
                 <td className="px-4 py-3 text-gray-600">{movement.date}</td>
                 <td className="px-4 py-3 text-center">
-                  <span className={`px-3 py-1 rounded text-xs font-bold ${movement.type === 'IN' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                  <span className={`inline-block px-2 py-1 rounded text-xs font-bold ${movement.type === 'IN' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                     {movement.type}
                   </span>
                 </td>
                 <td className="px-4 py-3"><strong>{movement.brand}</strong> {movement.model}</td>
-                <td className="px-4 py-3 text-center font-semibold">{movement.qty}</td>
+                <td className="px-4 py-3 text-center font-semibold text-gray-900">{movement.qty}</td>
+                <td className="px-4 py-3 text-gray-600">{movement.reason}</td>
                 <td className="px-4 py-3">
-                  <span className={`px-3 py-1 rounded text-xs font-semibold ${movement.inventoryType === 'Consignment' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>
+                  <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${movement.inventoryType === 'Consignment' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'}`}>
                     {movement.inventoryType}
                   </span>
                 </td>
-                <td className="px-4 py-3">{movement.reason}</td>
-                <td className="px-4 py-3 text-gray-600">{movement.reference}</td>
-                <td className="px-4 py-3 text-gray-600">{movement.notes}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  )
-
-  const renderPricingTab = () => (
-    <div className="space-y-6">
-      <h3 className="text-lg font-semibold">Pricing Management</h3>
-      <div className="overflow-x-auto bg-white rounded border">
-        <table className="w-full text-sm">
-          <thead className="border-b bg-gray-50">
-            <tr>
-              <th className="text-left px-4 py-3 font-semibold">Brand</th>
-              <th className="text-right px-4 py-3 font-semibold">Avg Cost Price</th>
-              <th className="text-right px-4 py-3 font-semibold">Avg Sale Price</th>
-              <th className="text-right px-4 py-3 font-semibold">Margin %</th>
-              <th className="text-center px-4 py-3 font-semibold">Products</th>
-              <th className="text-center px-4 py-3 font-semibold">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {[
-              { brand: 'Rolex', cost: 45000, sale: 65000, margin: 44.4, products: 2 },
-              { brand: 'Patek Philippe', cost: 0, sale: 85000, margin: 0, products: 1 },
-              { brand: 'Audemars Piguet', cost: 50000, sale: 72000, margin: 44, products: 1 },
-              { brand: 'Omega', cost: 30000, sale: 42000, margin: 40, products: 1 },
-              { brand: 'Tudor', cost: 0, sale: 28000, margin: 0, products: 1 },
-            ].map((item, idx) => (
-              <tr key={idx} className="border-b hover:bg-gray-50">
-                <td className="px-4 py-3 font-semibold">{item.brand}</td>
-                <td className="px-4 py-3 text-right">{item.cost > 0 ? `MYR ${item.cost.toLocaleString()}` : '—'}</td>
-                <td className="px-4 py-3 text-right font-semibold">MYR {item.sale.toLocaleString()}</td>
-                <td className="px-4 py-3 text-right text-green-600 font-semibold">{item.margin > 0 ? `${item.margin.toFixed(1)}%` : '—'}</td>
-                <td className="px-4 py-3 text-center">{item.products}</td>
-                <td className="px-4 py-3 text-center"><button className="text-blue-600 hover:text-blue-800"><Edit2 size={16} /></button></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  )
-
-  const renderSuppliersTab = () => (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Suppliers</h3>
-        <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-          <Plus size={16} /> Add Supplier
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {suppliers.map(supplier => (
-          <div key={supplier.id} className="bg-white border rounded p-4">
-            <div className="flex justify-between items-start mb-3">
-              <div>
-                <h4 className="font-semibold">{supplier.name}</h4>
-                <p className="text-sm text-gray-600">{supplier.country}</p>
-              </div>
-              <span className={`px-2 py-1 text-xs font-semibold rounded ${supplier.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                {supplier.status}
-              </span>
-            </div>
-            <div className="space-y-2 text-sm border-t pt-3">
-              <p><span className="text-gray-600">Phone:</span> {supplier.contact}</p>
-              <p><span className="text-gray-600">Email:</span> {supplier.email}</p>
-              <p><span className="text-gray-600">Products:</span> {supplier.products}</p>
-              <p><span className="text-gray-600">Total Orders:</span> {supplier.totalOrders}</p>
-            </div>
-            <div className="flex gap-2 mt-3 pt-3 border-t">
-              <button className="flex-1 text-blue-600 hover:text-blue-800 text-sm font-semibold flex items-center justify-center gap-1">
-                <Edit2 size={14} /> Edit
-              </button>
-              <button className="flex-1 text-blue-600 hover:text-blue-800 text-sm font-semibold flex items-center justify-center gap-1">
-                <Eye size={14} /> View Orders
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-
-  const renderCustomersTab = () => (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Customer Database</h3>
-        <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-          <Plus size={16} /> Add Customer
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white p-4 rounded border">
-          <p className="text-gray-600 text-sm">Total Customers</p>
-          <p className="text-2xl font-bold">{customers.length}</p>
-        </div>
-        <div className="bg-white p-4 rounded border">
-          <p className="text-gray-600 text-sm">Total Revenue</p>
-          <p className="text-2xl font-bold">MYR 747,000</p>
-        </div>
-        <div className="bg-white p-4 rounded border">
-          <p className="text-gray-600 text-sm">Avg Order Value</p>
-          <p className="text-2xl font-bold">MYR 62,250</p>
-        </div>
-        <div className="bg-white p-4 rounded border">
-          <p className="text-gray-600 text-sm">Active Today</p>
-          <p className="text-2xl font-bold">2</p>
-        </div>
-      </div>
-
-      <div className="overflow-x-auto bg-white rounded border">
-        <table className="w-full text-sm">
-          <thead className="border-b bg-gray-50">
-            <tr>
-              <th className="text-left px-4 py-3 font-semibold">Name</th>
-              <th className="text-left px-4 py-3 font-semibold">Email</th>
-              <th className="text-left px-4 py-3 font-semibold">Type</th>
-              <th className="text-center px-4 py-3 font-semibold">Commission %</th>
-              <th className="text-center px-4 py-3 font-semibold">Purchases</th>
-              <th className="text-right px-4 py-3 font-semibold">Total Spent</th>
-              <th className="text-left px-4 py-3 font-semibold">Last Purchase</th>
-              <th className="text-left px-4 py-3 font-semibold">Status</th>
-              <th className="text-center px-4 py-3 font-semibold">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {customers.map(customer => (
-              <tr key={customer.id} className="border-b hover:bg-gray-50">
-                <td className="px-4 py-3 font-semibold">{customer.name}</td>
-                <td className="px-4 py-3 text-gray-600">{customer.email}</td>
-                <td className="px-4 py-3">
-                  <span className={`px-3 py-1 rounded text-xs font-semibold ${customer.type === 'Wholesale' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}`}>
-                    {customer.type}
-                  </span>
+                <td className="px-4 py-3 text-center flex gap-2 justify-center">
+                  <button className="text-blue-600 hover:text-blue-800 transition-colors"><Edit2 size={16} /></button>
+                  <button className="text-red-600 hover:text-red-800 transition-colors"><Trash2 size={16} /></button>
                 </td>
-                <td className="px-4 py-3 text-center font-semibold" style={{ color: customer.commission > 0 ? '#0066cc' : '#999' }}>
-                  {customer.commission > 0 ? `${customer.commission}%` : '—'}
-                </td>
-                <td className="px-4 py-3 text-center">{customer.totalPurchases}</td>
-                <td className="px-4 py-3 text-right font-semibold">MYR {customer.totalSpent.toLocaleString()}</td>
-                <td className="px-4 py-3 text-gray-600">{customer.lastPurchase}</td>
-                <td className="px-4 py-3">
-                  <span className={`px-3 py-1 rounded text-xs font-semibold ${customer.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                    {customer.status}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-center"><button className="text-blue-600 hover:text-blue-800"><Eye size={16} /></button></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  )
-
-  const renderSalesPipelineTab = () => (
-    <div className="space-y-6">
-      <h3 className="text-lg font-semibold">Sales Pipeline</h3>
-
-      <div className="grid grid-cols-5 gap-4">
-        {['Lead', 'Prospect', 'Quote', 'Negotiation', 'Won'].map(stage => (
-          <div key={stage} className="bg-gray-50 rounded border p-3">
-            <h4 className="font-semibold mb-3">{stage}</h4>
-            <div className="space-y-2">
-              {salesPipeline.filter(d => d.stage === stage).map(deal => (
-                <div key={deal.id} className="bg-white p-2 rounded border text-xs">
-                  <p className="font-semibold">{deal.customer}</p>
-                  <p className="text-gray-600">{deal.brand}</p>
-                  <p className="font-bold text-green-600">MYR {deal.value.toLocaleString()}</p>
-                  <p className="text-gray-500">{deal.probability}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="bg-white rounded border p-4">
-        <h4 className="font-semibold mb-3">All Deals</h4>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="border-b bg-gray-50">
-              <tr>
-                <th className="text-left px-4 py-3 font-semibold">Customer</th>
-                <th className="text-left px-4 py-3 font-semibold">Brand</th>
-                <th className="text-right px-4 py-3 font-semibold">Deal Value</th>
-                <th className="text-left px-4 py-3 font-semibold">Stage</th>
-                <th className="text-right px-4 py-3 font-semibold">Probability</th>
-                <th className="text-right px-4 py-3 font-semibold">Days in Stage</th>
-              </tr>
-            </thead>
-            <tbody>
-              {salesPipeline.map(deal => (
-                <tr key={deal.id} className="border-b hover:bg-gray-50">
-                  <td className="px-4 py-3 font-semibold">{deal.customer}</td>
-                  <td className="px-4 py-3">{deal.brand}</td>
-                  <td className="px-4 py-3 text-right font-semibold">MYR {deal.value.toLocaleString()}</td>
-                  <td className="px-4 py-3">{deal.stage}</td>
-                  <td className="px-4 py-3 text-right">{deal.probability}</td>
-                  <td className="px-4 py-3 text-right">{deal.daysInStage} days</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  )
-
-  const renderOrdersTab = () => (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Orders</h3>
-        <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-          <Plus size={16} /> New Order
-        </button>
-      </div>
-
-      <div className="grid grid-cols-4 gap-4 mb-6">
-        <div className="bg-white p-4 rounded border">
-          <p className="text-gray-600 text-sm">Total Orders</p>
-          <p className="text-2xl font-bold">{orders.length}</p>
-        </div>
-        <div className="bg-white p-4 rounded border">
-          <p className="text-gray-600 text-sm">Total Revenue</p>
-          <p className="text-2xl font-bold">MYR 227,000</p>
-        </div>
-        <div className="bg-white p-4 rounded border">
-          <p className="text-gray-600 text-sm">Avg Order Value</p>
-          <p className="text-2xl font-bold">MYR 75,667</p>
-        </div>
-        <div className="bg-white p-4 rounded border">
-          <p className="text-gray-600 text-sm">Conversion Rate</p>
-          <p className="text-2xl font-bold">15%</p>
-        </div>
-      </div>
-
-      <div className="overflow-x-auto bg-white rounded border">
-        <table className="w-full text-sm">
-          <thead className="border-b bg-gray-50">
-            <tr>
-              <th className="text-left px-4 py-3 font-semibold">Order ID</th>
-              <th className="text-left px-4 py-3 font-semibold">Date</th>
-              <th className="text-left px-4 py-3 font-semibold">Customer</th>
-              <th className="text-center px-4 py-3 font-semibold">Items</th>
-              <th className="text-right px-4 py-3 font-semibold">Amount</th>
-              <th className="text-center px-4 py-3 font-semibold">Commission %</th>
-              <th className="text-right px-4 py-3 font-semibold">Commission Amount</th>
-              <th className="text-left px-4 py-3 font-semibold">Status</th>
-              <th className="text-left px-4 py-3 font-semibold">Payment</th>
-              <th className="text-center px-4 py-3 font-semibold">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map(order => (
-              <tr key={order.id} className="border-b hover:bg-gray-50">
-                <td className="px-4 py-3 font-semibold">{order.id}</td>
-                <td className="px-4 py-3 text-gray-600">{order.date}</td>
-                <td className="px-4 py-3">{order.customer}</td>
-                <td className="px-4 py-3 text-center">{order.items}</td>
-                <td className="px-4 py-3 text-right font-semibold">MYR {order.amount.toLocaleString()}</td>
-                <td className="px-4 py-3 text-center font-semibold" style={{ color: order.commission > 0 ? '#0066cc' : '#999' }}>
-                  {order.commission > 0 ? `${order.commission}%` : '—'}
-                </td>
-                <td className="px-4 py-3 text-right font-semibold" style={{ color: order.commissionAmount > 0 ? '#2e7d32' : '#999' }}>
-                  {order.commissionAmount > 0 ? `MYR ${order.commissionAmount.toLocaleString()}` : '—'}
-                </td>
-                <td className="px-4 py-3">
-                  <span className="px-3 py-1 bg-green-100 text-green-800 rounded text-xs font-semibold">Completed</span>
-                </td>
-                <td className="px-4 py-3">
-                  <span className="px-3 py-1 bg-green-100 text-green-800 rounded text-xs font-semibold">Paid</span>
-                </td>
-                <td className="px-4 py-3 text-center"><button className="text-blue-600 hover:text-blue-800"><Eye size={16} /></button></td>
               </tr>
             ))}
           </tbody>
@@ -463,38 +546,36 @@ const ERPSystem = () => {
   )
 
   return (
-    <div className="bg-white rounded-lg shadow">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200">
       {/* Main Tabs */}
-      <div className="flex border-b">
+      <div className="flex border-b border-gray-200">
         <button
           onClick={() => { setActiveTab('erp'); setActiveSubTab('inventory') }}
-          className={`px-6 py-4 font-semibold border-b-2 transition ${activeTab === 'erp' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-600 hover:text-gray-800'}`}
+          className={`flex-1 px-6 py-4 font-semibold text-center border-b-2 transition ${activeTab === 'erp' ? 'border-blue-600 text-blue-600 bg-blue-50' : 'border-transparent text-gray-600 hover:text-gray-900'}`}
         >
           ERP System
         </button>
         <button
           onClick={() => { setActiveTab('crm'); setActiveSubTab('customers') }}
-          className={`px-6 py-4 font-semibold border-b-2 transition ${activeTab === 'crm' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-600 hover:text-gray-800'}`}
+          className={`flex-1 px-6 py-4 font-semibold text-center border-b-2 transition ${activeTab === 'crm' ? 'border-blue-600 text-blue-600 bg-blue-50' : 'border-transparent text-gray-600 hover:text-gray-900'}`}
         >
           CRM System
         </button>
       </div>
 
-      <div className="p-6">
+      <div className="p-4 md:p-6">
         {/* ERP Sub Tabs */}
         {activeTab === 'erp' && (
           <>
-            <div className="flex gap-2 mb-6 border-b pb-4">
+            <div className="flex gap-2 mb-6 overflow-x-auto pb-4 border-b">
               {[
                 { id: 'inventory', label: 'Inventory' },
                 { id: 'movements', label: 'Stock Movements' },
-                { id: 'pricing', label: 'Pricing' },
-                { id: 'suppliers', label: 'Suppliers' },
               ].map(tab => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveSubTab(tab.id)}
-                  className={`px-4 py-2 font-semibold text-sm rounded transition ${activeSubTab === tab.id ? 'bg-blue-100 text-blue-600' : 'text-gray-600 hover:bg-gray-100'}`}
+                  className={`px-4 py-2 font-semibold text-sm rounded-lg whitespace-nowrap transition ${activeSubTab === tab.id ? 'bg-blue-100 text-blue-600' : 'text-gray-600 hover:bg-gray-100'}`}
                 >
                   {tab.label}
                 </button>
@@ -503,24 +584,22 @@ const ERPSystem = () => {
 
             {activeSubTab === 'inventory' && renderInventoryTab()}
             {activeSubTab === 'movements' && renderStockMovementsTab()}
-            {activeSubTab === 'pricing' && renderPricingTab()}
-            {activeSubTab === 'suppliers' && renderSuppliersTab()}
           </>
         )}
 
         {/* CRM Sub Tabs */}
         {activeTab === 'crm' && (
           <>
-            <div className="flex gap-2 mb-6 border-b pb-4">
+            <div className="flex gap-2 mb-6 overflow-x-auto pb-4 border-b">
               {[
                 { id: 'customers', label: 'Customers' },
-                { id: 'pipeline', label: 'Sales Pipeline' },
+                { id: 'suppliers', label: 'Suppliers' },
                 { id: 'orders', label: 'Orders' },
               ].map(tab => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveSubTab(tab.id)}
-                  className={`px-4 py-2 font-semibold text-sm rounded transition ${activeSubTab === tab.id ? 'bg-blue-100 text-blue-600' : 'text-gray-600 hover:bg-gray-100'}`}
+                  className={`px-4 py-2 font-semibold text-sm rounded-lg whitespace-nowrap transition ${activeSubTab === tab.id ? 'bg-blue-100 text-blue-600' : 'text-gray-600 hover:bg-gray-100'}`}
                 >
                   {tab.label}
                 </button>
@@ -528,11 +607,54 @@ const ERPSystem = () => {
             </div>
 
             {activeSubTab === 'customers' && renderCustomersTab()}
-            {activeSubTab === 'pipeline' && renderSalesPipelineTab()}
+            {activeSubTab === 'suppliers' && renderSuppliersTab()}
             {activeSubTab === 'orders' && renderOrdersTab()}
           </>
         )}
       </div>
+
+      {/* Modals */}
+      <EditInventoryModal />
+      <EditCustomerModal />
+
+      {showImportModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full">
+            <div className="bg-gray-50 px-6 py-4 border-b flex justify-between items-center">
+              <h3 className="text-lg font-semibold text-gray-900">Import Inventory from CSV</h3>
+              <button onClick={() => setShowImportModal(false)} className="text-gray-500 hover:text-gray-700">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <p className="text-gray-600">Upload a CSV file to import inventory items. Supported formats:</p>
+              <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
+                <li>Rolex - NEW</li>
+                <li>ROLEX - HAVE STOCK</li>
+                <li>Branded Watch - NEW</li>
+                <li>Branded Watch - HAVE STOCK</li>
+              </ul>
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                <input
+                  type="file"
+                  accept=".csv"
+                  onChange={handleCSVImport}
+                  className="hidden"
+                  id="csv-upload"
+                />
+                <label htmlFor="csv-upload" className="cursor-pointer">
+                  <div className="text-4xl mb-2">📁</div>
+                  <p className="font-medium text-gray-900">Click to upload CSV</p>
+                  <p className="text-sm text-gray-500">or drag and drop</p>
+                </label>
+              </div>
+            </div>
+            <div className="bg-gray-50 px-6 py-4 border-t flex gap-3 justify-end">
+              <button onClick={() => setShowImportModal(false)} className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50">Close</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
