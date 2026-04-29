@@ -29,6 +29,8 @@ const ERPSystem = () => {
   const [filterType, setFilterType] = useState('ALL')
   const [filterStatus, setFilterStatus] = useState('ALL')
   const [filterOwner, setFilterOwner] = useState('ALL')
+  const [filterBrand, setFilterBrand] = useState('ALL')
+  const [filterModel, setFilterModel] = useState('ALL')
 
   // Inventory from CSV
   const [inventory, setInventory] = useState(INVENTORY_DATA)
@@ -61,13 +63,29 @@ const ERPSystem = () => {
     { id: 3, date: '2024-04-20', type: 'IN', refId: 'W-200', brand: 'Patek Philippe', qty: 1, reason: 'Received from supplier', user: 'Admin' },
   ])
 
-  // Get unique owners from inventory
+  // Get unique values from inventory
   const owners = useMemo(() => {
     const uniqueOwners = new Set()
     inventory.forEach(item => {
       if (item.owner && item.owner.trim()) uniqueOwners.add(item.owner)
     })
     return Array.from(uniqueOwners).sort()
+  }, [inventory])
+
+  const brands = useMemo(() => {
+    const uniqueBrands = new Set()
+    inventory.forEach(item => {
+      if (item.brand && item.brand.trim()) uniqueBrands.add(item.brand)
+    })
+    return Array.from(uniqueBrands).sort()
+  }, [inventory])
+
+  const models = useMemo(() => {
+    const uniqueModels = new Set()
+    inventory.forEach(item => {
+      if (item.model && item.model.trim()) uniqueModels.add(item.model)
+    })
+    return Array.from(uniqueModels).sort()
   }, [inventory])
 
   // Filtered Inventory
@@ -82,9 +100,11 @@ const ERPSystem = () => {
       const matchesType = filterType === 'ALL' || item.type === filterType
       const matchesStatus = filterStatus === 'ALL' || item.status === filterStatus
       const matchesOwner = filterOwner === 'ALL' || item.owner === filterOwner
-      return matchesSearch && matchesCondition && matchesType && matchesStatus && matchesOwner
+      const matchesBrand = filterBrand === 'ALL' || item.brand === filterBrand
+      const matchesModel = filterModel === 'ALL' || item.model === filterModel
+      return matchesSearch && matchesCondition && matchesType && matchesStatus && matchesOwner && matchesBrand && matchesModel
     })
-  }, [inventory, searchTerm, filterCondition, filterType, filterStatus, filterOwner])
+  }, [inventory, searchTerm, filterCondition, filterType, filterStatus, filterOwner, filterBrand, filterModel])
 
   // Calculate KPIs
   const kpis = useMemo(() => {
@@ -374,7 +394,7 @@ const ERPSystem = () => {
           <Plus size={16} /> Add Item
         </button>
         <button onClick={() => setShowImportModal(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: COLORS.gold, color: COLORS.white, padding: '0.625rem 1rem', borderRadius: '4px', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '0.875rem' }}>
-          📥 Import CSV
+          Import CSV
         </button>
       </div>
 
@@ -383,10 +403,12 @@ const ERPSystem = () => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: COLORS.lightBg, padding: '0.5rem 0.75rem', borderRadius: '4px', border: `1px solid ${COLORS.darkBorder}` }}>
           <Search size={16} color={COLORS.lightText} />
           <input type="text" placeholder="Search by Ref ID, Brand, Model, Serial No..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontSize: '0.875rem', color: COLORS.darkText }} />
-          {searchTerm && <button onClick={() => setSearchTerm('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: COLORS.lightText, fontSize: '1.2rem' }}>✕</button>}
+          {searchTerm && <button onClick={() => setSearchTerm('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: COLORS.lightText, padding: '0.25rem' }}><X size={18} /></button>}
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
           {[
+            { label: 'Brand', value: filterBrand, onChange: setFilterBrand, options: ['ALL', ...brands] },
+            { label: 'Model', value: filterModel, onChange: setFilterModel, options: ['ALL', ...models] },
             { label: 'Condition', value: filterCondition, onChange: setFilterCondition, options: ['ALL', 'NEW', 'USED'] },
             { label: 'Type', value: filterType, onChange: setFilterType, options: ['ALL', 'Personal', 'Consignment'] },
             { label: 'Status', value: filterStatus, onChange: setFilterStatus, options: ['ALL', 'Active', 'Sold'] },
@@ -702,8 +724,8 @@ const ERPSystem = () => {
   return (
     <div style={{ background: COLORS.lightBg, minHeight: '100vh' }}>
       {/* Header */}
-      <div style={{ padding: '1.5rem 2rem', background: COLORS.lightBg, borderBottom: `2px solid ${COLORS.gold}` }}>
-        <h1 style={{ fontSize: '1.875rem', fontWeight: 700, color: COLORS.darkText, margin: 0 }}>ERP & CRM System</h1>
+      <div style={{ padding: '2rem 2rem', background: COLORS.dark, borderBottom: `3px solid ${COLORS.gold}` }}>
+        <h1 style={{ fontSize: '2.25rem', fontWeight: 800, color: COLORS.gold, margin: 0, letterSpacing: '0.5px' }}>ERP & CRM System</h1>
       </div>
 
       {/* Main Tabs */}
