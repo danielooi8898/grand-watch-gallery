@@ -150,7 +150,7 @@ const ERPSystem = () => {
         if (inventory.some(i => i.refId === editingItem.refId)) { alert('Item already exists'); return }
         setInventory([...inventory, { ...editingItem, id: editingItem.refId }])
       }
-      alert('✅ Saved')
+      alert('Saved')
     } else if (editingType === 'customer') {
       if (!editingItem.name || !editingItem.email) { alert('Name and Email required'); return }
       if (editingId) {
@@ -158,7 +158,7 @@ const ERPSystem = () => {
       } else {
         setCustomers([...customers, { ...editingItem, id: Math.max(...customers.map(c => c.id), 0) + 1 }])
       }
-      alert('✅ Saved')
+      alert('Saved')
     } else if (editingType === 'supplier') {
       if (!editingItem.company || !editingItem.country) { alert('Company and Country required'); return }
       if (editingId) {
@@ -166,7 +166,7 @@ const ERPSystem = () => {
       } else {
         setSuppliers([...suppliers, { ...editingItem, id: Math.max(...suppliers.map(s => s.id), 0) + 1 }])
       }
-      alert('✅ Saved')
+      alert('Saved')
     } else if (editingType === 'order') {
       if (!editingItem.customer || !editingItem.total) { alert('Customer and Total required'); return }
       if (editingId) {
@@ -175,7 +175,7 @@ const ERPSystem = () => {
         const newId = `ORD-${String(orders.length + 1).padStart(3, '0')}`
         setOrders([...orders, { ...editingItem, id: newId }])
       }
-      alert('✅ Saved')
+      alert('Saved')
     }
     setEditingItem(null)
     setEditingId(null)
@@ -189,7 +189,13 @@ const ERPSystem = () => {
     else if (type === 'customer') setCustomers(customers.filter(c => c.id !== id))
     else if (type === 'supplier') setSuppliers(suppliers.filter(s => s.id !== id))
     else if (type === 'order') setOrders(orders.filter(o => o.id !== id))
-    alert('✅ Deleted')
+    alert('Deleted')
+  }
+
+  const handleMarkSold = (itemId) => {
+    setInventory(inventory.map(item =>
+      item.id === itemId ? { ...item, status: 'Sold' } : item
+    ))
   }
 
   // Modal Component
@@ -295,17 +301,14 @@ const ERPSystem = () => {
       <h2 style={{ fontSize: '1.75rem', fontWeight: 700, color: COLORS.darkText }}>Dashboard</h2>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
         {[
-          { label: 'Active Items', value: kpis.activeItems, icon: '📦', color: '#10b981' },
-          { label: 'Inventory Value', value: `MYR ${kpis.totalValue.toLocaleString()}`, icon: '💰', color: '#3b82f6' },
-          { label: 'Total Sold', value: kpis.soldItems, icon: '✅', color: '#8b5cf6' },
-          { label: 'Total Revenue', value: `MYR ${kpis.totalRevenue.toLocaleString()}`, icon: '📈', color: COLORS.gold },
+          { label: 'Active Items', value: kpis.activeItems, color: '#10b981' },
+          { label: 'Inventory Value', value: `MYR ${kpis.totalValue.toLocaleString()}`, color: '#3b82f6' },
+          { label: 'Total Sold', value: kpis.soldItems, color: '#8b5cf6' },
+          { label: 'Total Revenue', value: `MYR ${kpis.totalRevenue.toLocaleString()}`, color: COLORS.gold },
         ].map((stat, idx) => (
-          <div key={idx} style={{ background: COLORS.white, padding: '1.5rem', borderRadius: '8px', border: `1px solid ${COLORS.darkBorder}`, display: 'flex', gap: '1rem' }}>
-            <div style={{ fontSize: '2.5rem' }}>{stat.icon}</div>
-            <div>
-              <p style={{ fontSize: '0.75rem', color: COLORS.lightText, textTransform: 'uppercase', fontWeight: 600, marginBottom: '0.5rem' }}>{stat.label}</p>
-              <p style={{ fontSize: '1.75rem', fontWeight: 700, color: COLORS.darkText }}>{stat.value}</p>
-            </div>
+          <div key={idx} style={{ background: COLORS.white, padding: '1.5rem', borderRadius: '8px', border: `1px solid ${COLORS.darkBorder}` }}>
+            <p style={{ fontSize: '0.75rem', color: COLORS.lightText, textTransform: 'uppercase', fontWeight: 600, marginBottom: '0.75rem' }}>{stat.label}</p>
+            <p style={{ fontSize: '2rem', fontWeight: 700, color: stat.color }}>{stat.value}</p>
           </div>
         ))}
       </div>
@@ -446,7 +449,12 @@ const ERPSystem = () => {
                     {item.status}
                   </span>
                 </td>
-                <td style={{ padding: '1rem', textAlign: 'center', display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+                <td style={{ padding: '1rem', textAlign: 'center', display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                  {item.status === 'Active' && (
+                    <button onClick={() => handleMarkSold(item.id)} style={{ padding: '0.35rem 0.75rem', background: COLORS.gold, color: COLORS.white, border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '0.7rem', fontWeight: 600 }}>
+                      Sold
+                    </button>
+                  )}
                   <button onClick={() => { setEditingType('inventory'); setEditingItem(item); setEditingId(item.id); setShowModal(true) }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: COLORS.gold, padding: '0.25rem' }}>
                     <Edit2 size={16} />
                   </button>
@@ -694,20 +702,19 @@ const ERPSystem = () => {
   return (
     <div style={{ background: COLORS.lightBg, minHeight: '100vh' }}>
       {/* Header */}
-      <div style={{ padding: '2rem', background: COLORS.dark, borderBottom: `1px solid ${COLORS.darkBorder}` }}>
-        <h1 style={{ fontSize: '2.5rem', fontWeight: 700, color: COLORS.white, marginBottom: '0.5rem' }}>ERP & CRM Platform</h1>
-        <p style={{ fontSize: '1rem', color: '#999' }}>Complete business management system for Grand Watch Gallery</p>
+      <div style={{ padding: '1.5rem 2rem', background: COLORS.lightBg, borderBottom: `2px solid ${COLORS.gold}` }}>
+        <h1 style={{ fontSize: '1.875rem', fontWeight: 700, color: COLORS.darkText, margin: 0 }}>ERP & CRM System</h1>
       </div>
 
       {/* Main Tabs */}
       <div style={{ background: COLORS.white, borderBottom: `1px solid ${COLORS.darkBorder}`, display: 'flex', borderTop: `4px solid ${COLORS.gold}` }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto', width: '100%', display: 'flex' }}>
           {[
-            { id: 'erp', label: 'ERP System', icon: '📊' },
-            { id: 'crm', label: 'CRM System', icon: '👥' },
+            { id: 'erp', label: 'ERP System' },
+            { id: 'crm', label: 'CRM System' },
           ].map(tab => (
-            <button key={tab.id} onClick={() => { setActiveTab(tab.id); setActiveSubTab(tab.id === 'erp' ? 'dashboard' : 'customers') }} style={{ flex: 1, padding: '1.25rem', fontWeight: 700, fontSize: '1rem', borderBottom: activeTab === tab.id ? `3px solid ${COLORS.gold}` : '3px solid transparent', color: activeTab === tab.id ? COLORS.gold : COLORS.lightText, background: 'none', border: 'none', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem' }}>
-              <span>{tab.icon}</span> {tab.label}
+            <button key={tab.id} onClick={() => { setActiveTab(tab.id); setActiveSubTab(tab.id === 'erp' ? 'dashboard' : 'customers') }} style={{ flex: 1, padding: '1.25rem', fontWeight: 700, fontSize: '1rem', borderBottom: activeTab === tab.id ? `3px solid ${COLORS.gold}` : '3px solid transparent', color: activeTab === tab.id ? COLORS.gold : COLORS.lightText, background: 'none', border: 'none', cursor: 'pointer', transition: 'all 0.2s' }}>
+              {tab.label}
             </button>
           ))}
         </div>
@@ -767,7 +774,6 @@ const ERPSystem = () => {
               <div style={{ border: `2px dashed ${COLORS.darkBorder}`, borderRadius: '8px', padding: '2rem', textAlign: 'center' }}>
                 <input type="file" accept=".csv" onChange={handleCSVImport} style={{ display: 'none' }} id="csv-upload" />
                 <label htmlFor="csv-upload" style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
-                  <div style={{ fontSize: '2.5rem' }}>📁</div>
                   <p style={{ fontWeight: 700, color: COLORS.darkText }}>Click to upload CSV</p>
                   <p style={{ fontSize: '0.875rem', color: COLORS.lightText }}>or drag and drop</p>
                 </label>
