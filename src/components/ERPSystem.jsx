@@ -29,17 +29,17 @@ const ERPSystem = () => {
 
   // ============ CUSTOMER DATA (CRM) ============
   const [customers, setCustomers] = useState([
-    { id: 1, name: 'Ahmad Khan', email: 'ahmad.khan@email.com', phone: '+6012-3456789', type: 'Retail', city: 'Kuala Lumpur', totalPurchases: 3, totalSpent: 150000, lastPurchase: '2024-04-24', status: 'Active' },
-    { id: 2, name: 'Sarah Lee', email: 'sarah.lee@email.com', phone: '+6013-9876543', type: 'Retail', city: 'Selangor', totalPurchases: 2, totalSpent: 85000, lastPurchase: '2024-04-15', status: 'Active' },
-    { id: 3, name: 'Michael Chen', email: 'michael.chen@email.com', phone: '+6011-5555555', type: 'Wholesale', city: 'Penang', totalPurchases: 12, totalSpent: 450000, lastPurchase: '2024-04-22', status: 'Active' },
-    { id: 4, name: 'Fatima Aziz', email: 'fatima.aziz@email.com', phone: '+6016-7777777', type: 'Retail', city: 'Johor', totalPurchases: 1, totalSpent: 62000, lastPurchase: '2024-03-10', status: 'Inactive' },
+    { id: 1, name: 'Ahmad Khan', email: 'ahmad.khan@email.com', phone: '+6012-3456789', type: 'Retail', city: 'Kuala Lumpur', commission: 0, totalPurchases: 3, totalSpent: 150000, lastPurchase: '2024-04-24', status: 'Active' },
+    { id: 2, name: 'Sarah Lee', email: 'sarah.lee@email.com', phone: '+6013-9876543', type: 'Retail', city: 'Selangor', commission: 0, totalPurchases: 2, totalSpent: 85000, lastPurchase: '2024-04-15', status: 'Active' },
+    { id: 3, name: 'Michael Chen', email: 'michael.chen@email.com', phone: '+6011-5555555', type: 'Wholesale', city: 'Penang', commission: 5, totalPurchases: 12, totalSpent: 450000, lastPurchase: '2024-04-22', status: 'Active' },
+    { id: 4, name: 'Fatima Aziz', email: 'fatima.aziz@email.com', phone: '+6016-7777777', type: 'Retail', city: 'Johor', commission: 0, totalPurchases: 1, totalSpent: 62000, lastPurchase: '2024-03-10', status: 'Inactive' },
   ])
 
   // ============ ORDERS DATA ============
   const [orders, setOrders] = useState([
-    { id: 'ORD-2024-001', date: '2024-04-25', customer: 'Ahmad Khan', items: 1, amount: 42000, status: 'Completed', paymentStatus: 'Paid' },
-    { id: 'ORD-2024-002', date: '2024-04-22', customer: 'Michael Chen', items: 2, amount: 120000, status: 'Completed', paymentStatus: 'Paid' },
-    { id: 'ORD-2024-003', date: '2024-04-10', customer: 'Sarah Lee', items: 1, amount: 65000, status: 'Completed', paymentStatus: 'Paid' },
+    { id: 'ORD-2024-001', date: '2024-04-25', customer: 'Ahmad Khan', items: 1, amount: 42000, commission: 0, commissionAmount: 0, status: 'Completed', paymentStatus: 'Paid' },
+    { id: 'ORD-2024-002', date: '2024-04-22', customer: 'Michael Chen', items: 2, amount: 120000, commission: 5, commissionAmount: 6000, status: 'Completed', paymentStatus: 'Paid' },
+    { id: 'ORD-2024-003', date: '2024-04-10', customer: 'Sarah Lee', items: 1, amount: 65000, commission: 0, commissionAmount: 0, status: 'Completed', paymentStatus: 'Paid' },
   ])
 
   // ============ SUPPLIERS DATA ============
@@ -297,6 +297,7 @@ const ERPSystem = () => {
               <th className="text-left px-4 py-3 font-semibold">Name</th>
               <th className="text-left px-4 py-3 font-semibold">Email</th>
               <th className="text-left px-4 py-3 font-semibold">Type</th>
+              <th className="text-center px-4 py-3 font-semibold">Commission %</th>
               <th className="text-center px-4 py-3 font-semibold">Purchases</th>
               <th className="text-right px-4 py-3 font-semibold">Total Spent</th>
               <th className="text-left px-4 py-3 font-semibold">Last Purchase</th>
@@ -313,6 +314,9 @@ const ERPSystem = () => {
                   <span className={`px-3 py-1 rounded text-xs font-semibold ${customer.type === 'Wholesale' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}`}>
                     {customer.type}
                   </span>
+                </td>
+                <td className="px-4 py-3 text-center font-semibold" style={{ color: customer.commission > 0 ? '#0066cc' : '#999' }}>
+                  {customer.commission > 0 ? `${customer.commission}%` : '—'}
                 </td>
                 <td className="px-4 py-3 text-center">{customer.totalPurchases}</td>
                 <td className="px-4 py-3 text-right font-semibold">MYR {customer.totalSpent.toLocaleString()}</td>
@@ -422,6 +426,8 @@ const ERPSystem = () => {
               <th className="text-left px-4 py-3 font-semibold">Customer</th>
               <th className="text-center px-4 py-3 font-semibold">Items</th>
               <th className="text-right px-4 py-3 font-semibold">Amount</th>
+              <th className="text-center px-4 py-3 font-semibold">Commission %</th>
+              <th className="text-right px-4 py-3 font-semibold">Commission Amount</th>
               <th className="text-left px-4 py-3 font-semibold">Status</th>
               <th className="text-left px-4 py-3 font-semibold">Payment</th>
               <th className="text-center px-4 py-3 font-semibold">Actions</th>
@@ -435,6 +441,12 @@ const ERPSystem = () => {
                 <td className="px-4 py-3">{order.customer}</td>
                 <td className="px-4 py-3 text-center">{order.items}</td>
                 <td className="px-4 py-3 text-right font-semibold">MYR {order.amount.toLocaleString()}</td>
+                <td className="px-4 py-3 text-center font-semibold" style={{ color: order.commission > 0 ? '#0066cc' : '#999' }}>
+                  {order.commission > 0 ? `${order.commission}%` : '—'}
+                </td>
+                <td className="px-4 py-3 text-right font-semibold" style={{ color: order.commissionAmount > 0 ? '#2e7d32' : '#999' }}>
+                  {order.commissionAmount > 0 ? `MYR ${order.commissionAmount.toLocaleString()}` : '—'}
+                </td>
                 <td className="px-4 py-3">
                   <span className="px-3 py-1 bg-green-100 text-green-800 rounded text-xs font-semibold">Completed</span>
                 </td>
