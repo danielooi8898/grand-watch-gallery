@@ -38,32 +38,16 @@ const ERPSystem = () => {
   const [inventory, setInventory] = useState(INVENTORY_DATA)
 
   // Customers - can be added/edited
-  const [customers, setCustomers] = useState([
-    { id: 1, name: 'Ahmad Khan', email: 'ahmad@email.com', phone: '+6012-3456789', city: 'Kuala Lumpur', type: 'Retail', status: 'Active', totalSpent: 250000, notes: '' },
-    { id: 2, name: 'Sarah Lee', email: 'sarah@email.com', phone: '+6013-9876543', city: 'Selangor', type: 'Retail', status: 'Active', totalSpent: 180000, notes: '' },
-    { id: 3, name: 'Michael Chen', email: 'michael@email.com', phone: '+6014-5555555', city: 'Penang', type: 'Wholesale', status: 'Active', totalSpent: 520000, notes: '' },
-  ])
+  const [customers, setCustomers] = useState([])
 
   // Suppliers - can be added/edited
-  const [suppliers, setSuppliers] = useState([
-    { id: 1, company: 'Dubai Luxury Watches', country: 'UAE', contact: '+971-4-123-4567', email: 'info@dubailuxury.ae', category: 'Rolex', rating: 4.5, status: 'Active' },
-    { id: 2, company: 'Swiss Timepieces Ltd', country: 'Switzerland', contact: '+41-44-555-5555', email: 'sales@swisswatches.ch', category: 'Luxury', rating: 4.8, status: 'Active' },
-    { id: 3, company: 'Asia Watch Distributor', country: 'Singapore', contact: '+65-6789-0123', email: 'sales@asiawatch.sg', category: 'Branded', rating: 4.2, status: 'Active' },
-  ])
+  const [suppliers, setSuppliers] = useState([])
 
   // Orders - track sales
-  const [orders, setOrders] = useState([
-    { id: 'ORD-001', date: '2024-04-25', customer: 'Ahmad Khan', items: 1, refIds: ['R-1579'], total: 45000, commission: 2250, status: 'Completed', payment: 'Paid' },
-    { id: 'ORD-002', date: '2024-04-22', customer: 'Michael Chen', items: 2, refIds: ['R-1687', 'W-425'], total: 125000, commission: 6250, status: 'Completed', payment: 'Paid' },
-    { id: 'ORD-003', date: '2024-04-20', customer: 'Sarah Lee', items: 1, refIds: ['R-1644'], total: 52000, commission: 0, status: 'Pending', payment: 'Pending' },
-  ])
+  const [orders, setOrders] = useState([])
 
   // Stock Movements - track in/out
-  const [movements, setMovements] = useState([
-    { id: 1, date: '2024-04-25', type: 'OUT', refId: 'R-1579', brand: 'Rolex', qty: 1, reason: 'Sold to Ahmad Khan', user: 'Admin' },
-    { id: 2, date: '2024-04-22', type: 'OUT', refId: 'R-1687', brand: 'Rolex', qty: 1, reason: 'Sold to Michael Chen', user: 'Admin' },
-    { id: 3, date: '2024-04-20', type: 'IN', refId: 'W-200', brand: 'Patek Philippe', qty: 1, reason: 'Received from supplier', user: 'Admin' },
-  ])
+  const [movements, setMovements] = useState([])
 
   // Get unique values from inventory
   const owners = useMemo(() => {
