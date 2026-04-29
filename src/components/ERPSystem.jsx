@@ -23,7 +23,7 @@ const ERPSystem = () => {
   const [showModal, setShowModal] = useState(false)
   const [showImportModal, setShowImportModal] = useState(false)
 
-  // Search & Filter
+  // Search & Filter & Sort
   const [searchTerm, setSearchTerm] = useState('')
   const [filterCondition, setFilterCondition] = useState('ALL')
   const [filterType, setFilterType] = useState('ALL')
@@ -31,6 +31,8 @@ const ERPSystem = () => {
   const [filterOwner, setFilterOwner] = useState('ALL')
   const [filterBrand, setFilterBrand] = useState('ALL')
   const [filterModel, setFilterModel] = useState('ALL')
+  const [sortBy, setSortBy] = useState('refId')
+  const [sortOrder, setSortOrder] = useState('asc')
 
   // Inventory from CSV
   const [inventory, setInventory] = useState(INVENTORY_DATA)
@@ -88,9 +90,9 @@ const ERPSystem = () => {
     return Array.from(uniqueModels).sort()
   }, [inventory])
 
-  // Filtered Inventory
+  // Filtered & Sorted Inventory
   const filteredInventory = useMemo(() => {
-    return inventory.filter(item => {
+    let filtered = inventory.filter(item => {
       const matchesSearch = !searchTerm ||
         item.refId.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -104,7 +106,35 @@ const ERPSystem = () => {
       const matchesModel = filterModel === 'ALL' || item.model === filterModel
       return matchesSearch && matchesCondition && matchesType && matchesStatus && matchesOwner && matchesBrand && matchesModel
     })
-  }, [inventory, searchTerm, filterCondition, filterType, filterStatus, filterOwner, filterBrand, filterModel])
+
+    // Sort the filtered results
+    const sorted = [...filtered].sort((a, b) => {
+      let aVal = a[sortBy]
+      let bVal = b[sortBy]
+
+      // Handle numeric comparisons
+      if (typeof aVal === 'number' && typeof bVal === 'number') {
+        return sortOrder === 'asc' ? aVal - bVal : bVal - aVal
+      }
+
+      // Handle string comparisons
+      aVal = String(aVal).toLowerCase()
+      bVal = String(bVal).toLowerCase()
+      const comparison = aVal.localeCompare(bVal)
+      return sortOrder === 'asc' ? comparison : -comparison
+    })
+
+    return sorted
+  }, [inventory, searchTerm, filterCondition, filterType, filterStatus, filterOwner, filterBrand, filterModel, sortBy, sortOrder])
+
+  const handleSort = (column) => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortBy(column)
+      setSortOrder('asc')
+    }
+  }
 
   // Calculate KPIs
   const kpis = useMemo(() => {
@@ -429,16 +459,22 @@ const ERPSystem = () => {
         <table style={{ width: '100%', fontSize: '0.875rem', borderCollapse: 'collapse' }}>
           <thead style={{ borderBottom: `1px solid ${COLORS.darkBorder}`, background: COLORS.lightBg }}>
             <tr>
-              <th style={{ textAlign: 'left', padding: '1rem', fontWeight: 600, color: COLORS.darkText }}>Ref ID</th>
-              <th style={{ textAlign: 'left', padding: '1rem', fontWeight: 600, color: COLORS.darkText }}>Brand</th>
-              <th style={{ textAlign: 'left', padding: '1rem', fontWeight: 600, color: COLORS.darkText }}>Model</th>
-              <th style={{ textAlign: 'left', padding: '1rem', fontWeight: 600, color: COLORS.darkText }}>Serial No</th>
-              <th style={{ textAlign: 'center', padding: '1rem', fontWeight: 600, color: COLORS.darkText }}>Condition</th>
-              <th style={{ textAlign: 'right', padding: '1rem', fontWeight: 600, color: COLORS.darkText }}>Cost</th>
-              <th style={{ textAlign: 'right', padding: '1rem', fontWeight: 600, color: COLORS.darkText }}>Sale</th>
-              <th style={{ textAlign: 'left', padding: '1rem', fontWeight: 600, color: COLORS.darkText }}>Owner</th>
-              <th style={{ textAlign: 'left', padding: '1rem', fontWeight: 600, color: COLORS.darkText }}>Type</th>
-              <th style={{ textAlign: 'left', padding: '1rem', fontWeight: 600, color: COLORS.darkText }}>Status</th>
+              {[
+                { label: 'Ref ID', key: 'refId', align: 'left' },
+                { label: 'Brand', key: 'brand', align: 'left' },
+                { label: 'Model', key: 'model', align: 'left' },
+                { label: 'Serial No', key: 'serialNo', align: 'left' },
+                { label: 'Condition', key: 'condition', align: 'center' },
+                { label: 'Cost', key: 'costPrice', align: 'right' },
+                { label: 'Sale', key: 'salePrice', align: 'right' },
+                { label: 'Owner', key: 'owner', align: 'left' },
+                { label: 'Type', key: 'type', align: 'left' },
+                { label: 'Status', key: 'status', align: 'left' },
+              ].map(col => (
+                <th key={col.key} onClick={() => handleSort(col.key)} style={{ textAlign: col.align, padding: '1rem', fontWeight: 600, color: sortBy === col.key ? COLORS.gold : COLORS.darkText, cursor: 'pointer', userSelect: 'none', background: sortBy === col.key ? 'rgba(176,141,87,0.08)' : 'transparent', transition: 'all 0.2s' }}>
+                  {col.label} {sortBy === col.key && (sortOrder === 'asc' ? ' ▲' : ' ▼')}
+                </th>
+              ))}
               <th style={{ textAlign: 'center', padding: '1rem', fontWeight: 600, color: COLORS.darkText }}>Actions</th>
             </tr>
           </thead>
