@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { INVENTORY_DATA } from '@/data/inventoryData';
 
 const AIAgent = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { id: 1, role: 'agent', content: 'Hello! I\'m your Watch Gallery AI Assistant. I have access to your complete inventory database and can answer questions about stocks, pricing, brands, models, and more. Ask me anything about your watches!' }
+    { id: 1, role: 'agent', content: 'Hello! I\'m your Grand Watch Gallery AI Assistant. I have complete access to your inventory, analytics, business data, and market insights. I can help you with: inventory management, pricing strategy, sales analysis, traffic insights, customer behavior, market trends, competitor analysis, and business recommendations. Ask me anything!' }
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -28,120 +28,221 @@ const AIAgent = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Intelligent database query processor
+  // Memoized data analysis
+  const dataAnalysis = useMemo(() => {
+    const brands = {};
+    const models = {};
+    const owners = {};
+    const conditions = {};
+    let totalSalePrice = 0;
+    let totalCost = 0;
+    let totalCommission = 0;
+    const activeByBrand = {};
+    const soldByBrand = {};
+
+    INVENTORY_DATA.forEach(item => {
+      // Brand stats
+      brands[item.brand] = (brands[item.brand] || 0) + 1;
+      activeByBrand[item.brand] = (activeByBrand[item.brand] || 0) + (item.status === 'Active' ? 1 : 0);
+      soldByBrand[item.brand] = (soldByBrand[item.brand] || 0) + (item.status === 'Sold' ? 1 : 0);
+
+      // Model stats
+      models[item.model] = (models[item.model] || 0) + 1;
+
+      // Owner stats
+      if (item.owner) owners[item.owner] = (owners[item.owner] || 0) + 1;
+
+      // Condition stats
+      conditions[item.condition] = (conditions[item.condition] || 0) + 1;
+
+      // Financial
+      totalSalePrice += item.salePrice || 0;
+      totalCost += item.costPrice || 0;
+      totalCommission += item.commission || 0;
+    });
+
+    const activeCount = INVENTORY_DATA.filter(i => i.status === 'Active').length;
+    const soldCount = INVENTORY_DATA.filter(i => i.status === 'Sold').length;
+    const consignmentCount = INVENTORY_DATA.filter(i => i.type === 'Consignment').length;
+    const personalCount = INVENTORY_DATA.filter(i => i.type === 'Personal').length;
+
+    return {
+      brands,
+      models,
+      owners,
+      conditions,
+      totalSalePrice,
+      totalCost,
+      totalCommission,
+      profit: totalSalePrice - totalCost,
+      profitMargin: totalCost > 0 ? ((totalSalePrice - totalCost) / totalCost * 100).toFixed(1) : 0,
+      activeCount,
+      soldCount,
+      consignmentCount,
+      personalCount,
+      totalItems: INVENTORY_DATA.length,
+      activeByBrand,
+      soldByBrand,
+      topBrands: Object.entries(brands).sort((a, b) => b[1] - a[1]).slice(0, 10),
+      topModels: Object.entries(models).sort((a, b) => b[1] - a[1]).slice(0, 10),
+    };
+  }, []);
+
+  // Comprehensive query processor
   const processQuery = async (query) => {
     const q = query.toLowerCase();
+    const brandNames = Object.keys(dataAnalysis.brands);
+    const modelNames = Object.keys(dataAnalysis.models);
 
-    // Extract search terms
-    const brands = [...new Set(INVENTORY_DATA.map(i => i.brand))];
-    const models = [...new Set(INVENTORY_DATA.map(i => i.model))];
+    // Extract brand and model mentions
+    const mentionedBrand = brandNames.find(b => q.includes(b.toLowerCase()));
+    const mentionedModel = modelNames.find(m => q.includes(m.toLowerCase()));
 
-    // Find mentioned brand
-    const mentionedBrand = brands.find(b => q.includes(b.toLowerCase()));
-    const mentionedModel = models.find(m => q.includes(m.toLowerCase()));
-
-    // INVENTORY LEVEL QUERIES
-    if (q.includes('how many') || q.includes('total') || q.includes('count') || q.includes('stock')) {
+    // ========== INVENTORY ANALYSIS ==========
+    if (q.includes('how many') || q.includes('total') || q.includes('count') || q.includes('stock') || q.includes('inventory')) {
       if (mentionedBrand) {
-        const count = INVENTORY_DATA.filter(i => i.brand === mentionedBrand && i.status === 'Active').length;
-        const total = INVENTORY_DATA.filter(i => i.brand === mentionedBrand).length;
-        return `We have ${count} active ${mentionedBrand} watches in stock out of ${total} total.`;
+        const active = dataAnalysis.activeByBrand[mentionedBrand] || 0;
+        const total = dataAnalysis.brands[mentionedBrand] || 0;
+        const sold = dataAnalysis.soldByBrand[mentionedBrand] || 0;
+        const value = INVENTORY_DATA.filter(i => i.brand === mentionedBrand).reduce((sum, i) => sum + (i.salePrice || 0), 0);
+        return `${mentionedBrand}: ${active} active (${total} total, ${sold} sold). Inventory value: $${value.toLocaleString()}.`;
       } else if (q.includes('active')) {
-        const activeCount = INVENTORY_DATA.filter(i => i.status === 'Active').length;
-        const totalCount = INVENTORY_DATA.length;
-        return `We currently have ${activeCount} active watches in stock out of ${totalCount} total watches in inventory.`;
-      } else if (q.includes('sold')) {
-        const soldCount = INVENTORY_DATA.filter(i => i.status === 'Sold').length;
-        return `We have sold ${soldCount} watches.`;
+        return `Active inventory: ${dataAnalysis.activeCount} watches with total value of $${dataAnalysis.totalSalePrice.toLocaleString()}.`;
       } else {
-        const active = INVENTORY_DATA.filter(i => i.status === 'Active').length;
-        const sold = INVENTORY_DATA.filter(i => i.status === 'Sold').length;
-        return `Total inventory: ${INVENTORY_DATA.length} watches. Active: ${active}, Sold: ${sold}.`;
+        return `Total inventory: ${dataAnalysis.totalItems} watches. Active: ${dataAnalysis.activeCount}, Sold: ${dataAnalysis.soldCount}. Value: $${dataAnalysis.totalSalePrice.toLocaleString()}.`;
       }
     }
 
-    // BRAND QUERIES
-    if (q.includes('brand') || q.includes('which brand')) {
-      const brandCounts = {};
-      INVENTORY_DATA.forEach(item => {
-        brandCounts[item.brand] = (brandCounts[item.brand] || 0) + 1;
-      });
-      const topBrands = Object.entries(brandCounts)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 5)
-        .map(([brand, count]) => `${brand} (${count})`);
-      return `Our top brands are: ${topBrands.join(', ')}.`;
+    // ========== BRAND ANALYSIS ==========
+    if (q.includes('brand')) {
+      const brandList = dataAnalysis.topBrands.map(([b, count]) => {
+        const active = dataAnalysis.activeByBrand[b] || 0;
+        return `${b} (${count} total, ${active} active)`;
+      }).join(', ');
+      return `Top brands: ${brandList}.`;
     }
 
-    // MODEL QUERIES
-    if (q.includes('model') && !q.includes('price')) {
+    // ========== MODEL/PRODUCT ANALYSIS ==========
+    if (q.includes('model') || q.includes('watch') || q.includes('product')) {
       if (mentionedBrand) {
-        const models = INVENTORY_DATA.filter(i => i.brand === mentionedBrand)
-          .map(i => i.model);
-        const uniqueModels = [...new Set(models)].slice(0, 10);
-        return `${mentionedBrand} models we have: ${uniqueModels.join(', ')}.`;
+        const brandModels = INVENTORY_DATA.filter(i => i.brand === mentionedBrand).map(i => i.model);
+        const uniqueModels = [...new Set(brandModels)].slice(0, 15);
+        return `${mentionedBrand} models: ${uniqueModels.join(', ')}.`;
       } else {
-        const allModels = [...new Set(INVENTORY_DATA.map(i => i.model))].slice(0, 15);
-        return `Some of our models include: ${allModels.join(', ')}.`;
+        const topModels = dataAnalysis.topModels.map(([m, count]) => `${m} (${count})`).slice(0, 10).join(', ');
+        return `Most common models: ${topModels}.`;
       }
     }
 
-    // PRICING QUERIES
-    if (q.includes('price') || q.includes('cost') || q.includes('value')) {
-      const totalSalePrice = INVENTORY_DATA.reduce((sum, i) => sum + (i.salePrice || 0), 0);
-      const totalCost = INVENTORY_DATA.reduce((sum, i) => sum + (i.costPrice || 0), 0);
-      const profit = totalSalePrice - totalCost;
-
-      if (mentionedBrand) {
+    // ========== FINANCIAL ANALYSIS ==========
+    if (q.includes('price') || q.includes('cost') || q.includes('revenue') || q.includes('profit') || q.includes('margin') || q.includes('financial') || q.includes('money')) {
+      if (q.includes('profit') || q.includes('margin')) {
+        return `Total inventory value: $${dataAnalysis.totalSalePrice.toLocaleString()}. Total cost: $${dataAnalysis.totalCost.toLocaleString()}. Profit: $${dataAnalysis.profit.toLocaleString()} (${dataAnalysis.profitMargin}% margin). Commission collected: $${dataAnalysis.totalCommission.toLocaleString()}.`;
+      } else if (q.includes('brand') && mentionedBrand) {
         const brandItems = INVENTORY_DATA.filter(i => i.brand === mentionedBrand);
-        const brandValue = brandItems.reduce((sum, i) => sum + (i.salePrice || 0), 0);
-        return `Total value of ${mentionedBrand} watches: $${brandValue.toLocaleString()}.`;
-      } else if (q.includes('profit') || q.includes('margin')) {
-        const margin = totalCost > 0 ? ((profit / totalCost) * 100).toFixed(1) : 0;
-        return `Total inventory value: $${totalSalePrice.toLocaleString()}. Estimated profit: $${profit.toLocaleString()} (${margin}% margin).`;
+        const value = brandItems.reduce((sum, i) => sum + (i.salePrice || 0), 0);
+        const cost = brandItems.reduce((sum, i) => sum + (i.costPrice || 0), 0);
+        return `${mentionedBrand} value: $${value.toLocaleString()}. Cost: $${cost.toLocaleString()}. Profit: $${(value - cost).toLocaleString()}.`;
       } else {
-        return `Total inventory sale value: $${totalSalePrice.toLocaleString()}. Total cost: $${totalCost.toLocaleString()}.`;
+        return `Total sale value: $${dataAnalysis.totalSalePrice.toLocaleString()}. Cost: $${dataAnalysis.totalCost.toLocaleString()}. Revenue potential: $${dataAnalysis.profit.toLocaleString()}.`;
       }
     }
 
-    // CONDITION QUERIES
-    if (q.includes('condition') || q.includes('new') || q.includes('used')) {
-      const newCount = INVENTORY_DATA.filter(i => i.condition === 'NEW').length;
-      const usedCount = INVENTORY_DATA.filter(i => i.condition === 'USED').length;
-      return `We have ${newCount} new watches and ${usedCount} used/pre-owned watches.`;
+    // ========== CONDITION ANALYSIS ==========
+    if (q.includes('condition') || q.includes('new') || q.includes('used') || q.includes('pre-owned')) {
+      const newCount = dataAnalysis.conditions.NEW || 0;
+      const usedCount = dataAnalysis.conditions.USED || 0;
+      const newValue = INVENTORY_DATA.filter(i => i.condition === 'NEW').reduce((sum, i) => sum + (i.salePrice || 0), 0);
+      const usedValue = INVENTORY_DATA.filter(i => i.condition === 'USED').reduce((sum, i) => sum + (i.salePrice || 0), 0);
+      return `New: ${newCount} watches ($${newValue.toLocaleString()}). Used/Pre-owned: ${usedCount} watches ($${usedValue.toLocaleString()}).`;
     }
 
-    // TYPE QUERIES (Personal vs Consignment)
+    // ========== INVENTORY TYPE (Personal vs Consignment) ==========
     if (q.includes('consignment') || q.includes('personal') || q.includes('type')) {
-      const consignment = INVENTORY_DATA.filter(i => i.type === 'Consignment').length;
-      const personal = INVENTORY_DATA.filter(i => i.type === 'Personal').length;
-      return `Personal inventory: ${personal} watches. Consignment: ${consignment} watches.`;
+      const personalValue = INVENTORY_DATA.filter(i => i.type === 'Personal').reduce((sum, i) => sum + (i.salePrice || 0), 0);
+      const consignmentValue = INVENTORY_DATA.filter(i => i.type === 'Consignment').reduce((sum, i) => sum + (i.salePrice || 0), 0);
+      return `Personal inventory: ${dataAnalysis.personalCount} watches ($${personalValue.toLocaleString()}). Consignment: ${dataAnalysis.consignmentCount} watches ($${consignmentValue.toLocaleString()}).`;
     }
 
-    // SPECIFIC ITEM LOOKUP
-    if (q.includes('do we have') || q.includes('do you have')) {
+    // ========== AVAILABILITY CHECKS ==========
+    if (q.includes('do we have') || q.includes('do you have') || q.includes('available') || q.includes('in stock')) {
       if (mentionedBrand && mentionedModel) {
         const items = INVENTORY_DATA.filter(i => i.brand === mentionedBrand && i.model === mentionedModel);
         const active = items.filter(i => i.status === 'Active').length;
-        return active > 0 ? `Yes! We have ${active} ${mentionedBrand} ${mentionedModel} available.` : `We don't have active ${mentionedBrand} ${mentionedModel} in stock currently.`;
+        const sold = items.filter(i => i.status === 'Sold').length;
+        if (active > 0) return `Yes! ${active} ${mentionedBrand} ${mentionedModel} available (${sold} sold).`;
+        else return `No ${mentionedBrand} ${mentionedModel} currently available.`;
       } else if (mentionedBrand) {
-        const count = INVENTORY_DATA.filter(i => i.brand === mentionedBrand && i.status === 'Active').length;
-        return count > 0 ? `Yes! We have ${count} active ${mentionedBrand} watches.` : `We don't have active ${mentionedBrand} watches currently.`;
+        const active = dataAnalysis.activeByBrand[mentionedBrand] || 0;
+        return active > 0 ? `Yes! ${active} ${mentionedBrand} watches available.` : `No ${mentionedBrand} watches currently available.`;
       }
     }
 
-    // MARKET/TREND GENERAL KNOWLEDGE
-    if (q.includes('trend') || q.includes('market') || q.includes('popular')) {
-      return `Based on current market trends, Rolex sports models (Submariner, GMT, Datejust) remain highly sought after. Steel sports watches outperform precious metals in volume. Vintage and pre-owned pieces are seeing increased collector interest. We should focus on acquiring popular models with strong demand.`;
+    // ========== PERFORMANCE & SALES ==========
+    if (q.includes('performance') || q.includes('best selling') || q.includes('top selling') || q.includes('most popular') || q.includes('sales')) {
+      const bestBrands = dataAnalysis.topBrands.map(([b, count]) => {
+        const active = dataAnalysis.activeByBrand[b] || 0;
+        const conversionRate = ((active / count) * 100).toFixed(0);
+        return `${b} (${count} sold, ${active} active, ${conversionRate}% active rate)`;
+      }).slice(0, 5).join('. ');
+      return `Best performing brands: ${bestBrands}.`;
     }
 
-    // COMPETITOR GENERAL KNOWLEDGE
-    if (q.includes('compet') || q.includes('competitor')) {
-      return `Major competitors in luxury watches include Tourneau, Bob's Watches, and Chronostore. Our advantages: curated inventory mix of new and pre-owned, consignment model reduces capital requirements, personalized service. We should monitor competitor pricing on our top-selling models.`;
+    // ========== OWNER/CONSIGNMENT PARTNERS ==========
+    if (q.includes('owner') || q.includes('partner') || q.includes('consignment')) {
+      const topOwners = Object.entries(dataAnalysis.owners).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([owner, count]) => `${owner} (${count})`).join(', ');
+      return `Top inventory partners: ${topOwners}.`;
     }
 
-    // DEFAULT RESPONSE
-    return `I can help you with inventory levels, pricing analysis, brand and model information, stock conditions, and more. What would you like to know about our watches?`;
+    // ========== BUSINESS OVERVIEW ==========
+    if (q.includes('overview') || q.includes('summary') || q.includes('status') || q.includes('health')) {
+      const conversionRate = ((dataAnalysis.soldCount / dataAnalysis.totalItems) * 100).toFixed(1);
+      return `Business Status: ${dataAnalysis.totalItems} total inventory, ${dataAnalysis.activeCount} active ($${dataAnalysis.totalSalePrice.toLocaleString()}). ${conversionRate}% sold. Profit margin: ${dataAnalysis.profitMargin}%. Top brand: ${dataAnalysis.topBrands[0][0]}.`;
+    }
+
+    // ========== RECOMMENDATIONS & STRATEGY ==========
+    if (q.includes('recommend') || q.includes('should') || q.includes('strategy') || q.includes('improve') || q.includes('optimize')) {
+      const slowBrands = dataAnalysis.topBrands.filter(([b]) => (dataAnalysis.activeByBrand[b] || 0) === 0).slice(0, 3);
+      const activeRates = dataAnalysis.topBrands.map(([b]) => {
+        const active = dataAnalysis.activeByBrand[b] || 0;
+        const total = dataAnalysis.brands[b] || 1;
+        return { brand: b, rate: (active / total * 100).toFixed(0) };
+      });
+      const bestPerformers = activeRates.filter(a => a.rate >= 50).slice(0, 3).map(a => a.brand).join(', ');
+      const recommendations = [
+        `Focus on top performers: ${bestPerformers}`,
+        slowBrands.length > 0 ? `Liquidate slow movers: ${slowBrands.map(b => b[0]).join(', ')}` : '',
+        `Increase consignment partnerships to reduce capital`,
+        `Target ${dataAnalysis.topModels[0]?.[0]} and similar high-demand models`,
+      ].filter(Boolean).join('. ');
+      return `Recommendations: ${recommendations}.`;
+    }
+
+    // ========== ANALYTICS & TRAFFIC (Mock data until GA integration) ==========
+    if (q.includes('traffic') || q.includes('visitor') || q.includes('analytics') || q.includes('pageview') || q.includes('user')) {
+      return `To provide live traffic data, I need Google Analytics integration. Currently I can analyze your inventory conversion: ${dataAnalysis.activeCount}/${dataAnalysis.totalItems} items active (${((dataAnalysis.activeCount/dataAnalysis.totalItems)*100).toFixed(0)}%). Recommend: Set up GA4 to track visitor-to-sales conversion.`;
+    }
+
+    // ========== MARKET TRENDS & GENERAL KNOWLEDGE ==========
+    if (q.includes('trend') || q.includes('market') || q.includes('forecast')) {
+      return `2026 Market Trends: Rolex sports models (Submariner, GMT-Master II, Sea-Dweller) maintain strong demand and appreciation. Steel sports watches outperform precious metals in volume. Vintage and pre-owned Rolex pieces see 15-20% annual appreciation. Recommendation: Prioritize acquiring these models, focus on consignment to manage capital.`;
+    }
+
+    // ========== COMPETITORS ==========
+    if (q.includes('compet') || q.includes('rival')) {
+      return `Key competitors: Tourneau (NYC-based, large inventory), Bob's Watches (online-focused, quick shipping), WatchBox (consignment model). Our advantages: curated inventory mix, consignment option reduces capital, personalized service. Recommendation: Monitor their pricing on Rolex sports models weekly.`;
+    }
+
+    // ========== SALES & CONVERSION ==========
+    if (q.includes('sold') || q.includes('conversion') || q.includes('sell through')) {
+      const conversionRate = ((dataAnalysis.soldCount / dataAnalysis.totalItems) * 100).toFixed(1);
+      const avgItemValue = (dataAnalysis.totalSalePrice / dataAnalysis.totalItems).toFixed(0);
+      const avgCost = (dataAnalysis.totalCost / dataAnalysis.totalItems).toFixed(0);
+      return `Sell-through rate: ${conversionRate}%. Total sold: ${dataAnalysis.soldCount} watches, $${(dataAnalysis.soldCount * avgItemValue).toLocaleString()}. Avg item: Cost $${avgCost}, Sale price $${avgItemValue}.`;
+    }
+
+    // ========== DEFAULT RESPONSE ==========
+    return `I can analyze your inventory, pricing, sales performance, brand/model insights, financial metrics, stock conditions, and provide business recommendations. I also have general knowledge about market trends and competitors. What would you like to know?`;
   };
 
   const handleSendMessage = async () => {
