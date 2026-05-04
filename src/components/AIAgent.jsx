@@ -1,12 +1,11 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { INVENTORY_DATA } from '@/data/inventoryData';
 
 const AIAgent = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { id: 1, role: 'agent', content: 'Hello! I\'m your Watch Gallery AI Assistant. I can help you analyze inventory, check current market trends, understand competitor pricing, and answer questions about stocks and pricing. What would you like to know?' }
+    { id: 1, role: 'agent', content: 'Hello! I\'m Claude, your AI assistant for Grand Watch Gallery. I have access to your complete inventory data and can provide detailed analysis on stocks, pricing, market trends, competitive positioning, and business insights. Ask me about anything related to your watch inventory, pricing strategy, market opportunities, or business performance. What would you like to know?' }
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -28,97 +27,28 @@ const AIAgent = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Analyze inventory data to generate insights
-  const analyzeInventory = () => {
-    const activeItems = INVENTORY_DATA.filter(item => item.status === 'Active');
-    const soldItems = INVENTORY_DATA.filter(item => item.status === 'Sold');
-    const consignmentItems = INVENTORY_DATA.filter(item => item.type === 'Consignment');
-    const personalItems = INVENTORY_DATA.filter(item => item.type === 'Personal');
-
-    const brands = {};
-    const models = {};
-    let totalInventoryValue = 0;
-    let totalCost = 0;
-
-    INVENTORY_DATA.forEach(item => {
-      brands[item.brand] = (brands[item.brand] || 0) + 1;
-      models[item.model] = (models[item.model] || 0) + 1;
-      totalInventoryValue += item.salePrice || 0;
-      totalCost += item.costPrice || 0;
-    });
-
-    return {
-      totalItems: INVENTORY_DATA.length,
-      activeItems: activeItems.length,
-      soldItems: soldItems.length,
-      consignmentItems: consignmentItems.length,
-      personalItems: personalItems.length,
-      brands,
-      models,
-      totalInventoryValue,
-      totalCost,
-      profitMargin: totalInventoryValue - totalCost,
-    };
-  };
-
-  // Process user queries
+  // Query Claude API with inventory context
   const processQuery = async (query) => {
-    const lowerQuery = query.toLowerCase();
-    const inventory = analyzeInventory();
+    try {
+      const response = await fetch('/api/ai-agent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: query }),
+      });
 
-    let response = '';
-
-    // Stock and Inventory Questions
-    if (lowerQuery.includes('stock') || lowerQuery.includes('inventory') || lowerQuery.includes('how many')) {
-      if (lowerQuery.includes('rolex')) {
-        const rolexCount = INVENTORY_DATA.filter(item => item.brand === 'ROLEX' && item.status === 'Active').length;
-        response = `We currently have ${rolexCount} active Rolex watches in stock. The Rolex collection is one of our premium offerings with strong demand and good margins.`;
-      } else if (lowerQuery.includes('active')) {
-        response = `We have ${inventory.activeItems} active items in our inventory out of ${inventory.totalItems} total items. ${inventory.consignmentItems} are consignment pieces and ${inventory.personalItems} are personal inventory.`;
-      } else {
-        const topBrands = Object.entries(inventory.brands).sort((a, b) => b[1] - a[1]).slice(0, 3);
-        response = `Current inventory: ${inventory.totalItems} total watches. Top brands: ${topBrands.map(b => `${b[0]} (${b[1]} items)`).join(', ')}. Active items: ${inventory.activeItems}, Sold: ${inventory.soldItems}.`;
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to get response');
       }
-    }
 
-    // Pricing Questions
-    else if (lowerQuery.includes('price') || lowerQuery.includes('cost') || lowerQuery.includes('revenue')) {
-      if (lowerQuery.includes('total')) {
-        response = `Total inventory value: $${(inventory.totalInventoryValue || 0).toLocaleString()}. Total cost: $${(inventory.totalCost || 0).toLocaleString()}. Projected profit margin: $${(inventory.profitMargin || 0).toLocaleString()}.`;
-      } else if (lowerQuery.includes('margin')) {
-        const margin = inventory.totalCost > 0 ? ((inventory.profitMargin / inventory.totalCost) * 100).toFixed(1) : 0;
-        response = `Your current profit margin is approximately ${margin}%. With ${inventory.activeItems} active items, there's good potential for revenue growth.`;
-      } else {
-        response = `Our pricing strategy focuses on maintaining healthy margins while staying competitive. Current total sale price value: $${(inventory.totalInventoryValue || 0).toLocaleString()}.`;
-      }
+      const data = await response.json();
+      return data.response;
+    } catch (error) {
+      console.error('Query error:', error);
+      return `I encountered an error processing your query: ${error.message}. Please try again or rephrase your question.`;
     }
-
-    // Lead and Traffic Questions
-    else if (lowerQuery.includes('lead') || lowerQuery.includes('traffic') || lowerQuery.includes('visitor')) {
-      response = `To get current traffic and lead data, I would need to integrate with your Google Analytics and CRM system. Based on your inventory level (${inventory.activeItems} active items), I'd recommend analyzing which watch brands and models are driving the most engagement to optimize your inventory mix.`;
-    }
-
-    // Market Trends
-    else if (lowerQuery.includes('trend') || lowerQuery.includes('market') || lowerQuery.includes('popular')) {
-      response = `Current watch market trends (2026): Rolex sports models remain highly sought after with strong appreciation. Vintage Rolex watches are seeing increased collector interest. Steel sports watches outperform precious metal pieces in volume. Recommendation: Focus on diversifying your active inventory with popular Rolex models like Submariner, GMT, and Datejust. Consider acquiring more pre-owned pieces as they have lower acquisition cost with comparable demand.`;
-    }
-
-    // Competitor Analysis
-    else if (lowerQuery.includes('compet') || lowerQuery.includes('competitor')) {
-      response = `Major competitors in the luxury watch space include Tourneau, Bob's Watches, and Chronostore. Our differentiation: ${inventory.totalItems} curated inventory items with mix of consignment and personal stock. Competitive advantages: Mix of new and pre-owned, consignment model reduces capital requirements. Recommend monitoring competitor pricing on top 5 models: ${Object.entries(inventory.models).sort((a, b) => b[1] - a[1]).slice(0, 5).map(m => m[0]).join(', ')}.`;
-    }
-
-    // General insights
-    else if (lowerQuery.includes('insight') || lowerQuery.includes('summary') || lowerQuery.includes('overview')) {
-      response = `Business Overview: You have ${inventory.totalItems} watches with ${inventory.activeItems} currently available. ${inventory.consignmentItems} consignment items reduce capital risk. Your top brand is ${Object.entries(inventory.brands).sort((a, b) => b[1] - a[1])[0][0]}. Estimated inventory value: $${(inventory.totalInventoryValue || 0).toLocaleString()}. Key opportunity: Increase active inventory turnover from consignment partners.`;
-    }
-
-    // Default response
-    else {
-      response = `I can help you with: inventory levels, pricing analysis, market trends, competitor insights, and stock movements. We have ${inventory.activeItems} active watches with total value of $${(inventory.totalInventoryValue || 0).toLocaleString()}. What specific aspect would you like to explore?`;
-    }
-
-    return response;
   };
 
   const handleSendMessage = async () => {
