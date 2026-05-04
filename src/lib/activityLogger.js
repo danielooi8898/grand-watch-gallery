@@ -132,6 +132,29 @@ export async function getActivitySummary() {
 }
 
 /**
+ * Delete a specific activity log by ID
+ * @param {string} logId - ID of the activity log to delete
+ */
+export async function deleteActivityLog(logId) {
+  try {
+    const { error } = await supabase
+      .from('activity_logs')
+      .delete()
+      .eq('id', logId)
+
+    if (error) {
+      console.error('Error deleting activity log:', error)
+      return { success: false, error }
+    }
+
+    return { success: true, error: null }
+  } catch (err) {
+    console.error('Failed to delete activity log:', err)
+    return { success: false, error: err }
+  }
+}
+
+/**
  * Delete old activity logs (older than X days)
  * Useful for maintenance/cleanup
  */

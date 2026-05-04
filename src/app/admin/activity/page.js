@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { getActivityLogs } from '@/lib/activityLogger'
+import { getActivityLogs, deleteActivityLog } from '@/lib/activityLogger'
 import { ChevronLeft, ChevronRight, Search } from 'lucide-react'
 
 const CATEGORIES = [
@@ -125,7 +125,8 @@ export default function ActivityPage() {
           fontSize: '1.8rem',
           fontWeight: 300,
           letterSpacing: '0.05em',
-          marginBottom: '0.5rem'
+          marginBottom: '0.5rem',
+          color: '#000000'
         }}>
           Activity Log
         </h1>
@@ -159,7 +160,8 @@ export default function ActivityPage() {
                 fontSize: '0.9rem',
                 fontFamily: 'var(--sans)',
                 background: 'white',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                color: '#000000'
               }}
             >
               {CATEGORIES.map(cat => (
@@ -244,7 +246,9 @@ export default function ActivityPage() {
         background: 'white',
         border: '1px solid #e0ddd6',
         borderRadius: '4px',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        overflowX: 'auto',
+        WebkitOverflowScrolling: 'touch'
       }}>
         {loading ? (
           <div style={{ padding: '3rem', textAlign: 'center', color: '#444' }}>
@@ -256,7 +260,7 @@ export default function ActivityPage() {
           </div>
         ) : (
           <>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '700px' }}>
               <thead>
                 <tr style={{ background: '#f9f9f9', borderBottom: '1px solid #e0ddd6' }}>
                   <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.85rem', fontWeight: 600, color: '#333', fontFamily: 'var(--sans)' }}>
@@ -273,6 +277,9 @@ export default function ActivityPage() {
                   </th>
                   <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.85rem', fontWeight: 600, color: '#333', fontFamily: 'var(--sans)' }}>
                     Target
+                  </th>
+                  <th style={{ padding: '1rem', textAlign: 'center', fontSize: '0.85rem', fontWeight: 600, color: '#333', fontFamily: 'var(--sans)' }}>
+                    Action
                   </th>
                 </tr>
               </thead>
@@ -296,6 +303,46 @@ export default function ActivityPage() {
                     </td>
                     <td style={{ padding: '1rem', fontSize: '0.85rem', color: '#444', fontFamily: 'var(--sans)', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {log.target_name || log.target_id || '—'}
+                    </td>
+                    <td style={{ padding: '1rem', textAlign: 'center', fontSize: '0.85rem' }}>
+                      <button
+                        onClick={async () => {
+                          if (window.confirm('Delete this activity log?')) {
+                            const { success, error } = await deleteActivityLog(log.id)
+                            if (success) {
+                              // Refresh the logs by fetching again
+                              const offset = (pagination.current - 1) * pagination.limit
+                              const result = await getActivityLogs({
+                                category: filter.category,
+                                userEmail: filter.userEmail || null,
+                                action: filter.action || null,
+                                limit: pagination.limit,
+                                offset
+                              })
+                              if (!result.error) {
+                                setLogs(result.data)
+                              }
+                            } else {
+                              alert('Failed to delete log: ' + (error?.message || 'Unknown error'))
+                            }
+                          }
+                        }}
+                        style={{
+                          padding: '0.35rem 0.65rem',
+                          background: '#fee2e2',
+                          color: '#991b1b',
+                          border: '1px solid #fecaca',
+                          borderRadius: '3px',
+                          cursor: 'pointer',
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                          transition: 'all 0.15s'
+                        }}
+                        onMouseEnter={e => { e.target.style.background = '#fecaca'; e.target.style.color = '#7f1d1d' }}
+                        onMouseLeave={e => { e.target.style.background = '#fee2e2'; e.target.style.color = '#991b1b' }}
+                      >
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 ))}

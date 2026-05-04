@@ -296,7 +296,10 @@ const ERPSystem = () => {
       }
       alert('Saved')
     } else if (editingType === 'order') {
-      if (!editingItem.customer || !editingItem.total) { alert('Customer and Total required'); return }
+      if (!editingItem.customer || editingItem.customer === '' || !editingItem.total || editingItem.total === '' || editingItem.total === 0) {
+        alert('Customer and Total (must be greater than 0) are required');
+        return
+      }
       if (editingId) {
         const { error } = await saveOrder(editingItem)
         if (error) { alert('Error saving order: ' + error.message); return }
@@ -304,12 +307,23 @@ const ERPSystem = () => {
         await logAction({ action: 'update', category: 'erp', targetId: editingId, targetName: `Order for ${editingItem.customer}` })
       } else {
         const newId = `ORD-${String(orders.length + 1).padStart(3, '0')}`
-        const { error } = await saveOrder({ ...editingItem, id: newId })
+        const { error } = await saveOrder({ ...editingItem, id: newId, date: editingItem.date || new Date().toISOString().split('T')[0] })
         if (error) { alert('Error saving order: ' + error.message); return }
-        setOrders([...orders, { ...editingItem, id: newId }])
+        setOrders([...orders, { ...editingItem, id: newId, date: editingItem.date || new Date().toISOString().split('T')[0] }])
         await logAction({ action: 'create', category: 'erp', targetId: newId, targetName: `Order for ${editingItem.customer}` })
       }
       alert('Saved')
+    } else if (editingType === 'movement') {
+      if (!editingItem.date || !editingItem.type || !editingItem.refId || !editingItem.brand) {
+        alert('Date, Type, Ref ID, and Brand are required');
+        return
+      }
+      const { error } = await saveMovement(editingItem)
+      if (error) { alert('Error saving movement: ' + error.message); return }
+      const newMovement = { ...editingItem, id: Date.now(), date: editingItem.date, refId: editingItem.refId }
+      setMovements([newMovement, ...movements])
+      await logAction({ action: 'create', category: 'erp', targetId: editingItem.refId, targetName: `Stock Movement: ${editingItem.type} ${editingItem.brand}` })
+      alert('Movement recorded')
     }
     setEditingItem(null)
     setEditingId(null)
@@ -377,16 +391,35 @@ const ERPSystem = () => {
         </div>
         <div style={{ padding: '1.5rem', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
           {editingType === 'inventory' && ['refId', 'brand', 'model', 'serialNo', 'condition', 'year', 'costPrice', 'salePrice', 'commission', 'actorFee', 'owner', 'status', 'type', 'ownerContact'].map(field => (
-            <div key={field}>
+            <div key={field} style={{ position: 'relative' }}>
               <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: COLORS.darkText, marginBottom: '0.4rem', textTransform: 'uppercase' }}>{field}</label>
               {['condition', 'type', 'status'].includes(field) ? (
-                <select value={editingItem[field]} onChange={e => setEditingItem({...editingItem, [field]: e.target.value})} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }}>
-                  {field === 'condition' ? [<option key="new">NEW</option>, <option key="used">USED</option>] : field === 'type' ? [<option key="p">Personal</option>, <option key="c">Consignment</option>] : [<option key="a">Active</option>, <option key="s">Sold</option>]}
+                <select value={editingItem[field] || ''} onChange={e => {
+                  const newVal = e.target.value
+                  setEditingItem(prev => ({...prev, [field]: newVal}))
+                }} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }}>
+                  {field === 'condition' ? [<option key="new" value="NEW">NEW</option>, <option key="used" value="USED">USED</option>] : field === 'type' ? [<option key="p" value="Personal">Personal</option>, <option key="c" value="Consignment">Consignment</option>] : [<option key="a" value="Active">Active</option>, <option key="s" value="Sold">Sold</option>]}
                 </select>
               ) : ['costPrice', 'salePrice', 'commission', 'actorFee'].includes(field) ? (
-                <input type="number" value={editingItem[field]} onChange={e => setEditingItem({...editingItem, [field]: parseFloat(e.target.value) || 0})} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }} />
+                <input
+                  type="number"
+                  value={editingItem[field] || 0}
+                  onChange={e => {
+                    const newVal = parseFloat(e.target.value) || 0
+                    setEditingItem(prev => ({...prev, [field]: newVal}))
+                  }}
+                  style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }}
+                />
               ) : (
-                <input type="text" value={editingItem[field]} onChange={e => setEditingItem({...editingItem, [field]: e.target.value})} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }} />
+                <input
+                  type="text"
+                  value={editingItem[field] || ''}
+                  onChange={e => {
+                    const newVal = e.target.value
+                    setEditingItem(prev => ({...prev, [field]: newVal}))
+                  }}
+                  style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }}
+                />
               )}
             </div>
           ))}
@@ -425,29 +458,100 @@ const ERPSystem = () => {
               )}
             </div>
           ))}
+          {editingType === 'movement' && ['date', 'type', 'refId', 'brand', 'quantity', 'reason', 'userName'].map(field => (
+            <div key={field} style={{ position: 'relative' }}>
+              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: COLORS.darkText, marginBottom: '0.4rem', textTransform: 'uppercase' }}>{field}</label>
+              {field === 'type' ? (
+                <select value={editingItem[field] || 'IN'} onChange={e => {
+                  const newVal = e.target.value
+                  setEditingItem(prev => ({...prev, [field]: newVal}))
+                }} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }}>
+                  <option value="IN">IN</option>
+                  <option value="OUT">OUT</option>
+                </select>
+              ) : field === 'date' ? (
+                <input
+                  type="date"
+                  value={editingItem[field] || ''}
+                  onChange={e => {
+                    const newVal = e.target.value
+                    setEditingItem(prev => ({...prev, [field]: newVal}))
+                  }}
+                  style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }}
+                />
+              ) : field === 'quantity' ? (
+                <input
+                  type="number"
+                  value={editingItem[field] || 1}
+                  onChange={e => {
+                    const newVal = parseInt(e.target.value) || 1
+                    setEditingItem(prev => ({...prev, [field]: newVal}))
+                  }}
+                  style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }}
+                />
+              ) : (
+                <input
+                  type="text"
+                  value={editingItem[field] || ''}
+                  onChange={e => {
+                    const newVal = e.target.value
+                    setEditingItem(prev => ({...prev, [field]: newVal}))
+                  }}
+                  placeholder={field === 'refId' ? 'e.g., R-935' : field === 'reason' ? 'e.g., Received from supplier' : undefined}
+                  style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }}
+                />
+              )}
+            </div>
+          ))}
           {editingType === 'order' && ['customer', 'items', 'total', 'commission', 'status', 'payment', 'date'].map(field => (
-            <div key={field}>
+            <div key={field} style={{ position: 'relative' }}>
               <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: COLORS.darkText, marginBottom: '0.4rem', textTransform: 'uppercase' }}>{field}</label>
               {field === 'status' ? (
-                <select value={editingItem[field]} onChange={e => setEditingItem({...editingItem, [field]: e.target.value})} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }}>
-                  <option>Pending</option>
-                  <option>Completed</option>
-                  <option>Cancelled</option>
+                <select value={editingItem[field] || 'Pending'} onChange={e => {
+                  const newVal = e.target.value
+                  setEditingItem(prev => ({...prev, [field]: newVal}))
+                }} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }}>
+                  <option value="Pending">Pending</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Cancelled">Cancelled</option>
                 </select>
               ) : field === 'payment' ? (
-                <select value={editingItem[field]} onChange={e => setEditingItem({...editingItem, [field]: e.target.value})} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }}>
-                  <option>Pending</option>
-                  <option>Paid</option>
-                  <option>Partial</option>
+                <select value={editingItem[field] || 'Pending'} onChange={e => {
+                  const newVal = e.target.value
+                  setEditingItem(prev => ({...prev, [field]: newVal}))
+                }} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }}>
+                  <option value="Pending">Pending</option>
+                  <option value="Paid">Paid</option>
+                  <option value="Partial">Partial</option>
                 </select>
               ) : field === 'customer' ? (
-                <select value={editingItem[field]} onChange={e => setEditingItem({...editingItem, [field]: e.target.value})} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }}>
+                <select value={editingItem[field] || ''} onChange={e => {
+                  const newVal = e.target.value
+                  setEditingItem(prev => ({...prev, [field]: newVal}))
+                }} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }}>
+                  <option value="">-- Select Customer --</option>
                   {customers.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
                 </select>
               ) : ['items', 'total', 'commission'].includes(field) ? (
-                <input type="number" value={editingItem[field]} onChange={e => setEditingItem({...editingItem, [field]: field === 'items' ? parseInt(e.target.value) || 0 : parseFloat(e.target.value) || 0})} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }} />
+                <input
+                  type="number"
+                  value={editingItem[field] || 0}
+                  onChange={e => {
+                    const newVal = field === 'items' ? parseInt(e.target.value) || 0 : parseFloat(e.target.value) || 0
+                    setEditingItem(prev => ({...prev, [field]: newVal}))
+                  }}
+                  style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }}
+                />
               ) : (
-                <input type={field === 'date' ? 'date' : 'text'} value={editingItem[field]} onChange={e => setEditingItem({...editingItem, [field]: e.target.value})} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }} />
+                <input
+                  type={field === 'date' ? 'date' : 'text'}
+                  value={editingItem[field] || ''}
+                  onChange={e => {
+                    const newVal = e.target.value
+                    setEditingItem(prev => ({...prev, [field]: newVal}))
+                  }}
+                  style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }}
+                />
               )}
             </div>
           ))}
@@ -466,10 +570,10 @@ const ERPSystem = () => {
       <h2 style={{ fontSize: '1.75rem', fontWeight: 700, color: COLORS.darkText }}>Dashboard</h2>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
         {[
-          { label: 'Active Items', value: kpis.activeItems, color: '#10b981' },
-          { label: 'Inventory Value', value: `MYR ${kpis.totalValue.toLocaleString()}`, color: '#3b82f6' },
-          { label: 'Total Sold', value: kpis.soldItems, color: '#8b5cf6' },
-          { label: 'Total Revenue', value: `MYR ${kpis.totalRevenue.toLocaleString()}`, color: COLORS.gold },
+          { label: 'Active Items', value: kpis.activeItems, color: '#000000' },
+          { label: 'Inventory Value', value: `MYR ${kpis.totalValue.toLocaleString()}`, color: '#000000' },
+          { label: 'Total Sold', value: kpis.soldItems, color: '#000000' },
+          { label: 'Total Revenue', value: `MYR ${kpis.totalRevenue.toLocaleString()}`, color: '#000000' },
         ].map((stat, idx) => (
           <div key={idx} style={{ background: COLORS.white, padding: '1.5rem', borderRadius: '8px', border: `1px solid ${COLORS.darkBorder}` }}>
             <p style={{ fontSize: '0.75rem', color: COLORS.lightText, textTransform: 'uppercase', fontWeight: 600, marginBottom: '0.75rem' }}>{stat.label}</p>
@@ -836,7 +940,12 @@ const ERPSystem = () => {
   // Stock Movements
   const renderMovements = () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: COLORS.darkText }}>Stock Movements</h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: COLORS.darkText }}>Stock Movements</h2>
+        <button onClick={() => { setEditingType('movement'); setEditingItem({ date: new Date().toISOString().split('T')[0], type: 'IN', refId: '', brand: '', quantity: 1, reason: '', userName: '' }); setEditingId(null); setShowModal(true) }} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: COLORS.gold, color: COLORS.white, padding: '0.625rem 1rem', borderRadius: '4px', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '0.875rem' }}>
+          <Plus size={16} /> Add Movement
+        </button>
+      </div>
       <div style={{ overflowX: 'auto', background: COLORS.white, borderRadius: '8px', border: `1px solid ${COLORS.darkBorder}` }}>
         <table style={{ width: '100%', fontSize: '0.875rem', borderCollapse: 'collapse' }}>
           <thead style={{ borderBottom: `1px solid ${COLORS.darkBorder}`, background: COLORS.lightBg }}>

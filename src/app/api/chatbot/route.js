@@ -32,11 +32,31 @@ const COMPANY_INFO = {
 
 async function getProducts() {
   try {
-    const { data } = await supabase.from('watches').select('*').limit(200)
+    const { data } = await supabase.from('inventory').select('*').limit(200)
     return data || []
   } catch (error) {
     console.error('Database error:', error)
     return []
+  }
+}
+
+async function getInventoryStats() {
+  try {
+    const { data: inventory } = await supabase.from('inventory').select('*')
+    const { data: customers } = await supabase.from('customers').select('*')
+    const { data: orders } = await supabase.from('orders').select('*')
+
+    return {
+      inventory: inventory || [],
+      customers: customers || [],
+      orders: orders || [],
+      totalItems: (inventory || []).length,
+      activeItems: (inventory || []).filter(i => i.status === 'Active').length,
+      soldItems: (inventory || []).filter(i => i.status === 'Sold').length,
+    }
+  } catch (error) {
+    console.error('Database error:', error)
+    return { inventory: [], customers: [], orders: [], totalItems: 0, activeItems: 0, soldItems: 0 }
   }
 }
 
@@ -97,7 +117,7 @@ function filterProducts(products, query) {
   return filtered.slice(0, 8)
 }
 
-function generateResponse(message, products, companyInfo) {
+function generateResponse(message, products, companyInfo, stats) {
   const queryLower = message.toLowerCase().trim()
 
   // Greetings
@@ -386,6 +406,26 @@ WhatsApp: ${companyInfo.whatsapp}
 Email: ${companyInfo.email}`
   }
 
+  // Inventory Status
+  if (queryLower.includes('inventory') || queryLower.includes('stock status') || queryLower.includes('how many')) {
+    return `Current Inventory Status
+
+Total Items: ${stats.totalItems}
+Active Items: ${stats.activeItems}
+Sold Items: ${stats.soldItems}
+
+We maintain a carefully curated selection of authenticated luxury watches. Our inventory is constantly updated with new acquisitions and sales.
+
+Top Brands in Our Collection:
+${companyInfo.brands.slice(0, 8).map(b => `- ${b}`).join('\n')}
+
+To inquire about specific watches, models, or brands:
+
+Phone: ${companyInfo.phone}
+WhatsApp: ${companyInfo.whatsapp}
+Email: ${companyInfo.email}`
+  }
+
   // Brand searches
   if (queryLower === 'all-brands' || queryLower === 'rolex' || queryLower === 'patek' || queryLower === 'audemars' || queryLower === 'omega' || queryLower === 'hublot' || queryLower === 'cartier' || queryLower === 'tudor') {
     const brandMap = {
@@ -404,8 +444,12 @@ Email: ${companyInfo.email}`
     if (matchedProducts.length > 0) {
       let response = `${searchBrand ? searchBrand : 'Available'} Watches\n\n`
       matchedProducts.forEach(p => {
-        const price = p.price ? `MYR ${p.price}` : 'Please contact for pricing'
-        response += `${p.brand} ${p.model}\nReference: ${p.reference}\nCondition: ${p.condition}\nPrice: ${price}\n\n`
+        const price = p.sale_price ? `MYR ${p.sale_price}` : 'Please contact for pricing'
+        const brand = p.brand || 'Watch'
+        const model = p.model || 'Model'
+        const refId = p.ref_id || 'Reference'
+        const condition = p.condition || 'Condition'
+        response += `${brand} ${model}\nRef: ${refId}\nCondition: ${condition}\nPrice: ${price}\nStatus: ${p.status}\n\n`
       })
       response += `---\n\nFor detailed information, additional inventory, or to schedule a viewing:\n\nPhone: ${companyInfo.phone}\nWhatsApp: ${companyInfo.whatsapp}\nEmail: ${companyInfo.email}`
       return response
@@ -474,7 +518,8 @@ export async function POST(request) {
     }
 
     const products = await getProducts()
-    const reply = generateResponse(message, products, COMPANY_INFO)
+    const stats = await getInventoryStats()
+    const reply = generateResponse(message, products, COMPANY_INFO, stats)
 
     return NextResponse.json({ reply })
   } catch (error) {
