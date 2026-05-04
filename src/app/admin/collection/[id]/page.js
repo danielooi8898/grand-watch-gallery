@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Upload, X, Save, Trash2, Camera, Loader } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { useActivityLog } from '@/hooks/useActivityLog'
 
 const COND = ['new','unworn','excellent','good','fair']
 const EMPTY = { brand:'', model:'', reference:'', price:'', condition:'excellent', year: new Date().getFullYear(), description:'', features:'', is_featured:false, is_sold:false, images:[] }
@@ -15,6 +16,7 @@ const section = { background:'#fff', border:'1px solid #E8E2D8', borderRadius:'2
 const sTitle = { fontFamily:'var(--sans)', fontWeight:700, fontSize:'0.85rem', color:'#111', marginBottom:'1.25rem', paddingBottom:'0.75rem', borderBottom:'1px solid #F4EFE9' }
 
 export default function WatchEditPage() {
+  const { logAction } = useActivityLog()
   const { id }   = useParams()
   const router   = useRouter()
   const isNew    = id === 'new'
@@ -27,11 +29,16 @@ export default function WatchEditPage() {
   const [stockFetching, setStockFetching] = useState(false)
   const [stockPreview, setStockPreview]   = useState(null) // { imageUrl }
   const [stockError, setStockError]       = useState('')
+  const [originalForm, setOriginalForm] = useState(EMPTY)
 
   useEffect(() => {
     if (isNew) return
     supabase.from('watches').select('*').eq('id', id).single().then(({ data }) => {
-      if (data) setForm({ ...data, features: Array.isArray(data.features) ? data.features.join(', ') : (data.features||'') })
+      if (data) {
+        const processedData = { ...data, features: Array.isArray(data.features) ? data.features.join(', ') : (data.features||'') }
+        setForm(processedData)
+        setOriginalForm(processedData)
+      }
       setLoading(false)
     })
   }, [id, isNew])
@@ -126,14 +133,42 @@ export default function WatchEditPage() {
       is_sold:     Boolean(form.is_sold),
       updated_at:  new Date().toISOString(),
     }
-    let err
+    let err, result
     if (isNew) {
-      ;({ error: err } = await supabase.from('watches').insert(payload))
+      ;({ error: err, data: result } = await supabase.from('watches').insert(payload).select().single())
     } else {
       ;({ error: err } = await supabase.from('watches').update(payload).eq('id', id))
     }
     setSaving(false)
     if (err) { setError(err.message); return }
+
+    // Log the activity
+    const targetName = `${form.brand} ${form.model}`
+    if (isNew) {
+      await logAction({
+        action: 'create',
+        category: 'collection',
+        targetId: result.id,
+        targetName: targetName,
+        changes: { data: payload }
+      })
+    } else {
+      // Find what changed
+      const changes = {}
+      Object.keys(payload).forEach(key => {
+        if (JSON.stringify(originalForm[key]) !== JSON.stringify(payload[key])) {
+          changes[key] = { before: originalForm[key], after: payload[key] }
+        }
+      })
+      await logAction({
+        action: 'update',
+        category: 'collection',
+        targetId: id,
+        targetName: targetName,
+        changes: Object.keys(changes).length > 0 ? changes : null
+      })
+    }
+
     setToast(isNew ? 'Watch added!' : 'Changes saved!')
     setTimeout(() => setToast(''), 2500)
     if (isNew) router.replace('/admin/collection')
@@ -141,7 +176,20 @@ export default function WatchEditPage() {
 
   const handleDelete = async () => {
     if (!confirm('Delete this watch? This cannot be undone.')) return
+
+    const targetName = `${form.brand} ${form.model}`
+
+    // Delete the watch
     await supabase.from('watches').delete().eq('id', id)
+
+    // Log the deletion
+    await logAction({
+      action: 'delete',
+      category: 'collection',
+      targetId: id,
+      targetName: targetName
+    })
+
     router.replace('/admin/collection')
   }
 

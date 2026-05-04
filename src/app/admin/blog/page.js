@@ -5,6 +5,7 @@ import { Plus, Pencil, Trash2, X, ExternalLink, Lock, Upload } from 'lucide-reac
 import ImageCropModal from '@/components/ImageCropModal'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
+import { useActivityLog } from '@/hooks/useActivityLog'
 
 const OWNER_EMAIL = 'ooimunhong8898@gmail.com'
 const EMPTY = { title:'', category:'Market Update', excerpt:'', source_url:'', source:'', date:'', read_time:'5 min', image_url:'', is_published:true }
@@ -48,6 +49,7 @@ const CSS = `
 
 export default function AdminBlog() {
   const { user, isOwner } = useAuth()
+  const { logAction } = useActivityLog()
 
   const [posts,    setPosts]    = useState([])
   const [loading,  setLoading]  = useState(true)
@@ -176,6 +178,16 @@ export default function AdminBlog() {
       await saveImgMap(targetId, newImgUrl || '')
     }
 
+    // Log the activity
+    const action = editId ? 'update' : 'create'
+    await logAction({
+      action,
+      category: 'blog',
+      targetId: targetId,
+      targetName: edit.title,
+      changes: action === 'create' ? { data: textPayload } : { title: edit.title }
+    })
+
     setSaving(false)
     setOpen(false)
     loadPosts()
@@ -184,11 +196,37 @@ export default function AdminBlog() {
   const handleDelete = async (id) => {
     if (!confirm('Delete this article?')) return
     setDeleting(id)
+
+    // Get post info for logging
+    const post = posts.find(p => p.id === id)
+    const targetName = post ? post.title : 'Unknown Article'
+
+    // Delete the post
     await supabase.from('blog_posts').delete().eq('id', id)
+
+    // Log the deletion
+    await logAction({
+      action: 'delete',
+      category: 'blog',
+      targetId: id,
+      targetName: targetName
+    })
+
     setDeleting(null); loadPosts()
   }
   const togglePublish = async (p) => {
-    await supabase.from('blog_posts').update({ is_published: !p.is_published }).eq('id', p.id)
+    const newStatus = !p.is_published
+    await supabase.from('blog_posts').update({ is_published: newStatus }).eq('id', p.id)
+
+    // Log the activity
+    await logAction({
+      action: 'update',
+      category: 'blog',
+      targetId: p.id,
+      targetName: p.title,
+      changes: { is_published: { before: p.is_published, after: newStatus } }
+    })
+
     loadPosts()
   }
 

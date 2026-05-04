@@ -1,8 +1,10 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { Plus, Edit2, Trash2, X, Save, Search, BarChart3, ShoppingCart, Users, Package, Truck, TrendingUp } from 'lucide-react'
 import { INVENTORY_DATA } from '@/data/inventoryData'
+import { saveCustomer, fetchCustomers, deleteCustomer, saveSupplier, fetchSuppliers, deleteSupplier, saveOrder, fetchOrders, deleteOrder, saveMovement, fetchMovements, saveInventory, fetchInventory, deleteInventory } from '@/lib/erpService'
+import { useActivityLog } from '@/hooks/useActivityLog'
 
 const COLORS = {
   gold: '#B08D57',
@@ -15,6 +17,7 @@ const COLORS = {
 }
 
 const ERPSystem = () => {
+  const { logAction } = useActivityLog()
   const [activeTab, setActiveTab] = useState('erp')
   const [activeSubTab, setActiveSubTab] = useState('dashboard')
   const [editingItem, setEditingItem] = useState(null)
@@ -22,6 +25,7 @@ const ERPSystem = () => {
   const [editingType, setEditingType] = useState(null)
   const [showModal, setShowModal] = useState(false)
   const [showImportModal, setShowImportModal] = useState(false)
+  const [loadingData, setLoadingData] = useState(true)
 
   // Search & Filter & Sort
   const [searchTerm, setSearchTerm] = useState('')
@@ -48,6 +52,68 @@ const ERPSystem = () => {
 
   // Stock Movements - track in/out
   const [movements, setMovements] = useState([])
+
+  // Load data from database on mount
+  useEffect(() => {
+    const loadData = async () => {
+      setLoadingData(true)
+      try {
+        const [inventoryRes, customersRes, suppliersRes, ordersRes, movementsRes] = await Promise.all([
+          fetchInventory(),
+          fetchCustomers(),
+          fetchSuppliers(),
+          fetchOrders(),
+          fetchMovements(),
+        ])
+        if (!inventoryRes.error && inventoryRes.data) {
+          setInventory(inventoryRes.data.map(i => ({
+            ...i,
+            id: i.id,
+            refId: i.ref_id,
+            serialNo: i.serial_no,
+            costPrice: i.cost_price,
+            salePrice: i.sale_price,
+            actorFee: i.actor_fee,
+            ownerContact: i.owner_contact,
+          })))
+        }
+        if (!customersRes.error && customersRes.data) {
+          setCustomers(customersRes.data.map(c => ({
+            ...c,
+            totalSpent: c.total_spent,
+          })))
+        }
+        if (!suppliersRes.error && suppliersRes.data) {
+          setSuppliers(suppliersRes.data)
+        }
+        if (!ordersRes.error && ordersRes.data) {
+          setOrders(ordersRes.data.map(o => ({
+            ...o,
+            customer: o.customer_name,
+            customerId: o.customer_id,
+            items: o.items_count,
+            payment: o.payment_status,
+            date: o.order_date,
+            refIds: o.ref_ids ? JSON.parse(o.ref_ids) : [],
+          })))
+        }
+        if (!movementsRes.error && movementsRes.data) {
+          setMovements(movementsRes.data.map(m => ({
+            ...m,
+            refId: m.ref_id,
+            type: m.movement_type,
+            userName: m.user_name,
+            date: m.movement_date,
+          })))
+        }
+      } catch (error) {
+        console.error('Error loading ERP data:', error)
+      } finally {
+        setLoadingData(false)
+      }
+    }
+    loadData()
+  }, [])
 
   // Get unique values from inventory
   const owners = useMemo(() => {
@@ -134,7 +200,7 @@ const ERPSystem = () => {
     const file = e.target.files?.[0]
     if (!file) return
     const reader = new FileReader()
-    reader.onload = (event) => {
+    reader.onload = async (event) => {
       try {
         const csv = event.target?.result
         const lines = csv.toString().split('\n')
@@ -162,8 +228,15 @@ const ERPSystem = () => {
         if (newItems.length > 0) {
           const combined = [...inventory, ...newItems]
           const unique = combined.filter((item, idx, arr) => arr.findIndex(i => i.refId === item.refId) === idx)
+          // Save all new items to database
+          let savedCount = 0
+          for (const item of newItems) {
+            const { error } = await saveInventory(item)
+            if (!error) savedCount++
+          }
           setInventory(unique)
-          alert(`✅ Imported ${newItems.length} items`)
+          await logAction({ action: 'create', category: 'erp', targetId: 'BULK_IMPORT', targetName: `Imported ${savedCount} inventory items from CSV` })
+          alert(`✅ Imported ${savedCount} of ${newItems.length} items`)
           setShowImportModal(false)
         }
       } catch (error) {
@@ -174,40 +247,67 @@ const ERPSystem = () => {
   }
 
   // Save/Update functions
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!editingItem) return
     if (editingType === 'inventory') {
       if (!editingItem.refId || !editingItem.serialNo) { alert('Ref ID and Serial No required'); return }
       if (editingId) {
-        setInventory(inventory.map(i => i.id === editingId ? { ...editingItem, id: editingItem.refId } : i))
+        const { error } = await saveInventory(editingItem)
+        if (error) { alert('Error saving inventory: ' + error.message); return }
+        setInventory(inventory.map(i => i.id === editingId ? editingItem : i))
+        await logAction({ action: 'update', category: 'erp', targetId: editingItem.refId, targetName: `${editingItem.brand} ${editingItem.model}` })
       } else {
         if (inventory.some(i => i.refId === editingItem.refId)) { alert('Item already exists'); return }
-        setInventory([...inventory, { ...editingItem, id: editingItem.refId }])
+        const { data, error } = await saveInventory(editingItem)
+        if (error) { alert('Error saving inventory: ' + error.message); return }
+        const newItem = { ...editingItem, id: data?.[0]?.id || editingItem.refId }
+        setInventory([...inventory, newItem])
+        await logAction({ action: 'create', category: 'erp', targetId: editingItem.refId, targetName: `${editingItem.brand} ${editingItem.model}` })
       }
       alert('Saved')
     } else if (editingType === 'customer') {
       if (!editingItem.name || !editingItem.email) { alert('Name and Email required'); return }
       if (editingId) {
+        const { error } = await saveCustomer(editingItem)
+        if (error) { alert('Error saving customer: ' + error.message); return }
         setCustomers(customers.map(c => c.id === editingId ? editingItem : c))
+        await logAction({ action: 'update', category: 'erp', targetId: String(editingId), targetName: editingItem.name })
       } else {
-        setCustomers([...customers, { ...editingItem, id: Math.max(...customers.map(c => c.id), 0) + 1 }])
+        const { data, error } = await saveCustomer(editingItem)
+        if (error) { alert('Error saving customer: ' + error.message); return }
+        const newCustomer = { ...editingItem, id: data?.[0]?.id || Math.max(...customers.map(c => c.id || 0), 0) + 1 }
+        setCustomers([...customers, newCustomer])
+        await logAction({ action: 'create', category: 'erp', targetId: String(newCustomer.id), targetName: editingItem.name })
       }
       alert('Saved')
     } else if (editingType === 'supplier') {
       if (!editingItem.company || !editingItem.country) { alert('Company and Country required'); return }
       if (editingId) {
+        const { error } = await saveSupplier(editingItem)
+        if (error) { alert('Error saving supplier: ' + error.message); return }
         setSuppliers(suppliers.map(s => s.id === editingId ? editingItem : s))
+        await logAction({ action: 'update', category: 'erp', targetId: String(editingId), targetName: editingItem.company })
       } else {
-        setSuppliers([...suppliers, { ...editingItem, id: Math.max(...suppliers.map(s => s.id), 0) + 1 }])
+        const { data, error } = await saveSupplier(editingItem)
+        if (error) { alert('Error saving supplier: ' + error.message); return }
+        const newSupplier = { ...editingItem, id: data?.[0]?.id || Math.max(...suppliers.map(s => s.id || 0), 0) + 1 }
+        setSuppliers([...suppliers, newSupplier])
+        await logAction({ action: 'create', category: 'erp', targetId: String(newSupplier.id), targetName: editingItem.company })
       }
       alert('Saved')
     } else if (editingType === 'order') {
       if (!editingItem.customer || !editingItem.total) { alert('Customer and Total required'); return }
       if (editingId) {
+        const { error } = await saveOrder(editingItem)
+        if (error) { alert('Error saving order: ' + error.message); return }
         setOrders(orders.map(o => o.id === editingId ? editingItem : o))
+        await logAction({ action: 'update', category: 'erp', targetId: editingId, targetName: `Order for ${editingItem.customer}` })
       } else {
         const newId = `ORD-${String(orders.length + 1).padStart(3, '0')}`
+        const { error } = await saveOrder({ ...editingItem, id: newId })
+        if (error) { alert('Error saving order: ' + error.message); return }
         setOrders([...orders, { ...editingItem, id: newId }])
+        await logAction({ action: 'create', category: 'erp', targetId: newId, targetName: `Order for ${editingItem.customer}` })
       }
       alert('Saved')
     }
@@ -217,19 +317,50 @@ const ERPSystem = () => {
     setShowModal(false)
   }
 
-  const handleDelete = (type, id) => {
+  const handleDelete = async (type, id) => {
     if (!window.confirm('Delete this item?')) return
-    if (type === 'inventory') setInventory(inventory.filter(i => i.id !== id))
-    else if (type === 'customer') setCustomers(customers.filter(c => c.id !== id))
-    else if (type === 'supplier') setSuppliers(suppliers.filter(s => s.id !== id))
-    else if (type === 'order') setOrders(orders.filter(o => o.id !== id))
-    alert('Deleted')
+    try {
+      if (type === 'inventory') {
+        const item = inventory.find(i => i.id === id)
+        const { error } = await deleteInventory(id)
+        if (error) { alert('Error deleting: ' + error.message); return }
+        setInventory(inventory.filter(i => i.id !== id))
+        await logAction({ action: 'delete', category: 'erp', targetId: id, targetName: `${item?.brand} ${item?.model}` })
+      } else if (type === 'customer') {
+        const customer = customers.find(c => c.id === id)
+        const { error } = await deleteCustomer(id)
+        if (error) { alert('Error deleting: ' + error.message); return }
+        setCustomers(customers.filter(c => c.id !== id))
+        await logAction({ action: 'delete', category: 'erp', targetId: String(id), targetName: customer?.name || 'Customer' })
+      } else if (type === 'supplier') {
+        const supplier = suppliers.find(s => s.id === id)
+        const { error } = await deleteSupplier(id)
+        if (error) { alert('Error deleting: ' + error.message); return }
+        setSuppliers(suppliers.filter(s => s.id !== id))
+        await logAction({ action: 'delete', category: 'erp', targetId: String(id), targetName: supplier?.company || 'Supplier' })
+      } else if (type === 'order') {
+        const { error } = await deleteOrder(id)
+        if (error) { alert('Error deleting: ' + error.message); return }
+        setOrders(orders.filter(o => o.id !== id))
+        await logAction({ action: 'delete', category: 'erp', targetId: id, targetName: 'Order' })
+      }
+      alert('Deleted')
+    } catch (error) {
+      console.error('Error deleting:', error)
+      alert('Error: ' + error.message)
+    }
   }
 
-  const handleMarkSold = (itemId) => {
-    setInventory(inventory.map(item =>
-      item.id === itemId ? { ...item, status: 'Sold' } : item
+  const handleMarkSold = async (itemId) => {
+    const item = inventory.find(i => i.id === itemId)
+    if (!item) return
+    const updatedItem = { ...item, status: 'Sold' }
+    const { error } = await saveInventory(updatedItem)
+    if (error) { alert('Error updating item: ' + error.message); return }
+    setInventory(inventory.map(i =>
+      i.id === itemId ? updatedItem : i
     ))
+    await logAction({ action: 'update', category: 'erp', targetId: item.refId, targetName: `${item.brand} ${item.model} - marked sold` })
   }
 
   // Modal Component

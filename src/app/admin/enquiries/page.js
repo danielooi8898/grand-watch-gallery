@@ -3,6 +3,7 @@ import Spinner from '@/components/Spinner'
 import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
+import { useActivityLog } from '@/hooks/useActivityLog'
 import { Trash2, Mail, MailOpen, ChevronDown, ChevronUp, Lock, Phone, Calendar, Clock, Tag, ExternalLink } from 'lucide-react'
 
 const TYPES = ['All','appointment','trade_in','career','partner','contact','newsletter']
@@ -129,6 +130,7 @@ function EnquiryCard({ item, onMarkRead, onDelete }) {
 
 export default function AdminEnquiries() {
   const { user, isAdmin } = useAuth()
+  const { logAction } = useActivityLog()
   const [enquiries, setEnquiries] = useState([])
   const [loading,   setLoading]   = useState(true)
   const [filter,    setFilter]    = useState('All')
@@ -144,14 +146,40 @@ export default function AdminEnquiries() {
   useEffect(() => { load() }, [load])
 
   const markRead = async (id) => {
+    const enquiry = enquiries.find(e => e.id === id)
+    const targetName = enquiry ? `${enquiry.name || enquiry.email || 'Unknown'}` : 'Unknown'
+
     setEnquiries(prev => prev.map(e => e.id === id ? { ...e, is_read: true } : e))
     await supabase.from('enquiries').update({ is_read: true }).eq('id', id)
+
+    // Log the activity
+    await logAction({
+      action: 'view',
+      category: 'enquiries',
+      targetId: id,
+      targetName: targetName
+    })
   }
 
   const del = async (id) => {
     if (!confirm('Delete this enquiry?')) return
     setDeleting(id)
+
+    // Get enquiry info for logging
+    const enquiry = enquiries.find(e => e.id === id)
+    const targetName = enquiry ? `${enquiry.name || enquiry.email || 'Unknown'}` : 'Unknown'
+
+    // Delete the enquiry
     await supabase.from('enquiries').delete().eq('id', id)
+
+    // Log the deletion
+    await logAction({
+      action: 'delete',
+      category: 'enquiries',
+      targetId: id,
+      targetName: targetName
+    })
+
     setEnquiries(prev => prev.filter(e => e.id !== id))
     setDeleting(null)
   }

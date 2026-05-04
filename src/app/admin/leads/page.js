@@ -3,6 +3,7 @@ import Spinner from '@/components/Spinner'
 import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
+import { useActivityLog } from '@/hooks/useActivityLog'
 import { Mail, Phone, Trash2, ChevronDown, ChevronUp, Lock, CheckCircle, Clock, XCircle, List, LayoutGrid, Pencil, X, Save, Plus } from 'lucide-react'
 
 const STATUSES = ['new','contacted','converted','closed']
@@ -28,7 +29,7 @@ const inp = { width:'100%', padding:'0.55rem 0.75rem', fontFamily:'var(--sans)',
 const lbl = { fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#888', display:'block', marginBottom:'0.3rem' }
 
 /* ── Edit Modal ── */
-function EditModal({ lead, onSave, onClose }) {
+function EditModal({ lead, onSave, onClose, logAction }) {
   const [form, setForm] = useState({
     name: lead.name || '',
     email: lead.email || '',
@@ -52,9 +53,23 @@ function EditModal({ lead, onSave, onClose }) {
     }
     if (lead.id) {
       await supabase.from('leads').update(payload).eq('id', lead.id)
+      const targetName = form.name || form.email || 'Unknown Lead'
+      await logAction({
+        action: 'update',
+        category: 'leads',
+        targetId: lead.id,
+        targetName: targetName
+      })
       onSave({ ...lead, ...payload })
     } else {
       const { data: newLead } = await supabase.from('leads').insert({ ...payload, created_at: new Date().toISOString() }).select().single()
+      const targetName = form.name || form.email || 'Unknown Lead'
+      await logAction({
+        action: 'create',
+        category: 'leads',
+        targetId: newLead?.id || Date.now().toString(),
+        targetName: targetName
+      })
       onSave(newLead || { ...payload, id: Date.now().toString(), created_at: new Date().toISOString() })
     }
     setSaving(false)
@@ -318,6 +333,7 @@ function ListCard({ lead, onEdit, onDelete }) {
 /* ── Main Page ── */
 export default function AdminLeads() {
   const { isAdmin } = useAuth()
+  const { logAction } = useActivityLog()
   const [leads, setLeads] = useState([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('all')
@@ -339,13 +355,31 @@ export default function AdminLeads() {
   useEffect(() => { load() }, [load])
 
   const updateStatus = async (id, status) => {
+    const lead = leads.find(l => l.id === id)
     setLeads(prev => prev.map(l => l.id === id ? { ...l, status } : l))
     await supabase.from('leads').update({ status }).eq('id', id)
+    if (lead) {
+      const targetName = lead.name || lead.email || 'Unknown Lead'
+      await logAction({
+        action: 'update',
+        category: 'leads',
+        targetId: id,
+        targetName: targetName
+      })
+    }
   }
 
   const deleteLead = async (id) => {
     if (!confirm('Delete this lead?')) return
+    const lead = leads.find(l => l.id === id)
+    const targetName = lead ? (lead.name || lead.email || 'Unknown Lead') : 'Unknown Lead'
     await supabase.from('leads').delete().eq('id', id)
+    await logAction({
+      action: 'delete',
+      category: 'leads',
+      targetId: id,
+      targetName: targetName
+    })
     setLeads(prev => prev.filter(l => l.id !== id))
   }
 
@@ -470,7 +504,7 @@ export default function AdminLeads() {
       )}
 
       {/* Edit Modal */}
-      {editLead && <EditModal lead={editLead} onSave={handleSave} onClose={() => setEditLead(null)} />}
+      {editLead && <EditModal lead={editLead} onSave={handleSave} onClose={() => setEditLead(null)} logAction={logAction} />}
 
     </div>
   )

@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { Save, CheckCircle, Lock, Upload, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
+import { useActivityLog } from '@/hooks/useActivityLog'
 
 const OWNER_EMAIL = 'ooimunhong8898@gmail.com'
 
@@ -30,6 +31,7 @@ const TABS = ['Contact', 'Location', 'About', 'Gallery', 'SEO']
 
 export default function AdminSettings() {
   const { user, isOwner } = useAuth()
+  const { logAction } = useActivityLog()
   const [form,      setForm]    = useState(DEF)
   const [saving,    setSaving]  = useState('')
   const [saved,     setSaved]   = useState(false)
@@ -78,6 +80,12 @@ export default function AdminSettings() {
     setSaving(key)
     const rows = keys.map(k => ({ key: k, value: form[k] }))
     await supabase.from('site_settings').upsert(rows, { onConflict: 'key' })
+    await logAction({
+      action: 'update',
+      category: 'settings',
+      targetId: key,
+      targetName: `${key.charAt(0).toUpperCase() + key.slice(1)} Settings`
+    })
     setSaving('')
     setSaved(true)
     setTimeout(() => setSaved(false), 2500)

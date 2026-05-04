@@ -3,6 +3,7 @@ import Spinner from '@/components/Spinner'
 import { useEffect, useState } from 'react'
 import { Save, Plus, Trash2, CheckCircle, Eye, Star } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { useActivityLog } from '@/hooks/useActivityLog'
 
 /* Shared styles */
 const inp = {
@@ -87,6 +88,7 @@ const DEF_PARTNERS = [
 const TABS = ['Hero', 'Stats', 'Services', 'Testimonials', 'Brands', 'Spotlight', 'Careers', 'Partners']
 
 export default function AdminContent() {
+  const { logAction } = useActivityLog()
   const [hero,         setHero,         saveHero]         = useKV('hero', { title:'The Right\nTime For Life', subtitle:'EST. 2020 \u00b7 AUTHENTICATED TIMEPIECES', description:'Rolex. Patek Philippe. Audemars Piguet. Richard Mille.\nEvery watch authenticated. Every detail considered.' })
   const [stats,        setStats,        saveStats]        = useKV('stats', [{ n:'500', s:'+', l:'Watches Sold' },{ n:'17', s:'', l:'Luxury Brands' },{ n:'5', s:'+', l:'Years Est.' }])
   const [services,     setServices,     saveServices]     = useKV('services', DEF_SERVICES)
@@ -139,9 +141,17 @@ export default function AdminContent() {
   const [saving,    setSaving]    = useState(false)
   const [saved,     setSaved]     = useState(false)
 
-  const doSave = async (fn) => {
+  const doSave = async (fn, sectionName) => {
     setSaving(true)
     await fn()
+    if (sectionName) {
+      await logAction({
+        action: 'update',
+        category: 'content',
+        targetId: sectionName,
+        targetName: `${sectionName} Section`
+      })
+    }
     setSaving(false)
     setSaved(true)
     setTimeout(() => setSaved(false), 2500)
@@ -221,7 +231,7 @@ export default function AdminContent() {
                 onFocus={e => e.target.style.borderColor='#B08D57'} onBlur={e => e.target.style.borderColor='#E0DDD8'} />
             </Field>
           </div>
-          <SaveBar saving={saving} onSave={() => doSave(saveHero)} />
+          <SaveBar saving={saving} onSave={() => doSave(saveHero, 'Hero')} />
         </div>
       )}
 
@@ -250,7 +260,7 @@ export default function AdminContent() {
               </div>
             ))}
           </div>
-          <SaveBar saving={saving} onSave={() => doSave(saveStats)} />
+          <SaveBar saving={saving} onSave={() => doSave(saveStats, 'Stats')} />
         </div>
       )}
 
@@ -282,7 +292,7 @@ export default function AdminContent() {
               </div>
             ))}
           </div>
-          <SaveBar saving={saving} onSave={() => doSave(saveServices)} />
+          <SaveBar saving={saving} onSave={() => doSave(saveServices, 'Services')} />
         </div>
       )}
 
@@ -322,7 +332,7 @@ export default function AdminContent() {
               <Plus size={13}/> Add Testimonial
             </button>
           </div>
-          <SaveBar saving={saving} onSave={() => doSave(saveTestimonials)} />
+          <SaveBar saving={saving} onSave={() => doSave(saveTestimonials, 'Testimonials')} />
         </div>
       )}
 
@@ -344,7 +354,7 @@ export default function AdminContent() {
             />
           </Field>
           <p style={hint}>{brandsText.split('\n').filter(s => s.trim()).length} brands configured</p>
-          <SaveBar saving={saving} onSave={() => doSave(saveBrandsDirect)} />
+          <SaveBar saving={saving} onSave={() => doSave(saveBrandsDirect, 'Brands')} />
         </div>
       )}
 
@@ -404,7 +414,7 @@ export default function AdminContent() {
               )}
             </>
           )}
-          <SaveBar saving={saving} onSave={() => doSave(saveSpotlight)} />
+          <SaveBar saving={saving} onSave={() => doSave(saveSpotlight, 'Spotlight')} />
         </div>
       )}
 
@@ -441,7 +451,7 @@ export default function AdminContent() {
               <Plus size={13}/> Add Role
             </button>
           </div>
-          <SaveBar saving={saving} onSave={() => doSave(saveCareers)} />
+          <SaveBar saving={saving} onSave={() => doSave(saveCareers, 'Careers')} />
         </div>
       )}
 
@@ -475,7 +485,7 @@ export default function AdminContent() {
               <Plus size={13}/> Add Partner Type
             </button>
           </div>
-          <SaveBar saving={saving} onSave={() => doSave(savePartners)} />
+          <SaveBar saving={saving} onSave={() => doSave(savePartners, 'Partners')} />
         </div>
       )}
 

@@ -4,8 +4,10 @@ import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import { Plus, Pencil, Trash2, Search, Star, Tag, Grid, List } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { useActivityLog } from '@/hooks/useActivityLog'
 
 export default function AdminCollection() {
+  const { logAction } = useActivityLog()
   const [watches,  setWatches]  = useState([])
   const [loading,  setLoading]  = useState(true)
   const [search,   setSearch]   = useState('')
@@ -34,7 +36,22 @@ export default function AdminCollection() {
   const handleDelete = async (id) => {
     if (!confirm('Permanently delete this watch? This cannot be undone.')) return
     setDeleting(id)
+
+    // Get watch info for logging
+    const watch = watches.find(w => w.id === id)
+    const targetName = watch ? `${watch.brand} ${watch.model}` : 'Unknown Watch'
+
+    // Delete the watch
     await supabase.from('watches').delete().eq('id', id)
+
+    // Log the deletion
+    await logAction({
+      action: 'delete',
+      category: 'collection',
+      targetId: id,
+      targetName: targetName
+    })
+
     setDeleting(null)
     load()
   }
