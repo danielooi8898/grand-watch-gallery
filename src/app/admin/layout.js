@@ -6,7 +6,8 @@ import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
-import { LayoutDashboard, Package, BookOpen, Layers, Settings, LogOut, Globe, Menu, X, Inbox, Tag, BarChart2 } from 'lucide-react'
+import { logActivity } from '@/lib/activityLogger'
+import { LayoutDashboard, Package, BookOpen, Layers, Settings, LogOut, Globe, Menu, X, Inbox, Tag, BarChart2, Activity } from 'lucide-react'
 
 const NAV = [
   { href: '/admin',              label: 'Dashboard',  icon: LayoutDashboard },
@@ -17,6 +18,7 @@ const NAV = [
   { href: '/admin/leads',        label: 'Leads',      icon: Tag },
   { href: '/admin/traffic',      label: 'Traffic',    icon: BarChart2 },
   { href: '/admin/content',      label: 'Homepage',   icon: Layers },
+  { href: '/admin/activity',     label: 'Activity',   icon: Activity },
   { href: '/admin/settings',     label: 'Settings',   icon: Settings },
 ]
 
@@ -57,7 +59,16 @@ export default function AdminLayout({ children }) {
     </div>
   )
 
-  const handleSignOut = async () => { await signOut(); router.replace('/admin/login') }
+  const handleSignOut = async () => {
+    // Log the logout activity
+    await logActivity({
+      action: 'logout',
+      category: 'auth',
+      userEmail: user?.email || 'unknown'
+    })
+    await signOut()
+    router.replace('/admin/login')
+  }
   const initials = user?.email?.[0]?.toUpperCase() || 'A'
   const sidebarVisible = !isMobile || sideOpen
 

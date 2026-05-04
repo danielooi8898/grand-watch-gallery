@@ -1,6 +1,7 @@
 'use client'
 import { useRef, useState, useEffect } from 'react'
 import { useAuth } from '@/context/AuthContext'
+import { logActivity } from '@/lib/activityLogger'
 
 export default function AdminLogin() {
   const { signIn, user, isAdmin, loading } = useAuth()
@@ -44,6 +45,13 @@ export default function AdminLogin() {
       }
 
       if (data?.session) {
+        // Log the login activity
+        await logActivity({
+          action: 'login',
+          category: 'auth',
+          userEmail: email
+        })
+
         // Full page reload — Supabase re-reads session from localStorage,
         // so the admin layout always sees a clean, fully-initialised auth state.
         // This avoids the React state race condition that caused the redirect loop.
