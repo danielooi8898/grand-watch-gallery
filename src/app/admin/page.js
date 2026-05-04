@@ -121,8 +121,8 @@ export default function AdminDashboard() {
           </div>
         ) : recent.length === 0 ? (
           <div style={{ textAlign:'center', padding:'2.5rem', background:'#F7F6F3', borderRadius:'6px' }}>
-            <Package size={24} style={{ color:'#CCC', marginBottom:'0.75rem' }} />
-            <p style={{ fontFamily:'var(--sans)', fontSize:'0.82rem', color:'#BBB' }}>No watches yet.</p>
+            <Package size={24} style={{ color:'#999', marginBottom:'0.75rem' }} />
+            <p style={{ fontFamily:'var(--sans)', fontSize:'0.82rem', color:'#666' }}>No watches yet.</p>
             <Link href="/admin/collection" style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', color:'#B08D57', textDecoration:'none', fontWeight:600 }}>Add your first watch →</Link>
           </div>
         ) : (

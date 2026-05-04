@@ -26,7 +26,7 @@ function StatCard({ label, value, sub, icon: Icon, color = '#B08D57', chart, hre
       onMouseLeave={e => { if (href) e.currentTarget.style.borderColor='#EDE9E3' }}>
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom: chart ? '0.75rem' : 0 }}>
         <div>
-          <p style={{ fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#999', marginBottom:'0.4rem' }}>{label}</p>
+          <p style={{ fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#666', marginBottom:'0.4rem' }}>{label}</p>
           <p style={{ fontFamily:'var(--sans)', fontWeight:800, fontSize:'1.8rem', color:'#111', lineHeight:1 }}>{value ?? '—'}</p>
           {sub && <p style={{ fontFamily:'var(--sans)', fontSize:'0.7rem', color:'#999', marginTop:'0.3rem' }}>{sub}</p>}
         </div>
@@ -42,13 +42,13 @@ function StatCard({ label, value, sub, icon: Icon, color = '#B08D57', chart, hre
 }
 
 function TopPagesTable({ pages }) {
-  if (!pages?.length) return <p style={{ fontFamily:'var(--sans)', fontSize:'0.82rem', color:'#aaa' }}>No page data yet.</p>
+  if (!pages?.length) return <p style={{ fontFamily:'var(--sans)', fontSize:'0.82rem', color:'#666' }}>No page data yet.</p>
   return (
     <table style={{ width:'100%', borderCollapse:'collapse' }}>
       <thead>
         <tr>
           {['Page', 'Views', 'Avg Time'].map(h => (
-            <th key={h} style={{ fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#aaa', textAlign:'left', paddingBottom:'0.6rem', borderBottom:'1px solid #F0EBE3', fontWeight:600 }}>{h}</th>
+            <th key={h} style={{ fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#666', textAlign:'left', paddingBottom:'0.6rem', borderBottom:'1px solid #F0EBE3', fontWeight:600 }}>{h}</th>
           ))}
         </tr>
       </thead>
@@ -114,7 +114,7 @@ function LeadStats() {
 
       {/* Source bars */}
       {data.sources.length === 0
-        ? <p style={{ fontFamily:'var(--sans)', fontSize:'0.82rem', color:'#bbb' }}>No leads yet. Submit a form to see data.</p>
+        ? <p style={{ fontFamily:'var(--sans)', fontSize:'0.82rem', color:'#666' }}>No leads yet. Submit a form to see data.</p>
         : data.sources.map(({ source, count, pct }) => (
           <div key={source} style={{ marginBottom:'0.6rem' }}>
             <div style={{ display:'flex', justifyContent:'space-between', marginBottom:'0.2rem' }}>
@@ -122,7 +122,7 @@ function LeadStats() {
                 <div style={{ width:'7px', height:'7px', borderRadius:'50%', background: SOURCE_COLORS[source] || '#B08D57' }} />
                 <span style={{ fontFamily:'var(--sans)', fontSize:'0.8rem', color:'#333' }}>{SOURCE_LABELS[source] || source}</span>
               </div>
-              <span style={{ fontFamily:'var(--sans)', fontSize:'0.75rem', color:'#888' }}>{count} ({pct}%)</span>
+              <span style={{ fontFamily:'var(--sans)', fontSize:'0.75rem', color:'#555' }}>{count} ({pct}%)</span>
             </div>
             <div style={{ height:'5px', background:'#F0EBE3', borderRadius:'3px' }}>
               <div style={{ height:'100%', width:`${pct}%`, background: SOURCE_COLORS[source] || '#B08D57', borderRadius:'3px', transition:'width 0.8s ease' }} />

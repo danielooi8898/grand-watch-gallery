@@ -247,11 +247,11 @@ export default function ActivityPage() {
         overflow: 'hidden'
       }}>
         {loading ? (
-          <div style={{ padding: '3rem', textAlign: 'center', color: '#999' }}>
+          <div style={{ padding: '3rem', textAlign: 'center', color: '#666' }}>
             Loading activity logs...
           </div>
         ) : logs.length === 0 ? (
-          <div style={{ padding: '3rem', textAlign: 'center', color: '#999' }}>
+          <div style={{ padding: '3rem', textAlign: 'center', color: '#666' }}>
             No activities found
           </div>
         ) : (
