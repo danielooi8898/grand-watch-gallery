@@ -26,9 +26,9 @@ function StatCard({ label, value, sub, icon: Icon, color = '#B08D57', chart, hre
       onMouseLeave={e => { if (href) e.currentTarget.style.borderColor='#EDE9E3' }}>
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom: chart ? '0.75rem' : 0 }}>
         <div>
-          <p style={{ fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#666', marginBottom:'0.4rem' }}>{label}</p>
+          <p style={{ fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#555', marginBottom:'0.4rem' }}>{label}</p>
           <p style={{ fontFamily:'var(--sans)', fontWeight:800, fontSize:'1.8rem', color:'#111', lineHeight:1 }}>{value ?? '—'}</p>
-          {sub && <p style={{ fontFamily:'var(--sans)', fontSize:'0.7rem', color:'#999', marginTop:'0.3rem' }}>{sub}</p>}
+          {sub && <p style={{ fontFamily:'var(--sans)', fontSize:'0.7rem', color:'#555', marginTop:'0.3rem' }}>{sub}</p>}
         </div>
         <div style={{ width:'36px', height:'36px', borderRadius:'8px', background:`${color}18`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
           <Icon size={16} style={{ color }} />
@@ -42,13 +42,13 @@ function StatCard({ label, value, sub, icon: Icon, color = '#B08D57', chart, hre
 }
 
 function TopPagesTable({ pages }) {
-  if (!pages?.length) return <p style={{ fontFamily:'var(--sans)', fontSize:'0.82rem', color:'#666' }}>No page data yet.</p>
+  if (!pages?.length) return <p style={{ fontFamily:'var(--sans)', fontSize:'0.82rem', color:'#444' }}>No page data yet.</p>
   return (
     <table style={{ width:'100%', borderCollapse:'collapse' }}>
       <thead>
         <tr>
           {['Page', 'Views', 'Avg Time'].map(h => (
-            <th key={h} style={{ fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#666', textAlign:'left', paddingBottom:'0.6rem', borderBottom:'1px solid #F0EBE3', fontWeight:600 }}>{h}</th>
+            <th key={h} style={{ fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#333', textAlign:'left', paddingBottom:'0.6rem', borderBottom:'1px solid #F0EBE3', fontWeight:600 }}>{h}</th>
           ))}
         </tr>
       </thead>
@@ -57,7 +57,7 @@ function TopPagesTable({ pages }) {
           <tr key={i}>
             <td style={{ padding:'0.6rem 0', borderBottom:'1px solid #F7F6F3', fontFamily:'var(--sans)', fontSize:'0.82rem', color:'#333', maxWidth:'180px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{p.page}</td>
             <td style={{ padding:'0.6rem 0', borderBottom:'1px solid #F7F6F3', fontFamily:'var(--sans)', fontSize:'0.82rem', color:'#555', fontWeight:600 }}>{p.views}</td>
-            <td style={{ padding:'0.6rem 0', borderBottom:'1px solid #F7F6F3', fontFamily:'var(--sans)', fontSize:'0.78rem', color:'#999' }}>{p.avgTime}</td>
+            <td style={{ padding:'0.6rem 0', borderBottom:'1px solid #F7F6F3', fontFamily:'var(--sans)', fontSize:'0.78rem', color:'#444' }}>{p.avgTime}</td>
           </tr>
         ))}
       </tbody>
@@ -93,7 +93,7 @@ function LeadStats() {
     })
   }, [])
 
-  if (loading) return <p style={{ fontFamily:'var(--sans)', fontSize:'0.82rem', color:'#aaa' }}>Loading lead stats...</p>
+  if (loading) return <p style={{ fontFamily:'var(--sans)', fontSize:'0.82rem', color:'#444' }}>Loading lead stats...</p>
 
   return (
     <div>
@@ -114,7 +114,7 @@ function LeadStats() {
 
       {/* Source bars */}
       {data.sources.length === 0
-        ? <p style={{ fontFamily:'var(--sans)', fontSize:'0.82rem', color:'#666' }}>No leads yet. Submit a form to see data.</p>
+        ? <p style={{ fontFamily:'var(--sans)', fontSize:'0.82rem', color:'#444' }}>No leads yet. Submit a form to see data.</p>
         : data.sources.map(({ source, count, pct }) => (
           <div key={source} style={{ marginBottom:'0.6rem' }}>
             <div style={{ display:'flex', justifyContent:'space-between', marginBottom:'0.2rem' }}>
@@ -160,7 +160,7 @@ export default function AdminTraffic() {
     <div style={{ padding:'2.5rem' }}>
       <div style={{ background:'#fff', border:'1px solid #E8E2D8', borderRadius:'6px', padding:'2rem', textAlign:'center' }}>
         <Lock size={20} style={{ color:'#B08D57', marginBottom:'1rem' }} />
-        <p style={{ fontFamily:'var(--sans)', fontSize:'0.85rem', color:'#888' }}>Admin access required.</p>
+        <p style={{ fontFamily:'var(--sans)', fontSize:'0.85rem', color:'#444' }}>Admin access required.</p>
       </div>
     </div>
   )
@@ -173,7 +173,7 @@ export default function AdminTraffic() {
         <div>
           <p style={{ fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#B08D57', marginBottom:'0.3rem' }}>Admin · Analytics</p>
           <h1 style={{ fontFamily:'var(--sans)', fontWeight:800, fontSize:'1.6rem', letterSpacing:'-0.02em', color:'#111' }}>Website Traffic</h1>
-          {lastRefresh && <p style={{ fontFamily:'var(--sans)', fontSize:'0.72rem', color:'#aaa', marginTop:'0.2rem' }}>Last updated: {lastRefresh.toLocaleTimeString()}</p>}
+          {lastRefresh && <p style={{ fontFamily:'var(--sans)', fontSize:'0.72rem', color:'#555', marginTop:'0.2rem' }}>Last updated: {lastRefresh.toLocaleTimeString()}</p>}
         </div>
         <button onClick={fetchGA} disabled={gaLoading}
           style={{ display:'inline-flex', alignItems:'center', gap:'0.4rem', padding:'0.5rem 1rem', background:'#fff', border:'1px solid #E0DDD8', borderRadius:'4px', fontFamily:'var(--sans)', fontSize:'0.72rem', fontWeight:600, color:'#555', cursor: gaLoading ? 'not-allowed' : 'pointer' }}>
@@ -206,8 +206,8 @@ export default function AdminTraffic() {
             <p style={{ fontFamily:'var(--sans)', fontWeight:700, fontSize:'0.88rem', color:'#111' }}>Top Pages</p>
             <a href="https://analytics.google.com/analytics/web/#/p422434153/reports/explorer" target="_blank" rel="noopener noreferrer" style={{ fontFamily:'var(--sans)', fontSize:'0.68rem', color:'#B08D57', textDecoration:'none' }}>View in GA4 →</a>
           </div>
-          <p style={{ fontFamily:'var(--sans)', fontSize:'0.72rem', color:'#999', marginBottom:'1rem', paddingBottom:'0.75rem', borderBottom:'1px solid #EDE9E3' }}>Most visited in last 7 days</p>
-          {gaLoading ? <p style={{ fontFamily:'var(--sans)', fontSize:'0.82rem', color:'#aaa' }}>Loading...</p> : <TopPagesTable pages={gaData?.topPages} />}
+          <p style={{ fontFamily:'var(--sans)', fontSize:'0.72rem', color:'#555', marginBottom:'1rem', paddingBottom:'0.75rem', borderBottom:'1px solid #EDE9E3' }}>Most visited in last 7 days</p>
+          {gaLoading ? <p style={{ fontFamily:'var(--sans)', fontSize:'0.82rem', color:'#444' }}>Loading...</p> : <TopPagesTable pages={gaData?.topPages} />}
         </div>
 
         <div style={card}>
@@ -215,21 +215,21 @@ export default function AdminTraffic() {
             <p style={{ fontFamily:'var(--sans)', fontWeight:700, fontSize:'0.88rem', color:'#111' }}>Traffic Sources</p>
             <a href="https://analytics.google.com/analytics/web/#/p422434153/acquisition/overview" target="_blank" rel="noopener noreferrer" style={{ fontFamily:'var(--sans)', fontSize:'0.68rem', color:'#B08D57', textDecoration:'none' }}>View in GA4 →</a>
           </div>
-          <p style={{ fontFamily:'var(--sans)', fontSize:'0.72rem', color:'#999', marginBottom:'1rem', paddingBottom:'0.75rem', borderBottom:'1px solid #EDE9E3' }}>Where visitors come from</p>
-          {gaLoading ? <p style={{ fontFamily:'var(--sans)', fontSize:'0.82rem', color:'#aaa' }}>Loading...</p> : (
+          <p style={{ fontFamily:'var(--sans)', fontSize:'0.72rem', color:'#555', marginBottom:'1rem', paddingBottom:'0.75rem', borderBottom:'1px solid #EDE9E3' }}>Where visitors come from</p>
+          {gaLoading ? <p style={{ fontFamily:'var(--sans)', fontSize:'0.82rem', color:'#444' }}>Loading...</p> : (
             <div style={{ display:'flex', flexDirection:'column', gap:'0.6rem' }}>
               {(gaData?.trafficSources || []).map((s, i) => (
                 <div key={i}>
                   <div style={{ display:'flex', justifyContent:'space-between', marginBottom:'0.2rem' }}>
                     <span style={{ fontFamily:'var(--sans)', fontSize:'0.8rem', color:'#333', textTransform:'capitalize' }}>{s.source}</span>
-                    <span style={{ fontFamily:'var(--sans)', fontSize:'0.75rem', color:'#888' }}>{s.sessions} ({s.pct}%)</span>
+                    <span style={{ fontFamily:'var(--sans)', fontSize:'0.75rem', color:'#555' }}>{s.sessions} ({s.pct}%)</span>
                   </div>
                   <div style={{ height:'5px', background:'#F0EBE3', borderRadius:'3px' }}>
                     <div style={{ height:'100%', width:`${s.pct}%`, background:'#B08D57', borderRadius:'3px', opacity: 0.4 + (i===0 ? 0.6 : i===1 ? 0.4 : 0.2) }} />
                   </div>
                 </div>
               ))}
-              {!gaData?.trafficSources?.length && !gaLoading && <p style={{ fontFamily:'var(--sans)', fontSize:'0.82rem', color:'#aaa' }}>No data yet — GA4 needs 24-48h to collect data.</p>}
+              {!gaData?.trafficSources?.length && !gaLoading && <p style={{ fontFamily:'var(--sans)', fontSize:'0.82rem', color:'#444' }}>No data yet — GA4 needs 24-48h to collect data.</p>}
             </div>
           )}
         </div>
@@ -238,7 +238,7 @@ export default function AdminTraffic() {
       {/* Lead Stats */}
       <div style={card}>
         <p style={{ fontFamily:'var(--sans)', fontWeight:700, fontSize:'0.88rem', color:'#111', marginBottom:'0.2rem' }}>Lead Capture Stats</p>
-        <p style={{ fontFamily:'var(--sans)', fontSize:'0.72rem', color:'#999', marginBottom:'1rem', paddingBottom:'0.75rem', borderBottom:'1px solid #EDE9E3' }}>Form submissions tracked from your website</p>
+        <p style={{ fontFamily:'var(--sans)', fontSize:'0.72rem', color:'#555', marginBottom:'1rem', paddingBottom:'0.75rem', borderBottom:'1px solid #EDE9E3' }}>Form submissions tracked from your website</p>
         <LeadStats />
       </div>
 

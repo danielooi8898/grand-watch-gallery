@@ -129,7 +129,7 @@ export default function ActivityPage() {
         }}>
           Activity Log
         </h1>
-        <p style={{ color: '#666', fontSize: '0.95rem' }}>
+        <p style={{ color: '#444', fontSize: '0.95rem' }}>
           Track all activities performed in the admin portal
         </p>
       </div>
@@ -176,7 +176,7 @@ export default function ActivityPage() {
               User Email
             </label>
             <div style={{ position: 'relative' }}>
-              <Search size={14} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
+              <Search size={14} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#555' }} />
               <input
                 type="text"
                 placeholder="Filter by email..."
@@ -247,11 +247,11 @@ export default function ActivityPage() {
         overflow: 'hidden'
       }}>
         {loading ? (
-          <div style={{ padding: '3rem', textAlign: 'center', color: '#666' }}>
+          <div style={{ padding: '3rem', textAlign: 'center', color: '#444' }}>
             Loading activity logs...
           </div>
         ) : logs.length === 0 ? (
-          <div style={{ padding: '3rem', textAlign: 'center', color: '#666' }}>
+          <div style={{ padding: '3rem', textAlign: 'center', color: '#444' }}>
             No activities found
           </div>
         ) : (
@@ -282,7 +282,7 @@ export default function ActivityPage() {
                     borderBottom: '1px solid #f0f0f0',
                     background: idx % 2 === 0 ? 'white' : '#fafafa'
                   }}>
-                    <td style={{ padding: '1rem', fontSize: '0.85rem', color: '#666', fontFamily: 'var(--sans)' }}>
+                    <td style={{ padding: '1rem', fontSize: '0.85rem', color: '#444', fontFamily: 'var(--sans)' }}>
                       {formatDate(log.created_at)}
                     </td>
                     <td style={{ padding: '1rem', fontSize: '0.85rem', color: '#333', fontFamily: 'var(--sans)', maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -291,10 +291,10 @@ export default function ActivityPage() {
                     <td style={{ padding: '1rem' }}>
                       <ActionBadge action={log.action} category={log.category} />
                     </td>
-                    <td style={{ padding: '1rem', fontSize: '0.85rem', color: '#666', fontFamily: 'var(--sans)', textTransform: 'capitalize' }}>
+                    <td style={{ padding: '1rem', fontSize: '0.85rem', color: '#444', fontFamily: 'var(--sans)', textTransform: 'capitalize' }}>
                       {log.category}
                     </td>
-                    <td style={{ padding: '1rem', fontSize: '0.85rem', color: '#666', fontFamily: 'var(--sans)', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <td style={{ padding: '1rem', fontSize: '0.85rem', color: '#444', fontFamily: 'var(--sans)', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {log.target_name || log.target_id || '—'}
                     </td>
                   </tr>
@@ -304,7 +304,7 @@ export default function ActivityPage() {
 
             {/* Pagination */}
             <div style={{ padding: '1.5rem', borderTop: '1px solid #e0ddd6', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <p style={{ fontSize: '0.85rem', color: '#666', fontFamily: 'var(--sans)' }}>
+              <p style={{ fontSize: '0.85rem', color: '#444', fontFamily: 'var(--sans)' }}>
                 Page {pagination.current} of {pagination.total} ({logs.length} results)
               </p>
               <div style={{ display: 'flex', gap: '0.5rem' }}>

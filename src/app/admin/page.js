@@ -55,7 +55,7 @@ export default function AdminDashboard() {
       <div style={{ marginBottom:'2rem', paddingBottom:'1.5rem', borderBottom:'1px solid #EDE9E3' }}>
         <p style={{ fontFamily:'var(--sans)', fontSize:'0.62rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#B08D57', marginBottom:'0.35rem' }}>Admin</p>
         <h1 style={{ fontFamily:'var(--sans)', fontWeight:800, fontSize:'1.6rem', letterSpacing:'-0.02em', color:'#111' }}>Dashboard</h1>
-        <p style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', color:'#888', marginTop:'0.2rem' }}>
+        <p style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', color:'#555', marginTop:'0.2rem' }}>
           Welcome back{user?.email ? `, ${user.email.split('@')[0]}` : ''} — here's your store at a glance.
         </p>
       </div>
@@ -66,7 +66,7 @@ export default function AdminDashboard() {
           <div key={label} style={{ ...card, padding:'1.25rem' }}>
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
               <div>
-                <p style={{ fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#999', marginBottom:'0.5rem' }}>{label}</p>
+                <p style={{ fontFamily:'var(--sans)', fontSize:'0.6rem', letterSpacing:'0.2em', textTransform:'uppercase', color:'#555', marginBottom:'0.5rem' }}>{label}</p>
                 <p style={{ fontFamily:'var(--sans)', fontWeight:800, fontSize:'2rem', letterSpacing:'-0.03em', color:'#111', lineHeight:1 }}>
                   {loading ? '—' : value}
                 </p>
@@ -98,7 +98,7 @@ export default function AdminDashboard() {
               </div>
               <div>
                 <p style={{ fontFamily:'var(--sans)', fontWeight:700, fontSize:'0.82rem', color:'#111', marginBottom:'0.15rem' }}>{label}</p>
-                <p style={{ fontFamily:'var(--sans)', fontSize:'0.72rem', color:'#999' }}>{desc}</p>
+                <p style={{ fontFamily:'var(--sans)', fontSize:'0.72rem', color:'#555' }}>{desc}</p>
               </div>
             </div>
             <ArrowRight size={14} style={{ color:'#CCC', flexShrink:0 }} />
@@ -121,8 +121,8 @@ export default function AdminDashboard() {
           </div>
         ) : recent.length === 0 ? (
           <div style={{ textAlign:'center', padding:'2.5rem', background:'#F7F6F3', borderRadius:'6px' }}>
-            <Package size={24} style={{ color:'#999', marginBottom:'0.75rem' }} />
-            <p style={{ fontFamily:'var(--sans)', fontSize:'0.82rem', color:'#666' }}>No watches yet.</p>
+            <Package size={24} style={{ color:'#777', marginBottom:'0.75rem' }} />
+            <p style={{ fontFamily:'var(--sans)', fontSize:'0.82rem', color:'#444' }}>No watches yet.</p>
             <Link href="/admin/collection" style={{ fontFamily:'var(--sans)', fontSize:'0.78rem', color:'#B08D57', textDecoration:'none', fontWeight:600 }}>Add your first watch →</Link>
           </div>
         ) : (
