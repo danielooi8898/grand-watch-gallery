@@ -377,18 +377,7 @@ const ERPSystem = () => {
     await logAction({ action: 'update', category: 'erp', targetId: item.refId, targetName: `${item.brand} ${item.model} - marked sold` })
   }
 
-  // Modal Component
-  const Modal = () => !showModal ? null : (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: '1rem' }}>
-      <div style={{ background: COLORS.white, borderRadius: '8px', maxWidth: '700px', width: '100%', maxHeight: '90vh', overflowY: 'auto' }}>
-        <div style={{ position: 'sticky', top: 0, background: COLORS.lightBg, padding: '1.5rem', borderBottom: `1px solid ${COLORS.darkBorder}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: COLORS.darkText }}>
-            {editingId ? 'Edit' : 'Add'} {editingType === 'inventory' ? 'Item' : editingType === 'customer' ? 'Customer' : editingType === 'supplier' ? 'Supplier' : 'Order'}
-          </h3>
-          <button onClick={() => { setShowModal(false); setEditingItem(null) }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: COLORS.darkText, padding: '0.25rem' }}>
-            <X size={20} />
-          </button>
-        </div>
+  // Modal - inline to prevent recreation on every render
         <div style={{ padding: '1.5rem', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
           {editingType === 'inventory' && ['refId', 'brand', 'model', 'serialNo', 'condition', 'year', 'costPrice', 'salePrice', 'commission', 'actorFee', 'owner', 'status', 'type', 'ownerContact'].map(field => (
             <div key={field} style={{ position: 'relative' }}>
@@ -437,9 +426,9 @@ const ERPSystem = () => {
                   <option>Inactive</option>
                 </select>
               ) : ['totalSpent'].includes(field) ? (
-                <input type="number" value={editingItem[field]} onChange={e => setEditingItem(prev => ({...prev, [field]: parseFloat(e.target.value) || 0}))} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }} />
+                <input type="number" value={editingItem[field] || 0} onChange={e => setEditingItem(prev => ({...prev, [field]: parseFloat(e.target.value) || 0}))} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }} />
               ) : (
-                <input type={field === 'email' ? 'email' : field === 'phone' ? 'tel' : 'text'} value={editingItem[field]} onChange={e => setEditingItem(prev => ({...prev, [field]: e.target.value}))} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }} />
+                <input type={field === 'email' ? 'email' : field === 'phone' ? 'tel' : 'text'} value={editingItem[field] || ''} onChange={e => setEditingItem(prev => ({...prev, [field]: e.target.value}))} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }} />
               )}
             </div>
           ))}
@@ -452,9 +441,9 @@ const ERPSystem = () => {
                   <option>Inactive</option>
                 </select>
               ) : ['rating'].includes(field) ? (
-                <input type="number" step="0.1" min="0" max="5" value={editingItem[field]} onChange={e => setEditingItem(prev => ({...prev, [field]: parseFloat(e.target.value) || 0}))} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }} />
+                <input type="number" step="0.1" min="0" max="5" value={editingItem[field] || 0} onChange={e => setEditingItem(prev => ({...prev, [field]: parseFloat(e.target.value) || 0}))} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }} />
               ) : (
-                <input type={field === 'email' ? 'email' : 'text'} value={editingItem[field]} onChange={e => setEditingItem(prev => ({...prev, [field]: e.target.value}))} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }} />
+                <input type={field === 'email' ? 'email' : 'text'} value={editingItem[field] || ''} onChange={e => setEditingItem(prev => ({...prev, [field]: e.target.value}))} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }} />
               )}
             </div>
           ))}
@@ -560,10 +549,6 @@ const ERPSystem = () => {
           <button onClick={() => { setShowModal(false); setEditingItem(null) }} style={{ padding: '0.5rem 1.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', background: COLORS.white, color: COLORS.darkText, cursor: 'pointer', fontSize: '0.875rem', fontWeight: 600 }}>Cancel</button>
           <button onClick={handleSave} style={{ padding: '0.5rem 1.5rem', background: COLORS.gold, color: COLORS.white, borderRadius: '4px', border: 'none', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 600 }}>Save</button>
         </div>
-      </div>
-    </div>
-  )
-
   // Dashboard
   const renderDashboard = () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
@@ -1041,7 +1026,191 @@ const ERPSystem = () => {
       </div>
 
       {/* Modals */}
-      <Modal />
+      {showModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: '1rem' }}>
+          <div style={{ background: COLORS.white, borderRadius: '8px', maxWidth: '700px', width: '100%', maxHeight: '90vh', overflowY: 'auto' }}>
+            <div style={{ position: 'sticky', top: 0, background: COLORS.lightBg, padding: '1.5rem', borderBottom: `1px solid ${COLORS.darkBorder}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: COLORS.darkText }}>
+                {editingId ? 'Edit' : 'Add'} {editingType === 'inventory' ? 'Item' : editingType === 'customer' ? 'Customer' : editingType === 'supplier' ? 'Supplier' : 'Order'}
+              </h3>
+              <button onClick={() => { setShowModal(false); setEditingItem(null) }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: COLORS.darkText, padding: '0.25rem' }}>
+                <X size={20} />
+              </button>
+            </div>
+            <div style={{ padding: '1.5rem', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+              {editingType === 'inventory' && ['refId', 'brand', 'model', 'serialNo', 'condition', 'year', 'costPrice', 'salePrice', 'commission', 'actorFee', 'owner', 'status', 'type', 'ownerContact'].map(field => (
+                <div key={field} style={{ position: 'relative' }}>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: COLORS.darkText, marginBottom: '0.4rem', textTransform: 'uppercase' }}>{field}</label>
+                  {['condition', 'type', 'status'].includes(field) ? (
+                    <select value={editingItem[field] || ''} onChange={e => {
+                      const newVal = e.target.value
+                      setEditingItem(prev => ({...prev, [field]: newVal}))
+                    }} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }}>
+                      {field === 'condition' ? [<option key="new" value="NEW">NEW</option>, <option key="used" value="USED">USED</option>] : field === 'type' ? [<option key="p" value="Personal">Personal</option>, <option key="c" value="Consignment">Consignment</option>] : [<option key="a" value="Active">Active</option>, <option key="s" value="Sold">Sold</option>]}
+                    </select>
+                  ) : ['costPrice', 'salePrice', 'commission', 'actorFee'].includes(field) ? (
+                    <input
+                      type="number"
+                      value={editingItem[field] || 0}
+                      onChange={e => {
+                        const newVal = parseFloat(e.target.value) || 0
+                        setEditingItem(prev => ({...prev, [field]: newVal}))
+                      }}
+                      style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }}
+                    />
+                  ) : (
+                    <input
+                      type="text"
+                      value={editingItem[field] || ''}
+                      onChange={e => {
+                        const newVal = e.target.value
+                        setEditingItem(prev => ({...prev, [field]: newVal}))
+                      }}
+                      style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }}
+                    />
+                  )}
+                </div>
+              ))}
+              {editingType === 'customer' && ['name', 'email', 'phone', 'city', 'type', 'status', 'totalSpent', 'notes'].map(field => (
+                <div key={field}>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: COLORS.darkText, marginBottom: '0.4rem', textTransform: 'uppercase' }}>{field}</label>
+                  {field === 'type' ? (
+                    <select value={editingItem[field]} onChange={e => setEditingItem(prev => ({...prev, [field]: e.target.value}))} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }}>
+                      <option>Retail</option>
+                      <option>Wholesale</option>
+                    </select>
+                  ) : field === 'status' ? (
+                    <select value={editingItem[field]} onChange={e => setEditingItem(prev => ({...prev, [field]: e.target.value}))} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }}>
+                      <option>Active</option>
+                      <option>Inactive</option>
+                    </select>
+                  ) : ['totalSpent'].includes(field) ? (
+                    <input type="number" value={editingItem[field] || 0} onChange={e => setEditingItem(prev => ({...prev, [field]: parseFloat(e.target.value) || 0}))} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }} />
+                  ) : (
+                    <input type={field === 'email' ? 'email' : field === 'phone' ? 'tel' : 'text'} value={editingItem[field] || ''} onChange={e => setEditingItem(prev => ({...prev, [field]: e.target.value}))} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }} />
+                  )}
+                </div>
+              ))}
+              {editingType === 'supplier' && ['company', 'country', 'contact', 'email', 'category', 'rating', 'status'].map(field => (
+                <div key={field}>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: COLORS.darkText, marginBottom: '0.4rem', textTransform: 'uppercase' }}>{field}</label>
+                  {field === 'status' ? (
+                    <select value={editingItem[field]} onChange={e => setEditingItem(prev => ({...prev, [field]: e.target.value}))} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }}>
+                      <option>Active</option>
+                      <option>Inactive</option>
+                    </select>
+                  ) : ['rating'].includes(field) ? (
+                    <input type="number" step="0.1" min="0" max="5" value={editingItem[field] || 0} onChange={e => setEditingItem(prev => ({...prev, [field]: parseFloat(e.target.value) || 0}))} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }} />
+                  ) : (
+                    <input type={field === 'email' ? 'email' : 'text'} value={editingItem[field] || ''} onChange={e => setEditingItem(prev => ({...prev, [field]: e.target.value}))} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }} />
+                  )}
+                </div>
+              ))}
+              {editingType === 'movement' && ['date', 'type', 'refId', 'brand', 'quantity', 'reason', 'userName'].map(field => (
+                <div key={field} style={{ position: 'relative' }}>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: COLORS.darkText, marginBottom: '0.4rem', textTransform: 'uppercase' }}>{field}</label>
+                  {field === 'type' ? (
+                    <select value={editingItem[field] || 'IN'} onChange={e => {
+                      const newVal = e.target.value
+                      setEditingItem(prev => ({...prev, [field]: newVal}))
+                    }} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }}>
+                      <option value="IN">IN</option>
+                      <option value="OUT">OUT</option>
+                    </select>
+                  ) : field === 'date' ? (
+                    <input
+                      type="date"
+                      value={editingItem[field] || ''}
+                      onChange={e => {
+                        const newVal = e.target.value
+                        setEditingItem(prev => ({...prev, [field]: newVal}))
+                      }}
+                      style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }}
+                    />
+                  ) : field === 'quantity' ? (
+                    <input
+                      type="number"
+                      value={editingItem[field] || 1}
+                      onChange={e => {
+                        const newVal = parseInt(e.target.value) || 1
+                        setEditingItem(prev => ({...prev, [field]: newVal}))
+                      }}
+                      style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }}
+                    />
+                  ) : (
+                    <input
+                      type="text"
+                      value={editingItem[field] || ''}
+                      onChange={e => {
+                        const newVal = e.target.value
+                        setEditingItem(prev => ({...prev, [field]: newVal}))
+                      }}
+                      placeholder={field === 'refId' ? 'e.g., R-935' : field === 'reason' ? 'e.g., Received from supplier' : undefined}
+                      style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }}
+                    />
+                  )}
+                </div>
+              ))}
+              {editingType === 'order' && ['customer', 'items', 'total', 'commission', 'status', 'payment', 'date'].map(field => (
+                <div key={field} style={{ position: 'relative' }}>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: COLORS.darkText, marginBottom: '0.4rem', textTransform: 'uppercase' }}>{field}</label>
+                  {field === 'status' ? (
+                    <select value={editingItem[field] || 'Pending'} onChange={e => {
+                      const newVal = e.target.value
+                      setEditingItem(prev => ({...prev, [field]: newVal}))
+                    }} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }}>
+                      <option value="Pending">Pending</option>
+                      <option value="Completed">Completed</option>
+                      <option value="Cancelled">Cancelled</option>
+                    </select>
+                  ) : field === 'payment' ? (
+                    <select value={editingItem[field] || 'Pending'} onChange={e => {
+                      const newVal = e.target.value
+                      setEditingItem(prev => ({...prev, [field]: newVal}))
+                    }} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }}>
+                      <option value="Pending">Pending</option>
+                      <option value="Paid">Paid</option>
+                      <option value="Partial">Partial</option>
+                    </select>
+                  ) : field === 'customer' ? (
+                    <select value={editingItem[field] || ''} onChange={e => {
+                      const newVal = e.target.value
+                      setEditingItem(prev => ({...prev, [field]: newVal}))
+                    }} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }}>
+                      <option value="">-- Select Customer --</option>
+                      {customers.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
+                    </select>
+                  ) : ['items', 'total', 'commission'].includes(field) ? (
+                    <input
+                      type="number"
+                      value={editingItem[field] || 0}
+                      onChange={e => {
+                        const newVal = field === 'items' ? parseInt(e.target.value) || 0 : parseFloat(e.target.value) || 0
+                        setEditingItem(prev => ({...prev, [field]: newVal}))
+                      }}
+                      style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }}
+                    />
+                  ) : (
+                    <input
+                      type={field === 'date' ? 'date' : 'text'}
+                      value={editingItem[field] || ''}
+                      onChange={e => {
+                        const newVal = e.target.value
+                        setEditingItem(prev => ({...prev, [field]: newVal}))
+                      }}
+                      style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+            <div style={{ position: 'sticky', bottom: 0, background: COLORS.lightBg, padding: '1.5rem', borderTop: `1px solid ${COLORS.darkBorder}`, display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+              <button onClick={() => { setShowModal(false); setEditingItem(null) }} style={{ padding: '0.5rem 1.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', background: COLORS.white, color: COLORS.darkText, cursor: 'pointer', fontSize: '0.875rem', fontWeight: 600 }}>Cancel</button>
+              <button onClick={handleSave} style={{ padding: '0.5rem 1.5rem', background: COLORS.gold, color: COLORS.white, borderRadius: '4px', border: 'none', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 600 }}>Save</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showImportModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: '1rem' }}>
