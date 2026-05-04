@@ -1,7 +1,4 @@
 import { INVENTORY_DATA } from '@/data/inventoryData';
-import Anthropic from '@anthropic-ai/sdk';
-
-const client = new Anthropic();
 
 // Analyze inventory to provide context to Claude
 function analyzeInventory() {
@@ -67,6 +64,14 @@ export async function POST(request) {
       );
     }
 
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) {
+      return new Response(
+        JSON.stringify({ error: 'API key not configured' }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
     const inventoryContext = analyzeInventory();
 
     const systemPrompt = `You are an expert AI assistant for Grand Watch Gallery, a luxury watch retail business. You have access to real-time inventory and business data.
@@ -109,19 +114,33 @@ When answering:
 - Ask clarifying questions if needed
 - Consider both short-term and long-term business implications`;
 
-    const response = await client.messages.create({
-      model: 'claude-opus-4-6',
-      max_tokens: 1024,
-      system: systemPrompt,
-      messages: [
-        {
-          role: 'user',
-          content: message,
-        },
-      ],
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: 'claude-opus-4-6',
+        max_tokens: 1024,
+        system: systemPrompt,
+        messages: [
+          {
+            role: 'user',
+            content: message,
+          },
+        ],
+      }),
     });
 
-    const assistantMessage = response.content[0].type === 'text' ? response.content[0].text : '';
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error?.message || 'Failed to call Claude API');
+    }
+
+    const data = await response.json();
+    const assistantMessage = data.content[0]?.text || '';
 
     return new Response(
       JSON.stringify({ response: assistantMessage }),
