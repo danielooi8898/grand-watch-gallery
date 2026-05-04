@@ -427,19 +427,19 @@ const ERPSystem = () => {
             <div key={field}>
               <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: COLORS.darkText, marginBottom: '0.4rem', textTransform: 'uppercase' }}>{field}</label>
               {field === 'type' ? (
-                <select value={editingItem[field]} onChange={e => setEditingItem({...editingItem, [field]: e.target.value})} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }}>
+                <select value={editingItem[field]} onChange={e => setEditingItem(prev => ({...prev, [field]: e.target.value}))} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }}>
                   <option>Retail</option>
                   <option>Wholesale</option>
                 </select>
               ) : field === 'status' ? (
-                <select value={editingItem[field]} onChange={e => setEditingItem({...editingItem, [field]: e.target.value})} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }}>
+                <select value={editingItem[field]} onChange={e => setEditingItem(prev => ({...prev, [field]: e.target.value}))} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }}>
                   <option>Active</option>
                   <option>Inactive</option>
                 </select>
               ) : ['totalSpent'].includes(field) ? (
-                <input type="number" value={editingItem[field]} onChange={e => setEditingItem({...editingItem, [field]: parseFloat(e.target.value) || 0})} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }} />
+                <input type="number" value={editingItem[field]} onChange={e => setEditingItem(prev => ({...prev, [field]: parseFloat(e.target.value) || 0}))} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }} />
               ) : (
-                <input type={field === 'email' ? 'email' : field === 'phone' ? 'tel' : 'text'} value={editingItem[field]} onChange={e => setEditingItem({...editingItem, [field]: e.target.value})} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }} />
+                <input type={field === 'email' ? 'email' : field === 'phone' ? 'tel' : 'text'} value={editingItem[field]} onChange={e => setEditingItem(prev => ({...prev, [field]: e.target.value}))} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }} />
               )}
             </div>
           ))}
@@ -447,14 +447,14 @@ const ERPSystem = () => {
             <div key={field}>
               <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: COLORS.darkText, marginBottom: '0.4rem', textTransform: 'uppercase' }}>{field}</label>
               {field === 'status' ? (
-                <select value={editingItem[field]} onChange={e => setEditingItem({...editingItem, [field]: e.target.value})} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }}>
+                <select value={editingItem[field]} onChange={e => setEditingItem(prev => ({...prev, [field]: e.target.value}))} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }}>
                   <option>Active</option>
                   <option>Inactive</option>
                 </select>
               ) : ['rating'].includes(field) ? (
-                <input type="number" step="0.1" min="0" max="5" value={editingItem[field]} onChange={e => setEditingItem({...editingItem, [field]: parseFloat(e.target.value) || 0})} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }} />
+                <input type="number" step="0.1" min="0" max="5" value={editingItem[field]} onChange={e => setEditingItem(prev => ({...prev, [field]: parseFloat(e.target.value) || 0}))} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }} />
               ) : (
-                <input type={field === 'email' ? 'email' : 'text'} value={editingItem[field]} onChange={e => setEditingItem({...editingItem, [field]: e.target.value})} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }} />
+                <input type={field === 'email' ? 'email' : 'text'} value={editingItem[field]} onChange={e => setEditingItem(prev => ({...prev, [field]: e.target.value}))} style={{ width: '100%', padding: '0.5rem', border: `1px solid ${COLORS.darkBorder}`, borderRadius: '4px', fontSize: '0.875rem', color: COLORS.darkText }} />
               )}
             </div>
           ))}
