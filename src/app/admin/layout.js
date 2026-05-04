@@ -1,5 +1,6 @@
 'use client'
 import Spinner from '@/components/Spinner'
+import AIAgent from '@/components/AIAgent'
 import { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
@@ -182,6 +183,9 @@ export default function AdminLayout({ children }) {
           {children}
         </main>
       </div>
+
+      {/* AI Agent - Available globally */}
+      <AIAgent />
 
     </div>
   )
