@@ -120,7 +120,46 @@ export default function WatchDetailPage() {
               {w.description && (
                 <div style={{ marginBottom: '2.5rem' }}>
                   <p style={{ fontFamily: 'var(--sans)', fontSize: '0.65rem', letterSpacing: '0.3em', textTransform: 'uppercase', color: '#B08D57', marginBottom: '1rem' }}>About this piece</p>
+                  <style>{`
+                    .description-content h2 {
+                      font-size: 1.5em;
+                      font-weight: bold;
+                      margin: 0.75em 0;
+                      color: #fff;
+                    }
+                    .description-content h3 {
+                      font-size: 1.17em;
+                      font-weight: bold;
+                      margin: 0.83em 0;
+                      color: #fff;
+                    }
+                    .description-content p {
+                      margin: 0.5em 0;
+                      color: #fff;
+                    }
+                    .description-content ul {
+                      list-style-type: disc;
+                      margin: 0.5em 0;
+                      padding-left: 2em;
+                      color: #fff;
+                    }
+                    .description-content ol {
+                      list-style-type: decimal;
+                      margin: 0.5em 0;
+                      padding-left: 2em;
+                      color: #fff;
+                    }
+                    .description-content li {
+                      margin: 0.25em 0;
+                      color: #fff;
+                    }
+                    .description-content strong {
+                      font-weight: 600;
+                      color: #fff;
+                    }
+                  `}</style>
                   <div
+                    className="description-content"
                     style={{ fontFamily: 'var(--sans)', fontSize: '0.95rem', color: '#fff', lineHeight: 1.8, fontWeight: 300 }}
                     dangerouslySetInnerHTML={{ __html: w.description }}
                   />
