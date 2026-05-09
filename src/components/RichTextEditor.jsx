@@ -3,8 +3,25 @@ import { useRef } from 'react'
 
 const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
   const editorRef = useRef(null)
+  const savedSelection = useRef(null)
+
+  const saveSelection = () => {
+    const sel = window.getSelection()
+    if (sel.rangeCount > 0) {
+      savedSelection.current = sel.getRangeAt(0)
+    }
+  }
+
+  const restoreSelection = () => {
+    const sel = window.getSelection()
+    if (savedSelection.current) {
+      sel.removeAllRanges()
+      sel.addRange(savedSelection.current)
+    }
+  }
 
   const formatText = (command, value = null) => {
+    restoreSelection()
     document.execCommand(command, false, value)
     updateContent()
   }
@@ -35,10 +52,12 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
       }}>
         {/* Paragraph styles */}
         <select
+          onMouseDown={saveSelection}
           onChange={(e) => {
             if (e.target.value) {
-              editorRef.current.focus()
-              formatText('formatBlock', `<${e.target.value}>`)
+              restoreSelection()
+              document.execCommand('formatBlock', false, `<${e.target.value}>`)
+              updateContent()
               e.target.value = ''
             }
           }}
@@ -62,7 +81,7 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
         <div style={{ width: '1px', height: '20px', background: '#ddd' }} />
 
         <button
-          onMouseDown={(e) => { e.preventDefault(); editorRef.current.focus(); formatText('bold') }}
+          onMouseDown={(e) => { e.preventDefault(); saveSelection(); formatText('bold') }}
           title="Bold"
           style={{
             padding: '4px 8px',
@@ -78,7 +97,7 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
         </button>
 
         <button
-          onMouseDown={(e) => { e.preventDefault(); editorRef.current.focus(); formatText('italic') }}
+          onMouseDown={(e) => { e.preventDefault(); saveSelection(); formatText('italic') }}
           title="Italic"
           style={{
             padding: '4px 8px',
@@ -94,7 +113,7 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
         </button>
 
         <button
-          onMouseDown={(e) => { e.preventDefault(); editorRef.current.focus(); formatText('underline') }}
+          onMouseDown={(e) => { e.preventDefault(); saveSelection(); formatText('underline') }}
           title="Underline"
           style={{
             padding: '4px 8px',
@@ -110,7 +129,7 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
         </button>
 
         <button
-          onMouseDown={(e) => { e.preventDefault(); editorRef.current.focus(); formatText('strikeThrough') }}
+          onMouseDown={(e) => { e.preventDefault(); saveSelection(); formatText('strikeThrough') }}
           title="Strikethrough"
           style={{
             padding: '4px 8px',
@@ -128,7 +147,7 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
         <div style={{ width: '1px', height: '20px', background: '#ddd' }} />
 
         <button
-          onMouseDown={(e) => { e.preventDefault(); editorRef.current.focus(); formatText('insertUnorderedList') }}
+          onMouseDown={(e) => { e.preventDefault(); saveSelection(); formatText('insertUnorderedList') }}
           title="Bullet List"
           style={{
             padding: '4px 8px',
@@ -143,7 +162,7 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
         </button>
 
         <button
-          onMouseDown={(e) => { e.preventDefault(); editorRef.current.focus(); formatText('insertOrderedList') }}
+          onMouseDown={(e) => { e.preventDefault(); saveSelection(); formatText('insertOrderedList') }}
           title="Numbered List"
           style={{
             padding: '4px 8px',
@@ -184,10 +203,12 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
         suppressContentEditableWarning
         onInput={updateContent}
         onBlur={updateContent}
+        onMouseDown={saveSelection}
         onPaste={(e) => {
           e.preventDefault()
           const text = e.clipboardData.getData('text/plain')
           document.execCommand('insertText', false, text)
+          updateContent()
         }}
         style={{
           fontFamily: 'var(--sans)',
