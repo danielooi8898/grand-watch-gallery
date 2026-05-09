@@ -21,6 +21,7 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
   }
 
   const formatText = (command, value = null) => {
+    editorRef.current.focus()
     restoreSelection()
     document.execCommand(command, false, value)
     updateContent()
