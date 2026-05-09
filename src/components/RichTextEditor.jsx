@@ -41,22 +41,27 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
         })
 
         // Add custom template button after toolbar is created
-        const toolbar = document.querySelector('.ql-toolbar')
-        if (toolbar) {
-          const templateBtn = document.createElement('button')
-          templateBtn.className = 'ql-custom-template'
-          templateBtn.innerHTML = 'Template'
-          templateBtn.style.cssText = 'padding: 4px 8px; border: 1px solid #ccc; background: #B08D57; color: #fff; border-radius: 2px; cursor: pointer; font-size: 12px; font-weight: bold; margin: 0 2px;'
+        setTimeout(() => {
+          const toolbar = document.querySelector('.ql-toolbar')
+          if (toolbar) {
+            const templateBtn = document.createElement('button')
+            templateBtn.className = 'ql-custom-template'
+            templateBtn.type = 'button'
+            templateBtn.textContent = 'Template'
+            templateBtn.style.cssText = 'padding: 4px 8px !important; border: none !important; background: #B08D57 !important; color: #fff !important; border-radius: 2px !important; cursor: pointer !important; font-size: 12px !important; font-weight: bold !important; margin: 0 2px !important; width: auto !important; height: auto !important;'
 
-          templateBtn.addEventListener('click', (e) => {
-            e.preventDefault()
-            const template = `<h2>Model</h2><p></p><p><strong>Case Diameter:</strong></p><p></p><p><strong>Bezel:</strong></p><p></p><p><strong>Dial:</strong></p><p></p><p><strong>Case:</strong></p><p></p><p><strong>Calibre:</strong></p><p></p><p><strong>Bracelet/Strap:</strong></p><p></p><p><strong>Clasp/Buckle:</strong></p><p></p><p><strong>Condition:</strong></p><p></p><p><strong>Included:</strong></p><p></p>`
-            quill.root.innerHTML = template
-            onChange(template)
-          })
+            templateBtn.addEventListener('click', (e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              const template = `<h2>Model</h2><p><strong>Case Diameter:</strong></p><p><strong>Bezel:</strong></p><p><strong>Dial:</strong></p><p><strong>Case:</strong></p><p><strong>Calibre:</strong></p><p><strong>Bracelet/Strap:</strong></p><p><strong>Clasp/Buckle:</strong></p><p><strong>Condition:</strong></p><p><strong>Included:</strong></p>`
+              quill.root.innerHTML = template
+              onChange(template)
+            })
 
-          toolbar.appendChild(templateBtn)
-        }
+            toolbar.appendChild(templateBtn)
+          }
+        }, 100)
+
 
         if (value) {
           quill.root.innerHTML = value
