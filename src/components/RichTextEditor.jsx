@@ -8,7 +8,7 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
   const saveSelection = () => {
     const sel = window.getSelection()
     if (sel.rangeCount > 0) {
-      savedSelection.current = sel.getRangeAt(0)
+      savedSelection.current = sel.getRangeAt(0).cloneRange()
     }
   }
 
