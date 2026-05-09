@@ -2,13 +2,12 @@
 import { useEffect, useRef, useState } from 'react'
 
 const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
-  const containerRef = useRef(null)
   const editorRef = useRef(null)
   const quillRef = useRef(null)
   const [initialized, setInitialized] = useState(false)
 
   useEffect(() => {
-    if (initialized || !containerRef.current) return
+    if (initialized || !editorRef.current) return
 
     if (window.Quill) {
       initQuill()
@@ -31,32 +30,20 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
         const quill = new window.Quill(editorRef.current, {
           theme: 'snow',
           modules: {
-            toolbar: {
-              container: [
-                ['bold', 'italic', 'underline', 'strike'],
-                [{ 'header': [2, 3, false] }],
-                [{ 'list': 'bullet' }],
-                [{ 'list': 'ordered' }],
-                ['clean']
-              ],
-              handlers: {
-                'bold': function() {
-                  const range = quill.getSelection()
-                  if (range) {
-                    quill.formatText(range.index, range.length, 'bold', !quill.getFormat()['bold'])
-                  }
-                }
-              }
-            }
+            toolbar: [
+              ['bold', 'italic', 'underline', 'strike'],
+              [{ 'header': [2, 3, false] }],
+              [{ 'list': 'bullet' }],
+              [{ 'list': 'ordered' }],
+              ['clean']
+            ]
           }
         })
 
-        // Set initial value if provided
         if (value) {
           quill.root.innerHTML = value
         }
 
-        // Track changes
         quill.on('text-change', () => {
           onChange(quill.root.innerHTML)
         })
@@ -69,9 +56,7 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
     }
 
     return () => {
-      if (quillRef.current && !initialized) {
-        quillRef.current = null
-      }
+      // Cleanup
     }
   }, [initialized, onChange, value])
 
@@ -143,9 +128,6 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
           fill: #111 !important;
         }
         .ql-picker-label {
-          color: #111 !important;
-        }
-        .ql-toolbar .ql-picker-item:before {
           color: #111 !important;
         }
       `}</style>
