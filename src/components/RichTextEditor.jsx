@@ -31,14 +31,32 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
         const quill = new window.Quill(editorRef.current, {
           theme: 'snow',
           modules: {
-            toolbar: [
-              ['bold', 'italic', 'underline', 'strike'],
-              [{ 'header': [2, 3, false] }],
-              [{ 'list': 'bullet' }, { 'list': 'ordered' }],
-              ['clean']
-            ]
+            toolbar: {
+              container: [
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'header': [2, 3, false] }],
+                [{ 'list': 'bullet' }, { 'list': 'ordered' }],
+                ['clean'],
+                ['template']
+              ],
+              handlers: {
+                'template': function() {
+                  const template = `<h2>Model</h2><p></p><p><strong>Case Diameter:</strong></p><p></p><p><strong>Bezel:</strong></p><p></p><p><strong>Dial:</strong></p><p></p><p><strong>Case:</strong></p><p></p><p><strong>Calibre:</strong></p><p></p><p><strong>Bracelet/Strap:</strong></p><p></p><p><strong>Clasp/Buckle:</strong></p><p></p><p><strong>Condition:</strong></p><p></p><p><strong>Included:</strong></p><p></p>`
+                  quill.setContents(quill.parseJson(template))
+                  quill.root.innerHTML = template
+                }
+              }
+            }
           }
         })
+
+        // Add custom template button styling
+        const templateBtn = document.querySelector('.ql-template')
+        if (templateBtn) {
+          templateBtn.innerHTML = 'Template'
+          templateBtn.style.fontWeight = 'bold'
+          templateBtn.style.fontSize = '12px'
+        }
 
         if (value) {
           quill.root.innerHTML = value
