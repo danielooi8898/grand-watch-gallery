@@ -53,7 +53,7 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
             templateBtn.addEventListener('click', (e) => {
               e.preventDefault()
               e.stopPropagation()
-              const template = `<h2>Model</h2><p><strong>Case Diameter:</strong></p><p><strong>Bezel:</strong></p><p><strong>Dial:</strong></p><p><strong>Case:</strong></p><p><strong>Calibre:</strong></p><p><strong>Bracelet/Strap:</strong></p><p><strong>Clasp/Buckle:</strong></p><p><strong>Condition:</strong></p><p><strong>Included:</strong></p>`
+              const template = `<p><strong>Model</strong></p><p><strong>Case Diameter:</strong></p><p><strong>Bezel:</strong></p><p><strong>Dial:</strong></p><p><strong>Case:</strong></p><p><strong>Calibre:</strong></p><p><strong>Bracelet/Strap:</strong></p><p><strong>Clasp/Buckle:</strong></p><p><strong>Condition:</strong></p><p><strong>Included:</strong></p>`
               quill.root.innerHTML = template
               onChange(template)
             })
