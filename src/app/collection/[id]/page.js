@@ -120,7 +120,10 @@ export default function WatchDetailPage() {
               {w.description && (
                 <div style={{ marginBottom: '2.5rem' }}>
                   <p style={{ fontFamily: 'var(--sans)', fontSize: '0.65rem', letterSpacing: '0.3em', textTransform: 'uppercase', color: '#B08D57', marginBottom: '1rem' }}>About this piece</p>
-                  <p style={{ fontFamily: 'var(--sans)', fontSize: '0.95rem', color: '#fff', lineHeight: 1.8, fontWeight: 300 }}>{w.description}</p>
+                  <div
+                    style={{ fontFamily: 'var(--sans)', fontSize: '0.95rem', color: '#fff', lineHeight: 1.8, fontWeight: 300 }}
+                    dangerouslySetInnerHTML={{ __html: w.description }}
+                  />
                 </div>
               )}
 
