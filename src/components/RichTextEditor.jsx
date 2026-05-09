@@ -3,7 +3,6 @@ import { useRef, useEffect } from 'react'
 
 const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
   const editorRef = useRef(null)
-  const savedSelection = useRef(null)
 
   useEffect(() => {
     if (editorRef.current && value) {
@@ -11,48 +10,10 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
     }
   }, [value])
 
-  // Save selection on mousedown anywhere in editor
-  const handleEditorMouseDown = () => {
-    const sel = window.getSelection()
-    if (sel.rangeCount > 0) {
-      savedSelection.current = sel.getRangeAt(0)
-    }
-  }
-
-  const execCmd = (cmd, val = null) => {
-    const sel = window.getSelection()
-
-    // Restore saved selection
-    if (savedSelection.current) {
-      sel.removeAllRanges()
-      sel.addRange(savedSelection.current)
-    }
-
-    // Ensure focus
+  const applyFormat = (cmd, val = null) => {
     editorRef.current?.focus()
-
-    // Execute command
-    try {
-      document.execCommand(cmd, false, val)
-    } catch (e) {
-      console.error('Command failed:', cmd, val, e)
-    }
-
-    // Update content
-    const content = editorRef.current?.innerHTML || ''
-    onChange(content)
-  }
-
-  const handleFormatChange = (tag) => {
-    editorRef.current?.focus()
-
-    // For formatBlock, use correct syntax
-    if (tag) {
-      document.execCommand('formatBlock', false, tag)
-    }
-
-    const content = editorRef.current?.innerHTML || ''
-    onChange(content)
+    document.execCommand(cmd, false, val)
+    onChange(editorRef.current?.innerHTML || '')
   }
 
   const insertTemplate = () => {
@@ -90,7 +51,7 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
           onMouseDown={(e) => e.preventDefault()}
           onChange={(e) => {
             if (e.target.value) {
-              handleFormatChange(e.target.value)
+              applyFormat('formatBlock', e.target.value)
               e.target.value = ''
             }
           }}
@@ -105,25 +66,25 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
 
         <div style={{ width: '1px', height: '24px', background: '#ddd', margin: '0 4px' }} />
 
-        <button onMouseDown={(e) => { e.preventDefault(); execCmd('bold') }} style={btnStyle} title="Bold">
+        <button onMouseDown={(e) => { e.preventDefault(); applyFormat('bold') }} style={btnStyle} title="Bold">
           <strong>B</strong>
         </button>
-        <button onMouseDown={(e) => { e.preventDefault(); execCmd('italic') }} style={btnStyle} title="Italic">
+        <button onMouseDown={(e) => { e.preventDefault(); applyFormat('italic') }} style={btnStyle} title="Italic">
           <em>I</em>
         </button>
-        <button onMouseDown={(e) => { e.preventDefault(); execCmd('underline') }} style={btnStyle} title="Underline">
+        <button onMouseDown={(e) => { e.preventDefault(); applyFormat('underline') }} style={btnStyle} title="Underline">
           <u>U</u>
         </button>
-        <button onMouseDown={(e) => { e.preventDefault(); execCmd('strikeThrough') }} style={btnStyle} title="Strikethrough">
+        <button onMouseDown={(e) => { e.preventDefault(); applyFormat('strikeThrough') }} style={btnStyle} title="Strikethrough">
           <s>S</s>
         </button>
 
         <div style={{ width: '1px', height: '24px', background: '#ddd', margin: '0 4px' }} />
 
-        <button onMouseDown={(e) => { e.preventDefault(); execCmd('insertUnorderedList') }} style={btnStyle} title="Bullet List">
+        <button onMouseDown={(e) => { e.preventDefault(); applyFormat('insertUnorderedList') }} style={btnStyle} title="Bullet List">
           •
         </button>
-        <button onMouseDown={(e) => { e.preventDefault(); execCmd('insertOrderedList') }} style={btnStyle} title="Numbered List">
+        <button onMouseDown={(e) => { e.preventDefault(); applyFormat('insertOrderedList') }} style={btnStyle} title="Numbered List">
           1.
         </button>
 
@@ -139,7 +100,6 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
         ref={editorRef}
         contentEditable
         suppressContentEditableWarning
-        onMouseDown={handleEditorMouseDown}
         onInput={(e) => onChange(e.currentTarget.innerHTML)}
         onBlur={(e) => onChange(e.currentTarget.innerHTML)}
         style={{
@@ -152,6 +112,7 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
           outline: 'none',
           whiteSpace: 'pre-wrap',
           wordWrap: 'break-word',
+          direction: 'ltr',
         }}
       />
 
@@ -159,6 +120,7 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
       <style jsx>{`
         [contenteditable] {
           font-family: var(--sans);
+          direction: ltr;
         }
         [contenteditable]:focus {
           outline: none;
