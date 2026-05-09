@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 
 const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
   const containerRef = useRef(null)
+  const editorRef = useRef(null)
   const quillRef = useRef(null)
   const [initialized, setInitialized] = useState(false)
 
@@ -24,19 +25,29 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
     }
 
     function initQuill() {
-      if (quillRef.current || !containerRef.current) return
+      if (quillRef.current || !editorRef.current) return
 
       try {
-        const quill = new window.Quill(containerRef.current, {
+        const quill = new window.Quill(editorRef.current, {
           theme: 'snow',
-          placeholder: 'Enter description...',
           modules: {
-            toolbar: [
-              ['bold', 'italic', 'underline', 'strike'],
-              [{ header: [2, 3, false] }],
-              ['bullet', 'ordered'],
-              ['clean']
-            ]
+            toolbar: {
+              container: [
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'header': [2, 3, false] }],
+                [{ 'list': 'bullet' }],
+                [{ 'list': 'ordered' }],
+                ['clean']
+              ],
+              handlers: {
+                'bold': function() {
+                  const range = quill.getSelection()
+                  if (range) {
+                    quill.formatText(range.index, range.length, 'bold', !quill.getFormat()['bold'])
+                  }
+                }
+              }
+            }
           }
         })
 
@@ -70,6 +81,7 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
         .ql-container {
           font-size: 14px !important;
           color: #111 !important;
+          font-family: var(--sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif) !important;
         }
         .ql-editor {
           min-height: 300px !important;
@@ -80,18 +92,49 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
         .ql-editor p {
           margin: 0.5em 0 !important;
         }
-        .ql-editor ul, .ql-editor ol {
+        .ql-editor h2, .ql-editor h3 {
+          margin: 0.75em 0 !important;
+        }
+        .ql-editor ul {
+          list-style-type: disc !important;
+          margin: 0.5em 0 !important;
+          padding-left: 2em !important;
+        }
+        .ql-editor ol {
+          list-style-type: decimal !important;
           margin: 0.5em 0 !important;
           padding-left: 2em !important;
         }
         .ql-editor li {
-          list-style-position: inside !important;
+          margin: 0.25em 0 !important;
+          list-style-type: inherit !important;
         }
         .ql-toolbar {
           border: none !important;
           border-bottom: 1px solid #E8E2D8 !important;
           background: #f9f7f4 !important;
           padding: 8px !important;
+        }
+        .ql-toolbar button {
+          width: 32px !important;
+          height: 32px !important;
+          border: 1px solid #ccc !important;
+          background: #fff !important;
+          border-radius: 2px !important;
+          margin: 0 2px !important;
+        }
+        .ql-toolbar button:hover {
+          background: #f0f0f0 !important;
+        }
+        .ql-toolbar button.ql-active {
+          background: #e8e8e8 !important;
+        }
+        .ql-toolbar select {
+          border: 1px solid #ccc !important;
+          background: #fff !important;
+          border-radius: 2px !important;
+          margin: 0 2px !important;
+          padding: 4px 8px !important;
         }
         .ql-stroke {
           stroke: #111 !important;
@@ -100,6 +143,9 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
           fill: #111 !important;
         }
         .ql-picker-label {
+          color: #111 !important;
+        }
+        .ql-toolbar .ql-picker-item:before {
           color: #111 !important;
         }
       `}</style>
@@ -111,7 +157,7 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
           overflow: 'hidden'
         }}
       >
-        <div ref={containerRef} />
+        <div ref={editorRef} />
       </div>
     </>
   )
