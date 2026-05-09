@@ -1,120 +1,178 @@
 'use client'
-import { useRef, useEffect } from 'react'
+import { useRef } from 'react'
 
 const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
   const editorRef = useRef(null)
 
-  useEffect(() => {
-    if (editorRef.current && value) {
-      editorRef.current.innerHTML = value
-    }
-  }, [value])
-
-  const applyFormat = (cmd, val = null) => {
-    // Save the current selection before losing focus
-    const sel = window.getSelection()
-    let range = null
-    if (sel.rangeCount > 0) {
-      range = sel.getRangeAt(0).cloneRange()
-    }
-
-    // Restore focus and selection
-    if (editorRef.current) {
-      editorRef.current.focus()
-      if (range) {
-        sel.removeAllRanges()
-        sel.addRange(range)
-      }
-    }
-
-    // Execute the command
-    try {
-      document.execCommand(cmd, false, val)
-    } catch (e) {
-      console.error('Format command failed:', e)
-    }
-
-    // Update content
-    onChange(editorRef.current?.innerHTML || '')
+  const formatText = (command, value = null) => {
+    document.execCommand(command, false, value)
+    updateContent()
   }
 
-  const insertTemplate = () => {
+  const updateContent = () => {
+    if (editorRef.current) {
+      onChange(editorRef.current.innerHTML)
+    }
+  }
+
+  const insertTemplateText = () => {
     const template = `<h2>Model</h2><p></p><p><strong>Case Diameter:</strong></p><p></p><p><strong>Bezel:</strong></p><p></p><p><strong>Dial:</strong></p><p></p><p><strong>Case:</strong></p><p></p><p><strong>Calibre:</strong></p><p></p><p><strong>Bracelet/Strap:</strong></p><p></p><p><strong>Clasp/Buckle:</strong></p><p></p><p><strong>Condition:</strong></p><p></p><p><strong>Included:</strong></p><p></p>`
     editorRef.current.innerHTML = template
     onChange(template)
-    editorRef.current?.focus()
-  }
-
-  const btnStyle = {
-    padding: '0.4rem 0.6rem',
-    border: '1px solid #ccc',
-    background: '#fff',
-    borderRadius: '3px',
-    cursor: 'pointer',
-    fontSize: '0.75rem',
-    fontFamily: 'var(--sans)',
-    color: '#111',
-    minWidth: '32px',
   }
 
   return (
-    <div style={{ border: '1px solid #ccc', borderRadius: '3px', overflow: 'hidden' }}>
+    <div style={{ border: '1px solid #E8E2D8', borderRadius: '3px', overflow: 'hidden' }}>
       {/* Toolbar */}
       <div style={{
         display: 'flex',
-        gap: '2px',
+        gap: '4px',
         padding: '8px',
-        background: '#f5f5f5',
-        borderBottom: '1px solid #ccc',
+        background: '#f9f7f4',
+        borderBottom: '1px solid #E8E2D8',
         flexWrap: 'wrap',
         alignItems: 'center'
       }}>
+        {/* Paragraph styles */}
         <select
           onChange={(e) => {
             if (e.target.value) {
-              editorRef.current?.focus()
-              document.execCommand('formatBlock', false, e.target.value)
-              onChange(editorRef.current?.innerHTML || '')
+              editorRef.current.focus()
+              formatText('formatBlock', `<${e.target.value}>`)
               e.target.value = ''
             }
           }}
-          onBlur={() => editorRef.current?.focus()}
-          style={{ ...btnStyle, width: 'auto', minWidth: '80px' }}
+          style={{
+            padding: '4px 8px',
+            border: '1px solid #ccc',
+            background: '#fff',
+            borderRadius: '2px',
+            cursor: 'pointer',
+            fontSize: '12px',
+            fontFamily: 'inherit'
+          }}
         >
-          <option value="">Normal</option>
+          <option value="">Style</option>
+          <option value="p">Paragraph</option>
           <option value="h1">Heading 1</option>
           <option value="h2">Heading 2</option>
           <option value="h3">Heading 3</option>
-          <option value="p">Paragraph</option>
         </select>
 
-        <div style={{ width: '1px', height: '24px', background: '#ddd', margin: '0 4px' }} />
+        <div style={{ width: '1px', height: '20px', background: '#ddd' }} />
 
-        <button onMouseDown={(e) => { e.preventDefault(); applyFormat('bold') }} style={btnStyle} title="Bold">
-          <strong>B</strong>
-        </button>
-        <button onMouseDown={(e) => { e.preventDefault(); applyFormat('italic') }} style={btnStyle} title="Italic">
-          <em>I</em>
-        </button>
-        <button onMouseDown={(e) => { e.preventDefault(); applyFormat('underline') }} style={btnStyle} title="Underline">
-          <u>U</u>
-        </button>
-        <button onMouseDown={(e) => { e.preventDefault(); applyFormat('strikeThrough') }} style={btnStyle} title="Strikethrough">
-          <s>S</s>
+        <button
+          onMouseDown={(e) => { e.preventDefault(); editorRef.current.focus(); formatText('bold') }}
+          title="Bold"
+          style={{
+            padding: '4px 8px',
+            border: '1px solid #ccc',
+            background: '#fff',
+            borderRadius: '2px',
+            cursor: 'pointer',
+            fontSize: '12px',
+            fontWeight: 'bold'
+          }}
+        >
+          B
         </button>
 
-        <div style={{ width: '1px', height: '24px', background: '#ddd', margin: '0 4px' }} />
+        <button
+          onMouseDown={(e) => { e.preventDefault(); editorRef.current.focus(); formatText('italic') }}
+          title="Italic"
+          style={{
+            padding: '4px 8px',
+            border: '1px solid #ccc',
+            background: '#fff',
+            borderRadius: '2px',
+            cursor: 'pointer',
+            fontSize: '12px',
+            fontStyle: 'italic'
+          }}
+        >
+          I
+        </button>
 
-        <button onMouseDown={(e) => { e.preventDefault(); applyFormat('insertUnorderedList') }} style={btnStyle} title="Bullet List">
+        <button
+          onMouseDown={(e) => { e.preventDefault(); editorRef.current.focus(); formatText('underline') }}
+          title="Underline"
+          style={{
+            padding: '4px 8px',
+            border: '1px solid #ccc',
+            background: '#fff',
+            borderRadius: '2px',
+            cursor: 'pointer',
+            fontSize: '12px',
+            textDecoration: 'underline'
+          }}
+        >
+          U
+        </button>
+
+        <button
+          onMouseDown={(e) => { e.preventDefault(); editorRef.current.focus(); formatText('strikeThrough') }}
+          title="Strikethrough"
+          style={{
+            padding: '4px 8px',
+            border: '1px solid #ccc',
+            background: '#fff',
+            borderRadius: '2px',
+            cursor: 'pointer',
+            fontSize: '12px',
+            textDecoration: 'line-through'
+          }}
+        >
+          S
+        </button>
+
+        <div style={{ width: '1px', height: '20px', background: '#ddd' }} />
+
+        <button
+          onMouseDown={(e) => { e.preventDefault(); editorRef.current.focus(); formatText('insertUnorderedList') }}
+          title="Bullet List"
+          style={{
+            padding: '4px 8px',
+            border: '1px solid #ccc',
+            background: '#fff',
+            borderRadius: '2px',
+            cursor: 'pointer',
+            fontSize: '14px'
+          }}
+        >
           •
         </button>
-        <button onMouseDown={(e) => { e.preventDefault(); applyFormat('insertOrderedList') }} style={btnStyle} title="Numbered List">
+
+        <button
+          onMouseDown={(e) => { e.preventDefault(); editorRef.current.focus(); formatText('insertOrderedList') }}
+          title="Numbered List"
+          style={{
+            padding: '4px 8px',
+            border: '1px solid #ccc',
+            background: '#fff',
+            borderRadius: '2px',
+            cursor: 'pointer',
+            fontSize: '12px'
+          }}
+        >
           1.
         </button>
 
-        <div style={{ width: '1px', height: '24px', background: '#ddd', margin: '0 4px' }} />
+        <div style={{ width: '1px', height: '20px', background: '#ddd' }} />
 
-        <button onMouseDown={(e) => { e.preventDefault(); insertTemplate() }} style={{ ...btnStyle, background: '#B08D57', color: '#fff' }} title="Insert Template">
+        <button
+          onMouseDown={(e) => { e.preventDefault(); editorRef.current.focus(); insertTemplateText() }}
+          title="Insert Template"
+          style={{
+            padding: '4px 8px',
+            border: 'none',
+            background: '#B08D57',
+            color: '#fff',
+            borderRadius: '2px',
+            cursor: 'pointer',
+            fontSize: '12px',
+            fontWeight: 'bold'
+          }}
+        >
           Template
         </button>
       </div>
@@ -124,19 +182,25 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
         ref={editorRef}
         contentEditable
         suppressContentEditableWarning
-        onInput={(e) => onChange(e.currentTarget.innerHTML)}
-        onBlur={(e) => onChange(e.currentTarget.innerHTML)}
+        onInput={updateContent}
+        onBlur={updateContent}
+        onPaste={(e) => {
+          e.preventDefault()
+          const text = e.clipboardData.getData('text/plain')
+          document.execCommand('insertText', false, text)
+        }}
         style={{
           fontFamily: 'var(--sans)',
           fontSize: '14px',
           color: '#111',
-          minHeight: '250px',
+          minHeight: '300px',
           padding: '12px',
           background: '#fff',
           outline: 'none',
           whiteSpace: 'pre-wrap',
           wordWrap: 'break-word',
           direction: 'ltr',
+          textAlign: 'left'
         }}
       />
 
@@ -145,6 +209,7 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
         [contenteditable] {
           font-family: var(--sans);
           direction: ltr;
+          text-align: left;
         }
         [contenteditable]:focus {
           outline: none;
