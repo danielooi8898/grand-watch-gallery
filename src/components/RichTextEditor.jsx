@@ -8,15 +8,28 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
   const saveSelection = () => {
     const sel = window.getSelection()
     if (sel.rangeCount > 0) {
-      savedSelection.current = sel.getRangeAt(0).cloneRange()
+      const range = sel.getRangeAt(0)
+      savedSelection.current = {
+        startContainer: range.startContainer,
+        startOffset: range.startOffset,
+        endContainer: range.endContainer,
+        endOffset: range.endOffset
+      }
     }
   }
 
   const restoreSelection = () => {
     const sel = window.getSelection()
     if (savedSelection.current) {
-      sel.removeAllRanges()
-      sel.addRange(savedSelection.current)
+      try {
+        const range = document.createRange()
+        range.setStart(savedSelection.current.startContainer, savedSelection.current.startOffset)
+        range.setEnd(savedSelection.current.endContainer, savedSelection.current.endOffset)
+        sel.removeAllRanges()
+        sel.addRange(range)
+      } catch (e) {
+        console.error('Failed to restore selection:', e)
+      }
     }
   }
 
