@@ -33,8 +33,7 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
             toolbar: [
               ['bold', 'italic', 'underline', 'strike'],
               [{ 'header': [2, 3, false] }],
-              [{ 'list': 'bullet' }],
-              [{ 'list': 'ordered' }],
+              [{ 'list': 'bullet' }, { 'list': 'ordered' }],
               ['clean']
             ]
           }
