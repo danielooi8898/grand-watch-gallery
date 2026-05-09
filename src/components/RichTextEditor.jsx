@@ -31,31 +31,31 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
         const quill = new window.Quill(editorRef.current, {
           theme: 'snow',
           modules: {
-            toolbar: {
-              container: [
-                ['bold', 'italic', 'underline', 'strike'],
-                [{ 'header': [2, 3, false] }],
-                [{ 'list': 'bullet' }, { 'list': 'ordered' }],
-                ['clean'],
-                ['template']
-              ],
-              handlers: {
-                'template': function() {
-                  const template = `<h2>Model</h2><p></p><p><strong>Case Diameter:</strong></p><p></p><p><strong>Bezel:</strong></p><p></p><p><strong>Dial:</strong></p><p></p><p><strong>Case:</strong></p><p></p><p><strong>Calibre:</strong></p><p></p><p><strong>Bracelet/Strap:</strong></p><p></p><p><strong>Clasp/Buckle:</strong></p><p></p><p><strong>Condition:</strong></p><p></p><p><strong>Included:</strong></p><p></p>`
-                  quill.setContents(quill.parseJson(template))
-                  quill.root.innerHTML = template
-                }
-              }
-            }
+            toolbar: [
+              ['bold', 'italic', 'underline', 'strike'],
+              [{ 'header': [2, 3, false] }],
+              [{ 'list': 'bullet' }, { 'list': 'ordered' }],
+              ['clean']
+            ]
           }
         })
 
-        // Add custom template button styling
-        const templateBtn = document.querySelector('.ql-template')
-        if (templateBtn) {
+        // Add custom template button after toolbar is created
+        const toolbar = document.querySelector('.ql-toolbar')
+        if (toolbar) {
+          const templateBtn = document.createElement('button')
+          templateBtn.className = 'ql-custom-template'
           templateBtn.innerHTML = 'Template'
-          templateBtn.style.fontWeight = 'bold'
-          templateBtn.style.fontSize = '12px'
+          templateBtn.style.cssText = 'padding: 4px 8px; border: 1px solid #ccc; background: #B08D57; color: #fff; border-radius: 2px; cursor: pointer; font-size: 12px; font-weight: bold; margin: 0 2px;'
+
+          templateBtn.addEventListener('click', (e) => {
+            e.preventDefault()
+            const template = `<h2>Model</h2><p></p><p><strong>Case Diameter:</strong></p><p></p><p><strong>Bezel:</strong></p><p></p><p><strong>Dial:</strong></p><p></p><p><strong>Case:</strong></p><p></p><p><strong>Calibre:</strong></p><p></p><p><strong>Bracelet/Strap:</strong></p><p></p><p><strong>Clasp/Buckle:</strong></p><p></p><p><strong>Condition:</strong></p><p></p><p><strong>Included:</strong></p><p></p>`
+            quill.root.innerHTML = template
+            onChange(template)
+          })
+
+          toolbar.appendChild(templateBtn)
         }
 
         if (value) {
