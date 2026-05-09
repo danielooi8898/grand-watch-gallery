@@ -3,46 +3,16 @@ import { useRef } from 'react'
 
 const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
   const editorRef = useRef(null)
-  const savedSelection = useRef(null)
-
-  const saveSelection = () => {
-    const sel = window.getSelection()
-    if (sel.rangeCount > 0) {
-      const range = sel.getRangeAt(0)
-      savedSelection.current = {
-        startContainer: range.startContainer,
-        startOffset: range.startOffset,
-        endContainer: range.endContainer,
-        endOffset: range.endOffset
-      }
-    }
-  }
-
-  const restoreSelection = () => {
-    const sel = window.getSelection()
-    if (savedSelection.current) {
-      try {
-        const range = document.createRange()
-        range.setStart(savedSelection.current.startContainer, savedSelection.current.startOffset)
-        range.setEnd(savedSelection.current.endContainer, savedSelection.current.endOffset)
-        sel.removeAllRanges()
-        sel.addRange(range)
-      } catch (e) {
-        console.error('Failed to restore selection:', e)
-      }
-    }
-  }
-
-  const formatText = (command, value = null) => {
-    restoreSelection()
-    document.execCommand(command, false, value)
-    updateContent()
-  }
 
   const updateContent = () => {
     if (editorRef.current) {
       onChange(editorRef.current.innerHTML)
     }
+  }
+
+  const formatText = (command, value = null) => {
+    document.execCommand(command, false, value)
+    updateContent()
   }
 
   const insertTemplateText = () => {
@@ -65,10 +35,9 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
       }}>
         {/* Paragraph styles */}
         <select
-          onMouseDown={saveSelection}
           onChange={(e) => {
             if (e.target.value) {
-              restoreSelection()
+              editorRef.current.focus()
               document.execCommand('formatBlock', false, `<${e.target.value}>`)
               updateContent()
               e.target.value = ''
@@ -94,7 +63,7 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
         <div style={{ width: '1px', height: '20px', background: '#ddd' }} />
 
         <button
-          onMouseDown={(e) => { e.preventDefault(); saveSelection(); formatText('bold') }}
+          onMouseDown={(e) => { e.preventDefault(); formatText('bold') }}
           title="Bold"
           style={{
             padding: '4px 8px',
@@ -110,7 +79,7 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
         </button>
 
         <button
-          onMouseDown={(e) => { e.preventDefault(); saveSelection(); formatText('italic') }}
+          onMouseDown={(e) => { e.preventDefault(); formatText('italic') }}
           title="Italic"
           style={{
             padding: '4px 8px',
@@ -126,7 +95,7 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
         </button>
 
         <button
-          onMouseDown={(e) => { e.preventDefault(); saveSelection(); formatText('underline') }}
+          onMouseDown={(e) => { e.preventDefault(); formatText('underline') }}
           title="Underline"
           style={{
             padding: '4px 8px',
@@ -142,7 +111,7 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
         </button>
 
         <button
-          onMouseDown={(e) => { e.preventDefault(); saveSelection(); formatText('strikeThrough') }}
+          onMouseDown={(e) => { e.preventDefault(); formatText('strikeThrough') }}
           title="Strikethrough"
           style={{
             padding: '4px 8px',
@@ -160,7 +129,7 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
         <div style={{ width: '1px', height: '20px', background: '#ddd' }} />
 
         <button
-          onMouseDown={(e) => { e.preventDefault(); saveSelection(); formatText('insertUnorderedList') }}
+          onMouseDown={(e) => { e.preventDefault(); formatText('insertUnorderedList') }}
           title="Bullet List"
           style={{
             padding: '4px 8px',
@@ -175,7 +144,7 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
         </button>
 
         <button
-          onMouseDown={(e) => { e.preventDefault(); saveSelection(); formatText('insertOrderedList') }}
+          onMouseDown={(e) => { e.preventDefault(); formatText('insertOrderedList') }}
           title="Numbered List"
           style={{
             padding: '4px 8px',
@@ -216,7 +185,6 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
         suppressContentEditableWarning
         onInput={updateContent}
         onBlur={updateContent}
-        onMouseDown={saveSelection}
         onPaste={(e) => {
           e.preventDefault()
           const text = e.clipboardData.getData('text/plain')
