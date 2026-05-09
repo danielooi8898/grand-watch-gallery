@@ -1,25 +1,39 @@
 'use client'
 import { useRef, useState, useEffect } from 'react'
-import { Bold, Italic, List, ListOrdered, Code, Heading2 } from 'lucide-react'
 
 const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
-  const [html, setHtml] = useState(value || '')
   const editorRef = useRef(null)
+  const [isEmpty, setIsEmpty] = useState(!value)
 
+  // Initialize editor content from value prop
   useEffect(() => {
-    setHtml(value || '')
+    if (editorRef.current) {
+      if (value && value !== editorRef.current.innerHTML) {
+        editorRef.current.innerHTML = value
+      }
+      setIsEmpty(!value || value.trim() === '')
+    }
   }, [value])
 
   const updateContent = () => {
     if (editorRef.current) {
       const newHtml = editorRef.current.innerHTML
-      setHtml(newHtml)
+      setIsEmpty(!newHtml || newHtml.trim() === '')
       onChange(newHtml)
     }
   }
 
-  const applyFormat = (command, value = null) => {
-    document.execCommand(command, false, value)
+  const applyFormat = (command, val = null) => {
+    document.execCommand(command, false, val)
+    setTimeout(() => {
+      updateContent()
+      editorRef.current?.focus()
+    }, 0)
+  }
+
+  const insertTemplate = () => {
+    const template = `<h2>Model</h2><p></p><p><strong>Case Diameter:</strong></p><p></p><p><strong>Bezel:</strong></p><p></p><p><strong>Dial:</strong></p><p></p><p><strong>Case:</strong></p><p></p><p><strong>Calibre:</strong></p><p></p><p><strong>Bracelet/Strap:</strong></p><p></p><p><strong>Clasp/Buckle:</strong></p><p></p><p><strong>Condition:</strong></p><p></p><p><strong>Included:</strong></p><p></p>`
+    editorRef.current.innerHTML = template
     updateContent()
     editorRef.current?.focus()
   }
@@ -30,25 +44,13 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
     background: '#fff',
     borderRadius: '3px',
     cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '0.875rem',
+    fontSize: '0.7rem',
+    fontWeight: 600,
+    fontFamily: 'var(--sans)',
+    color: '#111',
     transition: 'all 0.2s',
+    whiteSpace: 'nowrap',
   }
-
-  const ToolButton = ({ onClick, icon: Icon, title }) => (
-    <button
-      type="button"
-      onClick={onClick}
-      title={title}
-      style={btnStyle}
-      onMouseEnter={e => e.target.style.background = '#fafaf9'}
-      onMouseLeave={e => e.target.style.background = '#fff'}
-    >
-      <Icon size={16} />
-    </button>
-  )
 
   return (
     <div style={{ border: '1px solid #E8E2D8', borderRadius: '2px', overflow: 'hidden' }}>
@@ -62,37 +64,78 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
         flexWrap: 'wrap',
         alignItems: 'center'
       }}>
-        <ToolButton
+        <button
+          type="button"
           onClick={() => applyFormat('bold')}
-          icon={Bold}
           title="Bold (Ctrl+B)"
-        />
-        <ToolButton
+          style={btnStyle}
+          onMouseEnter={e => e.target.style.background = '#fafaf9'}
+          onMouseLeave={e => e.target.style.background = '#fff'}
+        >
+          <strong>B</strong>
+        </button>
+        <button
+          type="button"
           onClick={() => applyFormat('italic')}
-          icon={Italic}
           title="Italic (Ctrl+I)"
-        />
-        <ToolButton
+          style={btnStyle}
+          onMouseEnter={e => e.target.style.background = '#fafaf9'}
+          onMouseLeave={e => e.target.style.background = '#fff'}
+        >
+          <em>I</em>
+        </button>
+        <button
+          type="button"
           onClick={() => applyFormat('formatBlock', 'h2')}
-          icon={Heading2}
           title="Heading"
-        />
-        <ToolButton
+          style={btnStyle}
+          onMouseEnter={e => e.target.style.background = '#fafaf9'}
+          onMouseLeave={e => e.target.style.background = '#fff'}
+        >
+          H2
+        </button>
+        <button
+          type="button"
           onClick={() => applyFormat('formatBlock', 'pre')}
-          icon={Code}
           title="Code Block"
-        />
+          style={btnStyle}
+          onMouseEnter={e => e.target.style.background = '#fafaf9'}
+          onMouseLeave={e => e.target.style.background = '#fff'}
+        >
+          Code
+        </button>
         <div style={{ width: '1px', height: '20px', background: '#E8E2D8' }} />
-        <ToolButton
+        <button
+          type="button"
           onClick={() => applyFormat('insertUnorderedList')}
-          icon={List}
           title="Bullet List"
-        />
-        <ToolButton
+          style={btnStyle}
+          onMouseEnter={e => e.target.style.background = '#fafaf9'}
+          onMouseLeave={e => e.target.style.background = '#fff'}
+        >
+          • List
+        </button>
+        <button
+          type="button"
           onClick={() => applyFormat('insertOrderedList')}
-          icon={ListOrdered}
           title="Numbered List"
-        />
+          style={btnStyle}
+          onMouseEnter={e => e.target.style.background = '#fafaf9'}
+          onMouseLeave={e => e.target.style.background = '#fff'}
+        >
+          1. List
+        </button>
+        <div style={{ width: '1px', height: '20px', background: '#E8E2D8' }} />
+        <button
+          type="button"
+          onClick={insertTemplate}
+          title="Insert template"
+          style={{ ...btnStyle, background: '#B08D57', color: '#fff' }}
+          onMouseEnter={e => e.target.style.background = '#9a7647'}
+          onMouseLeave={e => e.target.style.background = '#B08D57'}
+        >
+          Template
+        </button>
       </div>
 
       {/* Editor */}
@@ -106,48 +149,60 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
           fontFamily: 'var(--sans)',
           fontSize: '0.82rem',
           color: '#111',
-          minHeight: '100px',
+          minHeight: '200px',
           padding: '0.85rem',
           background: '#fff',
           outline: 'none',
-          whiteSpace: 'pre-wrap',
-          wordWrap: 'break-word',
         }}
       >
-        {html ? <div dangerouslySetInnerHTML={{ __html: html }} /> : placeholder}
+        {isEmpty && <span style={{ color: '#ccc' }}>{placeholder}</span>}
       </div>
 
       {/* Editor Styles */}
       <style jsx>{`
-        :global([contenteditable]) p {
-          margin: 0.5em 0;
+        [contenteditable] {
+          white-space: pre-wrap;
+          word-wrap: break-word;
         }
-        :global([contenteditable] h2) {
+        [contenteditable]:focus {
+          outline: none;
+        }
+        [contenteditable] p {
+          margin: 0.5em 0;
+          display: block;
+        }
+        [contenteditable] h2 {
           margin: 0.75em 0 0.5em 0;
           font-size: 1.25em;
           font-weight: 700;
+          display: block;
         }
-        :global([contenteditable] ul, [contenteditable] ol) {
+        [contenteditable] ul,
+        [contenteditable] ol {
           margin: 0.5em 0;
           padding-left: 1.5em;
+          display: block;
         }
-        :global([contenteditable] li) {
+        [contenteditable] li {
           margin: 0.25em 0;
+          display: list-item;
         }
-        :global([contenteditable] code) {
+        [contenteditable] code {
           background: #f5f5f5;
           padding: 0.1em 0.3em;
           border-radius: 2px;
           font-family: monospace;
         }
-        :global([contenteditable] pre) {
+        [contenteditable] pre {
           background: #f5f5f5;
           padding: 0.75em;
           border-radius: 3px;
           overflow-x: auto;
           margin: 0.5em 0;
+          display: block;
+          font-family: monospace;
         }
-        :global([contenteditable] pre code) {
+        [contenteditable] pre code {
           background: none;
           padding: 0;
         }
