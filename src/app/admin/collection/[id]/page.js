@@ -1,5 +1,6 @@
 'use client'
 import Spinner from '@/components/Spinner'
+import RichTextEditor from '@/components/RichTextEditor'
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -335,7 +336,11 @@ export default function WatchEditPage() {
         <p style={sTitle}>Description & Details</p>
         <div style={{ marginBottom:'1rem' }}>
           <label style={lbl}>Description</label>
-          <textarea style={{ ...inp, minHeight:'100px', resize:'vertical' }} value={form.description||''} placeholder="Detailed description of this timepiece…" onChange={e=>set('description',e.target.value)} />
+          <RichTextEditor
+            value={form.description||''}
+            onChange={(html) => set('description', html)}
+            placeholder="Detailed description of this timepiece…"
+          />
         </div>
         <div>
           <label style={lbl}>Includes / Features (comma-separated)</label>
