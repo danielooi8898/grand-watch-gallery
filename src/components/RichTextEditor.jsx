@@ -11,8 +11,30 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
   }, [value])
 
   const applyFormat = (cmd, val = null) => {
-    editorRef.current?.focus()
-    document.execCommand(cmd, false, val)
+    // Save the current selection before losing focus
+    const sel = window.getSelection()
+    let range = null
+    if (sel.rangeCount > 0) {
+      range = sel.getRangeAt(0).cloneRange()
+    }
+
+    // Restore focus and selection
+    if (editorRef.current) {
+      editorRef.current.focus()
+      if (range) {
+        sel.removeAllRanges()
+        sel.addRange(range)
+      }
+    }
+
+    // Execute the command
+    try {
+      document.execCommand(cmd, false, val)
+    } catch (e) {
+      console.error('Format command failed:', e)
+    }
+
+    // Update content
     onChange(editorRef.current?.innerHTML || '')
   }
 
@@ -48,13 +70,15 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
         alignItems: 'center'
       }}>
         <select
-          onMouseDown={(e) => e.preventDefault()}
           onChange={(e) => {
             if (e.target.value) {
-              applyFormat('formatBlock', e.target.value)
+              editorRef.current?.focus()
+              document.execCommand('formatBlock', false, e.target.value)
+              onChange(editorRef.current?.innerHTML || '')
               e.target.value = ''
             }
           }}
+          onBlur={() => editorRef.current?.focus()}
           style={{ ...btnStyle, width: 'auto', minWidth: '80px' }}
         >
           <option value="">Normal</option>
