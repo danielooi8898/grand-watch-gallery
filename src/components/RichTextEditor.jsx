@@ -1,13 +1,14 @@
 'use client'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 
 const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
   const editorRef = useRef(null)
   const quillRef = useRef(null)
-  const [initialized, setInitialized] = useState(false)
+  const initializedRef = useRef(false)
 
   useEffect(() => {
-    if (initialized || !editorRef.current) return
+    if (initializedRef.current || !editorRef.current) return
+    initializedRef.current = true
 
     if (window.Quill) {
       initQuill()
@@ -48,7 +49,6 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
         })
 
         quillRef.current = quill
-        setInitialized(true)
       } catch (err) {
         console.error('Quill init error:', err)
       }
@@ -57,7 +57,7 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
     return () => {
       // Cleanup
     }
-  }, [initialized, onChange, value])
+  }, [])
 
   return (
     <>
