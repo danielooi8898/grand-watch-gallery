@@ -2,91 +2,71 @@
 import { useEffect, useRef } from 'react'
 
 const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
-  const editorRef = useRef(null)
-  const instanceRef = useRef(null)
+  const containerRef = useRef(null)
+  const quillRef = useRef(null)
 
   useEffect(() => {
-    // Load Jodit from CDN (lightweight, works great, no dependencies)
-    if (!window.Jodit) {
-      const script = document.createElement('script')
-      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jodit/4.1.39/jodit.min.js'
-      script.async = true
+    // Load Quill from CDN
+    const script = document.createElement('script')
+    script.src = 'https://cdn.quilljs.com/1.3.6/quill.js'
+    script.async = true
 
-      const style = document.createElement('link')
-      style.rel = 'stylesheet'
-      style.href = 'https://cdnjs.cloudflare.com/ajax/libs/jodit/4.1.39/jodit.min.css'
+    const style = document.createElement('link')
+    style.rel = 'stylesheet'
+    style.href = 'https://cdn.quilljs.com/1.3.6/quill.snow.css'
+    document.head.appendChild(style)
 
-      document.head.appendChild(style)
+    script.onload = () => {
+      if (containerRef.current && window.Quill) {
+        const Quill = window.Quill
 
-      script.onload = () => {
-        initEditor()
+        const quill = new Quill(containerRef.current, {
+          theme: 'snow',
+          placeholder: placeholder,
+          modules: {
+            toolbar: [
+              ['bold', 'italic', 'underline', 'strike'],
+              [{ 'header': [2, 3, false] }],
+              ['bullet', 'ordered'],
+              [{ 'script': 'sub' }, { 'script': 'super' }],
+              ['clean']
+            ]
+          }
+        })
+
+        // Set initial value
+        if (value) {
+          quill.root.innerHTML = value
+        }
+
+        // Handle changes
+        quill.on('text-change', () => {
+          onChange(quill.root.innerHTML)
+        })
+
+        quillRef.current = quill
       }
-      document.head.appendChild(script)
-    } else {
-      initEditor()
     }
+
+    document.head.appendChild(script)
 
     return () => {
-      if (instanceRef.current) {
-        instanceRef.current.destruct()
+      if (quillRef.current) {
+        quillRef.current = null
       }
     }
-  }, [])
-
-  const initEditor = () => {
-    if (!editorRef.current || !window.Jodit) return
-
-    const config = {
-      readonly: false,
-      toolbar: true,
-      spellcheck: false,
-      language: 'en',
-      toolbarButtonSize: 'small',
-      buttons: 'bold,italic,underline,strikethrough,|,ul,ol,|,heading,|,template,removeFormat',
-      buttonsMD: 'bold,italic,underline,strikethrough,|,ul,ol,|,heading,|,template,removeFormat',
-      buttonsSM: 'bold,italic,underline,strikethrough,|,ul,ol,|,template',
-      buttonsXS: 'bold,italic,underline',
-      height: 300,
-      minHeight: 300,
-      statusbar: false,
-      showCharsCounter: false,
-      showWordsCounter: false,
-      showXPathInStatusbar: false,
-      defaultActionOnPaste: 'insert_as_text',
-      disablePlugins: ['drag-and-drop', 'resizer'],
-      askBeforePasteAsHTML: false,
-      askBeforePasteFromWord: false,
-      controls: {
-        template: {
-          name: 'template',
-          displayName: 'Template',
-          icon: 'file',
-          exec: (editor) => {
-            const template = `<h2>Model</h2><p></p><p><strong>Case Diameter:</strong></p><p></p><p><strong>Bezel:</strong></p><p></p><p><strong>Dial:</strong></p><p></p><p><strong>Case:</strong></p><p></p><p><strong>Calibre:</strong></p><p></p><p><strong>Bracelet/Strap:</strong></p><p></p><p><strong>Clasp/Buckle:</strong></p><p></p><p><strong>Condition:</strong></p><p></p><p><strong>Included:</strong></p><p></p>`
-            editor.value = template
-          }
-        }
-      }
-    }
-
-    try {
-      const editor = new window.Jodit(editorRef.current, config)
-      editor.value = value || ''
-
-      editor.events.on('change', () => {
-        onChange(editor.value)
-      })
-
-      instanceRef.current = editor
-    } catch (err) {
-      console.error('Failed to initialize Jodit:', err)
-    }
-  }
+  }, [onChange, placeholder])
 
   return (
-    <div>
-      <div id="editor" ref={editorRef} style={{ minHeight: '300px' }} />
-    </div>
+    <div
+      ref={containerRef}
+      style={{
+        border: '1px solid #E8E2D8',
+        borderRadius: '3px',
+        background: '#fff',
+        minHeight: '400px'
+      }}
+    />
   )
 }
 
