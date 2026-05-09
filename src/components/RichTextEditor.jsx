@@ -4,6 +4,7 @@ import { useRef, useState, useEffect } from 'react'
 const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
   const editorRef = useRef(null)
   const [isEmpty, setIsEmpty] = useState(!value)
+  const selectionRef = useRef(null)
 
   // Initialize editor content from value prop
   useEffect(() => {
@@ -23,12 +24,39 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
     }
   }
 
+  // Save selection before button click
+  const onEditorMouseDown = () => {
+    const selection = window.getSelection()
+    if (selection.rangeCount > 0) {
+      selectionRef.current = selection.getRangeAt(0)
+    }
+  }
+
+  // Restore selection and apply format
   const applyFormat = (command, val = null) => {
-    document.execCommand(command, false, val)
-    setTimeout(() => {
-      updateContent()
-      editorRef.current?.focus()
-    }, 0)
+    const selection = window.getSelection()
+
+    // Restore saved selection if available
+    if (selectionRef.current) {
+      selection.removeAllRanges()
+      selection.addRange(selectionRef.current)
+    }
+
+    // Ensure editor has focus
+    editorRef.current?.focus()
+
+    // Apply the command
+    try {
+      document.execCommand(command, false, val)
+    } catch (e) {
+      console.error('execCommand failed:', e)
+    }
+
+    // Update content
+    updateContent()
+
+    // Clear saved selection
+    selectionRef.current = null
   }
 
   const insertTemplate = () => {
@@ -50,6 +78,17 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
     color: '#111',
     transition: 'all 0.2s',
     whiteSpace: 'nowrap',
+    userSelect: 'none',
+  }
+
+  const handleButtonMouseDown = (e, command, val) => {
+    e.preventDefault()
+    applyFormat(command, val)
+  }
+
+  const handleTemplateMouseDown = (e) => {
+    e.preventDefault()
+    insertTemplate()
   }
 
   return (
@@ -62,11 +101,12 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
         background: '#F9F8F6',
         borderBottom: '1px solid #E8E2D8',
         flexWrap: 'wrap',
-        alignItems: 'center'
+        alignItems: 'center',
+        userSelect: 'none'
       }}>
         <button
           type="button"
-          onClick={() => applyFormat('bold')}
+          onMouseDown={(e) => handleButtonMouseDown(e, 'bold')}
           title="Bold (Ctrl+B)"
           style={btnStyle}
           onMouseEnter={e => e.target.style.background = '#fafaf9'}
@@ -76,7 +116,7 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
         </button>
         <button
           type="button"
-          onClick={() => applyFormat('italic')}
+          onMouseDown={(e) => handleButtonMouseDown(e, 'italic')}
           title="Italic (Ctrl+I)"
           style={btnStyle}
           onMouseEnter={e => e.target.style.background = '#fafaf9'}
@@ -86,7 +126,7 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
         </button>
         <button
           type="button"
-          onClick={() => applyFormat('formatBlock', 'h2')}
+          onMouseDown={(e) => handleButtonMouseDown(e, 'formatBlock', 'h2')}
           title="Heading"
           style={btnStyle}
           onMouseEnter={e => e.target.style.background = '#fafaf9'}
@@ -96,7 +136,7 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
         </button>
         <button
           type="button"
-          onClick={() => applyFormat('formatBlock', 'pre')}
+          onMouseDown={(e) => handleButtonMouseDown(e, 'formatBlock', 'pre')}
           title="Code Block"
           style={btnStyle}
           onMouseEnter={e => e.target.style.background = '#fafaf9'}
@@ -107,7 +147,7 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
         <div style={{ width: '1px', height: '20px', background: '#E8E2D8' }} />
         <button
           type="button"
-          onClick={() => applyFormat('insertUnorderedList')}
+          onMouseDown={(e) => handleButtonMouseDown(e, 'insertUnorderedList')}
           title="Bullet List"
           style={btnStyle}
           onMouseEnter={e => e.target.style.background = '#fafaf9'}
@@ -117,7 +157,7 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
         </button>
         <button
           type="button"
-          onClick={() => applyFormat('insertOrderedList')}
+          onMouseDown={(e) => handleButtonMouseDown(e, 'insertOrderedList')}
           title="Numbered List"
           style={btnStyle}
           onMouseEnter={e => e.target.style.background = '#fafaf9'}
@@ -128,7 +168,7 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
         <div style={{ width: '1px', height: '20px', background: '#E8E2D8' }} />
         <button
           type="button"
-          onClick={insertTemplate}
+          onMouseDown={handleTemplateMouseDown}
           title="Insert template"
           style={{ ...btnStyle, background: '#B08D57', color: '#fff' }}
           onMouseEnter={e => e.target.style.background = '#9a7647'}
@@ -143,6 +183,7 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
         ref={editorRef}
         contentEditable
         suppressContentEditableWarning
+        onMouseDown={onEditorMouseDown}
         onInput={updateContent}
         onBlur={updateContent}
         style={{
