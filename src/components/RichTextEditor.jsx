@@ -1,31 +1,50 @@
 'use client'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+
+const QUILL_JS  = 'https://cdn.quilljs.com/1.3.6/quill.js'
+const QUILL_CSS = 'https://cdn.quilljs.com/1.3.6/quill.snow.css'
+const LOAD_TIMEOUT_MS = 6000
 
 const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
   const editorRef = useRef(null)
   const quillRef = useRef(null)
   const initializedRef = useRef(false)
+  const modeRef = useRef('loading') // 'loading' | 'ready' | 'failed'
+  const [mode, setMode] = useState('loading')
+
+  const setModeBoth = (m) => { modeRef.current = m; setMode(m) }
 
   useEffect(() => {
     if (initializedRef.current || !editorRef.current) return
     initializedRef.current = true
 
+    const failTimer = setTimeout(() => {
+      if (modeRef.current === 'loading') setModeBoth('failed')
+    }, LOAD_TIMEOUT_MS)
+
     if (window.Quill) {
       initQuill()
     } else {
       const script = document.createElement('script')
-      script.src = 'https://cdn.quilljs.com/1.3.6/quill.js'
+      script.src = QUILL_JS
       script.onload = initQuill
+      script.onerror = () => {
+        if (modeRef.current === 'loading') setModeBoth('failed')
+      }
       document.body.appendChild(script)
 
       const style = document.createElement('link')
       style.rel = 'stylesheet'
-      style.href = 'https://cdn.quilljs.com/1.3.6/quill.snow.css'
+      style.href = QUILL_CSS
       document.head.appendChild(style)
     }
 
     function initQuill() {
       if (quillRef.current || !editorRef.current) return
+      // If we've already fallen back to the plain textarea (e.g. slow load
+      // that resolved after the timeout), don't yank the UI out from under
+      // the admin — the textarea stays the source of truth for this session.
+      if (modeRef.current === 'failed') return
 
       try {
         const quill = new window.Quill(editorRef.current, {
@@ -62,7 +81,6 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
           }
         }, 100)
 
-
         if (value) {
           quill.root.innerHTML = value
         }
@@ -72,13 +90,16 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
         })
 
         quillRef.current = quill
+        clearTimeout(failTimer)
+        setModeBoth('ready')
       } catch (err) {
         console.error('Quill init error:', err)
+        setModeBoth('failed')
       }
     }
 
     return () => {
-      // Cleanup
+      clearTimeout(failTimer)
     }
   }, [])
 
@@ -158,10 +179,44 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Enter text...' }) => {
           border: '1px solid #E8E2D8',
           borderRadius: '3px',
           background: '#fff',
-          overflow: 'hidden'
+          overflow: 'hidden',
+          minHeight: '340px',
+          position: 'relative'
         }}
       >
-        <div ref={editorRef} />
+        <div ref={editorRef} style={{ display: mode === 'failed' ? 'none' : 'block' }} />
+
+        {mode === 'loading' && (
+          <div style={{
+            position: 'absolute', inset: 0, display: 'flex',
+            alignItems: 'center', justifyContent: 'center',
+            color: '#aaa', fontSize: '0.78rem',
+            fontFamily: 'var(--sans, sans-serif)', pointerEvents: 'none'
+          }}>
+            Loading editor…
+          </div>
+        )}
+
+        {mode === 'failed' && (
+          <div>
+            <p style={{
+              fontFamily: 'var(--sans, sans-serif)', fontSize: '0.68rem',
+              color: '#dc2626', padding: '8px 12px 0', margin: 0
+            }}>
+              Rich text editor couldn&apos;t load (network issue) — using plain text mode. Your text is still saved normally.
+            </p>
+            <textarea
+              value={value || ''}
+              onChange={(e) => onChange(e.target.value)}
+              placeholder={placeholder}
+              style={{
+                width: '100%', minHeight: '290px', border: 'none', outline: 'none',
+                padding: '12px', fontSize: '14px', fontFamily: 'var(--sans, sans-serif)',
+                color: '#111', resize: 'vertical', boxSizing: 'border-box'
+              }}
+            />
+          </div>
+        )}
       </div>
     </>
   )
