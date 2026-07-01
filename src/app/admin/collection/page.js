@@ -17,7 +17,7 @@ export default function AdminCollection() {
 
   const load = useCallback(async () => {
     setLoading(true)
-    const { data } = await supabase.from('watches').select('*').order('created_at', { ascending: false })
+    const { data } = await supabase.from('watches').select('*').order('updated_at', { ascending: false })
     setWatches(data || [])
     setLoading(false)
   }, [])

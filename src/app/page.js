@@ -170,7 +170,7 @@ export default function HomePage() {
     supabase.from('watches').select('*')
       .eq('is_sold', false)
       .order('is_featured', { ascending: false })
-      .order('created_at', { ascending: false })
+      .order('updated_at', { ascending: false })
       .limit(4)
       .then(({ data }) => { if (data && data.length > 0) setWatches(data) })
   }, [])
