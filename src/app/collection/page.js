@@ -34,7 +34,7 @@ export default function CollectionPage() {
     setLoading(true)
     const { data, error } = await supabase
       .from('watches').select('*').eq('is_sold', false)
-      .order('created_at', { ascending: false })
+      .order('updated_at', { ascending: false })
     if (!error) setWatches(data || [])
     setLoading(false)
   }, [])
