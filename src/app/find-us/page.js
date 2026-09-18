@@ -8,9 +8,9 @@ const D = {
   phone:             '+6016-224 1804',
   phone2:            '+6016-966 6822',
   whatsapp:          '60102345100',
-  address:           'Lot G31, Ground Floor\nAtria Shopping Gallery\nJalan SS 22/23, Damansara Jaya\n47400 Petaling Jaya, Selangor',
+  address:           'GF Lot73, Zone 3, Empire City\nJalan Damansara, PJU 8\n47820, Petaling Jaya, Selangor',
   hours:             'Mon \u2013 Sat: 10:00am \u2013 7:00pm\nSunday: By appointment only',
-  map_embed:         'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3984.254497!2d101.6139191!3d3.1270963!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cc494ca537b9f1%3A0x887c4a6a2ca357ac!2sAtria%20Shopping%20Gallery!5e0!3m2!1sen!2smy!4v1711700000000!5m2!1sen!2smy',
+  map_embed:         'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1991.8605395523741!2d101.61430515676234!3d3.1679847491985162!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cc4f001455165b%3A0x274122fa6a84be99!2sHextar%20World%20at%20Empire%20City!5e0!3m2!1sen!2smy!4v1789721683897!5m2!1sen!2smy',
   gallery_image_url: '',
 }
 
@@ -30,6 +30,7 @@ export default function FindUsPage() {
 
   const addressLines = (info.address || '').split('\n').filter(Boolean)
   const hourLines    = (info.hours   || '').split('\n').filter(Boolean)
+  const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(addressLines.join(', '))}`
 
   return (
     <>
@@ -57,7 +58,7 @@ export default function FindUsPage() {
                 </Link>
               </div>
               <div style={{ display:'flex', gap:'0.75rem' }}>
-                <a href="https://www.google.com/maps/dir/?api=1&destination=Atria+Shopping+Gallery+Petaling+Jaya"
+                <a href={directionsUrl}
                   target="_blank" rel="noopener noreferrer"
                   style={{ width:'48px', height:'48px', border:'1px solid rgba(255,255,255,0.2)', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', textDecoration:'none', transition:'all 0.2s' }}
                   onMouseEnter={e => { e.currentTarget.style.borderColor='#B08D57'; e.currentTarget.style.color='#B08D57' }}
@@ -111,7 +112,7 @@ export default function FindUsPage() {
           allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade"
           title="Grand Watch Gallery Location"
         />
-        <a href="https://www.google.com/maps/dir/?api=1&destination=Atria+Shopping+Gallery+Petaling+Jaya"
+        <a href={directionsUrl}
           target="_blank" rel="noopener noreferrer"
           style={{ position:'absolute', bottom:'2rem', right:'2rem', background:'#0A0A0A', border:'1px solid #B08D57', color:'#B08D57', padding:'0.75rem 1.5rem', fontFamily:'var(--sans)', fontSize:'0.68rem', letterSpacing:'0.2em', textTransform:'uppercase', textDecoration:'none', display:'flex', alignItems:'center', gap:'0.5rem', fontWeight:600 }}>
           Get Directions <ArrowUpRight size={13} />
