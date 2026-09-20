@@ -1,5 +1,14 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { ArrowRight } from 'lucide-react'
+
+const STORE_PHOTOS = [
+  { src: '/store/gwg_mainentrance.png', alt: 'Grand Watch Gallery new store entrance' },
+  { src: '/store/gwg_interior.png',     alt: 'Grand Watch Gallery new store interior' },
+  { src: '/store/gwg_interior2.png',    alt: 'Grand Watch Gallery new store interior' },
+  { src: '/store/gwg_interior3.png',    alt: 'Grand Watch Gallery new store interior' },
+  { src: '/store/gwg_interior4.png',    alt: 'Grand Watch Gallery new store interior' },
+]
 
 export default function AboutPage() {
   return (
@@ -64,6 +73,37 @@ export default function AboutPage() {
             <p style={{ fontFamily: 'var(--serif)', fontSize: '1.1rem', color: '#B08D57', lineHeight: 1.8, fontStyle: 'italic', marginBottom: '4rem' }}>
               "Thank you to every customer, partner, and friend who has been part of our journey."
             </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── New Store Gallery ── */}
+      <section style={{ padding: '6rem 0', borderTop: '1px solid #1A1A1A' }}>
+        <div className="container">
+          <p className="eyebrow mb-4">New Location</p>
+          <h2 style={{ fontFamily: 'var(--sans)', fontWeight: 900, fontSize: 'clamp(2rem,4vw,3rem)', textTransform: 'uppercase', color: '#fff', lineHeight: 1.05, marginBottom: '1rem' }}>
+            Our New Store
+          </h2>
+          <p style={{ fontFamily: 'var(--sans)', fontSize: '1rem', color: 'rgba(255,255,255,0.75)', lineHeight: 1.8, fontWeight: 300, maxWidth: '640px', marginBottom: '3rem' }}>
+            Starting October 2026, we&apos;re relocating to Hextar World At Empire City, Jalan Damansara, PJU 8, Petaling Jaya — a new gallery space built for the same private, one-on-one experience.
+          </p>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
+            {STORE_PHOTOS.map((img, i) => (
+              <div
+                key={img.src}
+                style={{
+                  position: 'relative', aspectRatio: '4 / 3', overflow: 'hidden',
+                  gridColumn: i === 0 ? 'span 2' : undefined
+                }}
+              >
+                <Image
+                  src={img.src} alt={img.alt} fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  style={{ objectFit: 'cover' }}
+                />
+              </div>
+            ))}
           </div>
         </div>
       </section>

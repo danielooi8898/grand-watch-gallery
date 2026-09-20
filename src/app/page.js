@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { ArrowRight, ArrowDown } from 'lucide-react'
 import AnimateIn from '@/components/AnimateIn'
+import StoreMovePopup from '@/components/StoreMovePopup'
 import { useCounter } from '@/hooks/useCounter'
 import { useStickyProgress } from '@/hooks/useStickyProgress'
 import { supabase } from '@/lib/supabase'
@@ -190,6 +191,8 @@ export default function HomePage() {
 
   return (
     <>
+      <StoreMovePopup />
+
       {/* 0. VIDEO BANNER */}
       <section style={{ position:'relative', width:'100%', height:'85vh', overflow:'hidden', background:'#0A0A0A' }}>
         <video
