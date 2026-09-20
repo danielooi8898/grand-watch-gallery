@@ -88,19 +88,15 @@ export default function AboutPage() {
             Starting October 2026, we&apos;re relocating to Hextar World At Empire City, Jalan Damansara, PJU 8, Petaling Jaya — a new gallery space built for the same private, one-on-one experience.
           </p>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
-            {STORE_PHOTOS.map((img, i) => (
-              <div
-                key={img.src}
-                style={{
-                  position: 'relative', aspectRatio: '4 / 3', overflow: 'hidden',
-                  gridColumn: i === 0 ? 'span 2' : undefined
-                }}
-              >
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '900px', margin: '0 auto' }}>
+            {STORE_PHOTOS.map(img => (
+              <div key={img.src} style={{ width: '100%' }}>
                 <Image
-                  src={img.src} alt={img.alt} fill
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                  style={{ objectFit: 'cover' }}
+                  src={img.src} alt={img.alt}
+                  width={1190} height={671}
+                  quality={95}
+                  sizes="(max-width: 900px) 100vw, 900px"
+                  style={{ width: '100%', height: 'auto', display: 'block' }}
                 />
               </div>
             ))}

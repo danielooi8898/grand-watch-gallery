@@ -73,7 +73,8 @@ export default function StoreMovePopup() {
               alt="Grand Watch Gallery new store"
               fill
               priority={i === 0}
-              sizes="(max-width: 768px) 100vw, 450px"
+              quality={95}
+              sizes="(max-width: 720px) 100vw, 470px"
               style={{
                 objectFit: 'cover',
                 opacity: i === index ? 1 : 0,
