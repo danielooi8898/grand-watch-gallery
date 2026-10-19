@@ -7,7 +7,7 @@ const COMPANY_INFO = {
   phone2: '+60102345100',
   whatsapp: '6016-224 1804',
   email: 'info@grandwatchgallery.com',
-  address: 'Lot G31, Ground Floor\nAtria Shopping Gallery\nJalan SS 22/23\nDamansara Jaya, Petaling Jaya\n47400 Petaling Jaya, Selangor',
+  address: 'GF Lot73, Zone 3, Empire City\nJalan Damansara, PJU 8\n47820, Petaling Jaya, Selangor',
   hours: 'Mon: 11:00am – 6:00pm\nTues: 11:00am – 6:00pm\nWed: 11:00am – 6:00pm\nThurs: 11:00am – 6:00pm\nFri: 11:00am – 6:00pm\nSat: 11:00am – 6:00pm\nSunday: Closed',
   brands: [
     'Rolex',
@@ -217,7 +217,7 @@ Experience our carefully curated collection of luxury watches in a personalized,
 
 Booking Details:
 Duration: 30-60 minutes
-Location: Lot G31, Ground Floor, Atria Shopping Gallery
+Location: GF Lot73, Zone 3, Empire City, Jalan Damansara, PJU 8, Petaling Jaya
 Cost: Complimentary, no pressure
 
 To Schedule Your Appointment:

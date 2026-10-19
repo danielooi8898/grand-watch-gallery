@@ -8,7 +8,7 @@ const D_CONTACT = {
   phone2:   '+6016-966 6822',
   whatsapp: '60102345100',
   email:    'info@grandwatchgallery.com',
-  address:  'Lot G31, Ground Floor\nAtria Shopping Gallery\nJalan SS 22/23, Damansara Jaya\n47400 Petaling Jaya, Selangor',
+  address:  'GF Lot73, Zone 3, Empire City\nJalan Damansara, PJU 8\n47820, Petaling Jaya, Selangor',
   hours:    'Mon \u2013 Sat: 10:00am \u2013 7:00pm\nSunday: By appointment only',
 }
 
@@ -23,17 +23,24 @@ export default function ContactPage() {
   const [form, setForm]   = useState({ name:'', email:'', phone:'', subject:'', message:'' })
   const [sent, setSent]   = useState(false)
   const [loading, setLoading] = useState(false)
+  // Hold back the contact details until saved settings have loaded, so the
+  // hardcoded defaults never flash on screen before the real values arrive.
+  const [ready, setReady] = useState(false)
 
   useEffect(() => {
     supabase.from('site_settings').select('key,value')
       .in('key', ['phone','phone2','whatsapp','email','address','hours'])
       .then(({ data }) => {
-        if (!data) return
-        const loaded = { ...D_CONTACT }
-        data.forEach(r => { if (r.value != null) loaded[r.key] = typeof r.value === 'string' ? r.value : String(r.value) })
-        setInfo(loaded)
-      })
+        if (data) {
+          const loaded = { ...D_CONTACT }
+          data.forEach(r => { if (r.value != null) loaded[r.key] = typeof r.value === 'string' ? r.value : String(r.value) })
+          setInfo(loaded)
+        }
+        setReady(true)
+      }, () => setReady(true))
   }, [])
+
+  const fade = { opacity: ready ? 1 : 0, transition: 'opacity 0.25s ease' }
 
   const set = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }))
 
@@ -81,21 +88,21 @@ export default function ContactPage() {
             {/* Left – Info */}
             <div style={{ display:'flex', flexDirection:'column', gap:'2.5rem' }}>
 
-              <div style={{ paddingBottom:'2.5rem', borderBottom:'1px solid #1a1a1a' }}>
+              <div style={{ paddingBottom:'2.5rem', borderBottom:'1px solid #1a1a1a', ...fade }}>
                 <p style={labelStyle}>Location</p>
                 {addressLines.map((l,i) => (
                   <p key={i} style={{ fontFamily:'var(--sans)', fontSize:'0.95rem', color:'#fff', lineHeight:2, fontWeight:300 }}>{l}</p>
                 ))}
               </div>
 
-              <div style={{ paddingBottom:'2.5rem', borderBottom:'1px solid #1a1a1a' }}>
+              <div style={{ paddingBottom:'2.5rem', borderBottom:'1px solid #1a1a1a', ...fade }}>
                 <p style={labelStyle}>Opening Hours</p>
                 {hourLines.map((l,i) => (
                   <p key={i} style={{ fontFamily:'var(--sans)', fontSize:'0.95rem', color:'#fff', lineHeight:2, fontWeight:300 }}>{l}</p>
                 ))}
               </div>
 
-              <div style={{ paddingBottom:'2.5rem', borderBottom:'1px solid #1a1a1a' }}>
+              <div style={{ paddingBottom:'2.5rem', borderBottom:'1px solid #1a1a1a', ...fade }}>
                 <p style={labelStyle}>Phone &amp; WhatsApp</p>
                 <p style={{ fontFamily:'var(--sans)', fontSize:'0.95rem', color:'#fff', lineHeight:2, fontWeight:300 }}>{info.phone}</p>
                 <p style={{ fontFamily:'var(--sans)', fontSize:'0.95rem', color:'#fff', lineHeight:2, fontWeight:300 }}>{info.phone2}</p>

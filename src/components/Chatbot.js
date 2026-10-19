@@ -51,7 +51,7 @@ const MENU_STRUCTURE = {
 
 const ANSWERS = {
   'about': `Grand Watch Gallery is Malaysia's most trusted and well-known luxury watch reseller. We offer Brand New and authenticated pre-owned watches from premium brands including Rolex, Patek Philippe, Audemars Piguet, Omega, Tudor, Cartier, and Richard Mille.`,
-  'location': `📍 Visit Us:\n\nLot G19, Ground Floor\nAtria Shopping Gallery\nJalan SS 22/23\nDamansara Jaya, Petaling Jaya`,
+  'location': `📍 Visit Us:\n\nGF Lot73, Zone 3, Empire City\nJalan Damansara, PJU 8\n47820, Petaling Jaya, Selangor`,
   'hours': `⏰ For current operating hours, please call us at +603 89966788`,
   'book-now': `To schedule a viewing:\n\n📞 Phone: +603 89966788\n📧 Email: info@grandwatchgallery.my`,
   'book-faq': `• Do I need an appointment? Yes\n• How long? 30-60 minutes\n• Can I see specific watches? Yes\n• Is there a cost? No, it's free`,
