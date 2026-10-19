@@ -16,17 +16,24 @@ const D = {
 
 export default function FindUsPage() {
   const [info, setInfo] = useState(D)
+  // Hold back the location details until saved settings have loaded, so the
+  // hardcoded defaults never flash on screen before the real values arrive.
+  const [ready, setReady] = useState(false)
 
   useEffect(() => {
     supabase.from('site_settings').select('key,value')
       .in('key', ['phone','phone2','whatsapp','address','hours','map_embed','gallery_image_url'])
       .then(({ data }) => {
-        if (!data) return
-        const loaded = { ...D }
-        data.forEach(r => { if (r.value != null) loaded[r.key] = typeof r.value === 'string' ? r.value : String(r.value) })
-        setInfo(loaded)
-      })
+        if (data) {
+          const loaded = { ...D }
+          data.forEach(r => { if (r.value != null) loaded[r.key] = typeof r.value === 'string' ? r.value : String(r.value) })
+          setInfo(loaded)
+        }
+        setReady(true)
+      }, () => setReady(true))
   }, [])
+
+  const fade = { opacity: ready ? 1 : 0, transition: 'opacity 0.25s ease' }
 
   const addressLines = (info.address || '').split('\n').filter(Boolean)
   const hourLines    = (info.hours   || '').split('\n').filter(Boolean)
@@ -46,7 +53,7 @@ export default function FindUsPage() {
                 Grand Watch Gallery
               </h1>
 
-              <div style={{ marginBottom:'3rem' }}>
+              <div style={{ marginBottom:'3rem', ...fade }}>
                 {addressLines.map((l,i) => (
                   <p key={i} style={{ fontFamily:'var(--sans)', fontSize:'1.05rem', color:'#fff', lineHeight:2.2, fontWeight:300 }}>{l}</p>
                 ))}
@@ -80,7 +87,7 @@ export default function FindUsPage() {
                 <Clock size={14} style={{ color:'#B08D57' }} />
                 <p style={{ fontFamily:'var(--sans)', fontSize:'0.72rem', letterSpacing:'0.35em', textTransform:'uppercase', color:'#B08D57' }}>Opening Hours</p>
               </div>
-              <div>
+              <div style={fade}>
                 {hourLines.map((line, i) => {
                   const [day, ...rest] = line.split(':')
                   const time = rest.join(':').trim()
@@ -92,7 +99,7 @@ export default function FindUsPage() {
                   )
                 })}
               </div>
-              <div style={{ marginTop:'2.5rem', paddingTop:'2rem', borderTop:'1px solid #1A1A1A' }}>
+              <div style={{ marginTop:'2.5rem', paddingTop:'2rem', borderTop:'1px solid #1A1A1A', ...fade }}>
                 <p style={{ fontFamily:'var(--sans)', fontSize:'0.68rem', letterSpacing:'0.3em', textTransform:'uppercase', color:'#B08D57', marginBottom:'0.75rem' }}>Phone &amp; WhatsApp</p>
                 <p style={{ fontFamily:'var(--sans)', fontSize:'1rem', color:'#fff', fontWeight:300, lineHeight:2 }}>{info.phone}</p>
                 <p style={{ fontFamily:'var(--sans)', fontSize:'1rem', color:'#fff', fontWeight:300, lineHeight:2 }}>{info.phone2}</p>
@@ -106,7 +113,7 @@ export default function FindUsPage() {
       {/* Google Map */}
       <section style={{ width:'100%', height:'480px', position:'relative' }}>
         <iframe
-          src={info.map_embed}
+          src={ready ? info.map_embed : undefined}
           width="100%" height="100%"
           style={{ border:0, filter:'invert(90%) hue-rotate(180deg) brightness(0.85) contrast(1.1)', display:'block' }}
           allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade"
@@ -135,7 +142,7 @@ export default function FindUsPage() {
                 Book a Private Viewing <ArrowUpRight size={13} />
               </Link>
             </div>
-            <div style={{ background:'#111', aspectRatio:'4/3', overflow:'hidden', display:'flex', alignItems:'center', justifyContent:'center' }}>
+            <div style={{ background:'#111', aspectRatio:'4/3', overflow:'hidden', display:'flex', alignItems:'center', justifyContent:'center', ...fade }}>
               {info.gallery_image_url ? (
                 <img
                   src={info.gallery_image_url}
