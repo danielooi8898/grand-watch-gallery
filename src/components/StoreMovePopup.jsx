@@ -114,10 +114,10 @@ export default function StoreMovePopup() {
             Exciting News
           </p>
           <h2 style={{ fontFamily: 'var(--sans)', fontWeight: 900, fontSize: 'clamp(1.5rem,3vw,2rem)', textTransform: 'uppercase', color: '#fff', lineHeight: 1.1, marginBottom: '1.25rem' }}>
-            We&apos;re Moving This October
+            We&apos;ve Moved!
           </h2>
           <p style={{ fontFamily: 'var(--sans)', fontSize: '0.92rem', color: 'rgba(255,255,255,0.75)', lineHeight: 1.8, fontWeight: 300, marginBottom: '1.5rem' }}>
-            Grand Watch Gallery is relocating to a beautiful new gallery space. Same passion for fine watches, new address starting October 2026.
+            Grand Watch Gallery has moved to a beautiful new gallery space. Same passion for fine watches, now at a new address. Come visit us!
           </p>
 
           <div style={{ borderLeft: '2px solid #B08D57', paddingLeft: '1rem', marginBottom: '2rem' }}>

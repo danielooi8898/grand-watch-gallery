@@ -85,7 +85,7 @@ export default function AboutPage() {
             Our New Store
           </h2>
           <p style={{ fontFamily: 'var(--sans)', fontSize: '1rem', color: 'rgba(255,255,255,0.75)', lineHeight: 1.8, fontWeight: 300, maxWidth: '640px', marginBottom: '3rem' }}>
-            Starting October 2026, we&apos;re relocating to Hextar World At Empire City, Jalan Damansara, PJU 8, Petaling Jaya — a new gallery space built for the same private, one-on-one experience.
+            We&apos;ve moved to Hextar World At Empire City, Jalan Damansara, PJU 8, Petaling Jaya — a new gallery space built for the same private, one-on-one experience.
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '900px', margin: '0 auto' }}>
