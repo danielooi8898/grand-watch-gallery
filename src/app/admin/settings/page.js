@@ -18,7 +18,7 @@ const DEF = {
   whatsapp:          '60102345100',
   email:             'info@grandwatchgallery.com',
   address:           'Lot G31, Ground Floor\nAtria Shopping Gallery\nJalan SS 22/23, Damansara Jaya\n47400 Petaling Jaya, Selangor',
-  hours:             'Mon \u2013 Sat: 10:00am \u2013 7:00pm\nSunday: By appointment only',
+  hours:             'Mon \u2013 Sun: 10:00am \u2013 7:00pm',
   about_headline:    'A Curated Gallery of Authenticated Luxury Timepieces',
   about_body:        'Grand Watch Gallery was founded in 2020 with a singular mission \u2014 to bring transparency, trust, and expertise to the pre-owned luxury watch market in Malaysia.',
   map_embed:         'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3984.254497!2d101.6139191!3d3.1270963!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cc494ca537b9f1%3A0x887c4a6a2ca357ac!2sAtria%20Shopping%20Gallery!5e0!3m2!1sen!2smy!4v1711700000000!5m2!1sen!2smy',

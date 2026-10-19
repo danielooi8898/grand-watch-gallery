@@ -9,7 +9,7 @@ const D = {
   phone2:            '+6016-966 6822',
   whatsapp:          '60102345100',
   address:           'GF Lot73, Zone 3, Empire City\nJalan Damansara, PJU 8\n47820, Petaling Jaya, Selangor',
-  hours:             'Mon \u2013 Sat: 10:00am \u2013 7:00pm\nSunday: By appointment only',
+  hours:             'Mon \u2013 Sun: 10:00am \u2013 7:00pm',
   map_embed:         'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1991.8605395523741!2d101.61430515676234!3d3.1679847491985162!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cc4f001455165b%3A0x274122fa6a84be99!2sHextar%20World%20at%20Empire%20City!5e0!3m2!1sen!2smy!4v1789721683897!5m2!1sen!2smy',
   gallery_image_url: '',
 }

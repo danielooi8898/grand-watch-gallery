@@ -8,7 +8,7 @@ const COMPANY_INFO = {
   whatsapp: '6016-224 1804',
   email: 'info@grandwatchgallery.com',
   address: 'GF Lot73, Zone 3, Empire City\nJalan Damansara, PJU 8\n47820, Petaling Jaya, Selangor',
-  hours: 'Mon: 11:00am – 6:00pm\nTues: 11:00am – 6:00pm\nWed: 11:00am – 6:00pm\nThurs: 11:00am – 6:00pm\nFri: 11:00am – 6:00pm\nSat: 11:00am – 6:00pm\nSunday: Closed',
+  hours: 'Mon \u2013 Sun: 10:00am \u2013 7:00pm',
   brands: [
     'Rolex',
     'Patek Philippe',

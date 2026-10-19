@@ -9,7 +9,7 @@ const D_CONTACT = {
   whatsapp: '60102345100',
   email:    'info@grandwatchgallery.com',
   address:  'GF Lot73, Zone 3, Empire City\nJalan Damansara, PJU 8\n47820, Petaling Jaya, Selangor',
-  hours:    'Mon \u2013 Sat: 10:00am \u2013 7:00pm\nSunday: By appointment only',
+  hours:    'Mon \u2013 Sun: 10:00am \u2013 7:00pm',
 }
 
 const labelStyle = {
