@@ -16,10 +16,10 @@ export const metadata = {
   description: "Malaysia's Most Trusted and Well-known luxury watch reseller. Brand New and authenticated pre-owned watches now available at GWG.",
   icons: {
     icon: [
-      { url: '/favicon.ico' },
-      { url: '/favicon.png', type: 'image/png' }
+      { url: '/favicon.ico?v=2' },
+      { url: '/favicon.png?v=2', type: 'image/png' }
     ],
-    apple: '/favicon.png',
+    apple: '/favicon.png?v=2',
   },
 }
 
@@ -27,9 +27,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={barlow.variable} data-scroll-behavior="smooth">
       <head>
-        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-        <link rel="icon" type="image/png" href="/favicon.png" />
-        <link rel="apple-touch-icon" href="/favicon.png" />
+        <link rel="icon" type="image/x-icon" href="/favicon.ico?v=2" />
+        <link rel="icon" type="image/png" href="/favicon.png?v=2" />
+        <link rel="apple-touch-icon" href="/favicon.png?v=2" />
         <Script async src="https://www.googletagmanager.com/gtag/js?id=G-KTDXWQRC9C" strategy="afterInteractive" />
         <Script id="google-analytics" strategy="afterInteractive">{`
           window.dataLayer = window.dataLayer || [];
